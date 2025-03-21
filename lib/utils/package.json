@@ -1,0 +1,19 @@
+{
+  "name": "@revenge-mod/utils",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./errors": {
+      "default": "./src/errors.ts"
+    },
+    "./functions": {
+      "default": "./src/functions.ts"
+    },
+    "./logger": {
+      "default": "./src/logger.ts"
+    },
+    "./types": {
+      "types": "./src/types.d.ts"
+    }
+  }
+}

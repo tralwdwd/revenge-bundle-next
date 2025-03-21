@@ -1,0 +1,1 @@
+import '@revenge-mod/init'

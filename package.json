@@ -1,0 +1,26 @@
+{
+  "name": "@revenge-mod/revenge",
+  "private": true,
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "bun --bun run scripts/build.ts",
+    "dev": "bun --bun run scripts/dev.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@parcel/watcher": "^2.5.1",
+    "@swc/core": "^1.11.9",
+    "@types/bun": "latest",
+    "@unbound-mod/hermesc": "^1.0.3",
+    "buffer": "^6.0.3",
+    "chalk": "^5.4.1",
+    "react-native": "^0.77.1",
+    "rolldown": "^1.0.0-beta.4-commit.beda261"
+  },
+  "peerDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "workspaces": ["lib/*", "plugins/*"],
+  "trustedDependencies": ["@biomejs/biome", "@parcel/watcher", "@swc/core"]
+}
