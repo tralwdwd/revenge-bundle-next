@@ -20,12 +20,16 @@ function debounce<F extends (...args: any[]) => any>(func: F, timeout: number) {
 }
 
 const buildDevWithDebounceAndCatchErrors = debounce(async () => {
+    needRebuild = false
+
     try {
         return await build(true)
     } catch (e) {
         console.error(e)
     }
 }, 250)
+
+let needRebuild = true
 
 watcher.subscribe(process.cwd(), async (err, events) => {
     if (err) return console.error(err)
@@ -35,11 +39,12 @@ watcher.subscribe(process.cwd(), async (err, events) => {
         process.exit()
     }
 
-    if (events.some(it => Sources.some(src => it.path.startsWith(src)))) await buildDevWithDebounceAndCatchErrors()
+    needRebuild ||= events.some(it => Sources.some(src => it.path.startsWith(src)))
 })
 
 const server = Bun.serve({
-    fetch(req, srv) {
+    async fetch(req, srv) {
+        if (needRebuild) await buildDevWithDebounceAndCatchErrors()
         console.debug(chalk.gray(`\u{1F79B} Receiving request from ${srv.requestIP(req)!.address}`))
         return new Response(Bun.file('./dist/revenge.bundle'))
     },
@@ -47,5 +52,3 @@ const server = Bun.serve({
 })
 
 console.info(chalk.cyanBright(`\u24D8 Serving on port ${server.port}`))
-
-await buildDevWithDebounceAndCatchErrors()
