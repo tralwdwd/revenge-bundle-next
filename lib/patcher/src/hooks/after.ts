@@ -4,7 +4,7 @@ import {
     unproxy,
     type HookNode,
     type PatchedFunctionProxyState,
-} from '../internal'
+} from '../_internal'
 
 function unpatchAfter<T extends UnknownFunction>(
     state: PatchedFunctionProxyState<PropertyKey, T>,
