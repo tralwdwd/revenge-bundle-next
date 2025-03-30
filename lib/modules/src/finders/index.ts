@@ -1,0 +1,10 @@
+import { _bl, _blacklist, _mInited, _isExportsBad, _mMetadatas, _mUninited, _mPaths } from '../metro/_internal'
+
+export * from './lookup'
+export * from './wait'
+export * from './find'
+
+/**
+ * Maybe the default export matched instead of the namespace, because you're using `options.esmReturnNamespace`.
+ */
+export type MaybeDefaultExportMatched<T> = T | { default: T }

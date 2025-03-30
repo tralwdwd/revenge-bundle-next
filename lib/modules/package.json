@@ -1,0 +1,25 @@
+{
+  "name": "@revenge-mod/modules",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./finders": {
+      "default": "./src/finders/index.ts"
+    },
+    "./finders/filters": {
+      "default": "./src/finders/filters.ts"
+    },
+    "./metro": {
+      "default": "./src/metro.ts"
+    },
+    "./metro/subscriptions": {
+      "default": "./src/metro/subscriptions/index.ts"
+    },
+    "./native": {
+      "default": "./src/native.ts"
+    },
+    "./_/metro": {
+      "default": "./src/metro/_internal.ts"
+    }
+  }
+}

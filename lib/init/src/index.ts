@@ -1,75 +1,30 @@
+import './preinit'
+
 import './patches/prevent-immutablize'
 import './patches/proxy'
 
 import { getErrorStack } from '@revenge-mod/utils/errors'
+import { onModuleInitialized } from '@revenge-mod/modules/metro/subscriptions'
 
 import { logger } from './shared'
 
-import type { Metro } from '@revenge-mod/modules'
-
-let metroRequire: Metro.RequireFn | undefined = globalThis.__r
-let metroDefine: Metro.DefineFn | undefined = globalThis.__d
-
-Object.defineProperties(globalThis, {
-    __r: {
-        configurable: true,
-        get: () => metroRequire,
-        set: originalMetroRequire => {
-            metroRequire = id =>
-                id
-                    ? // Early modules (React, React Native, polyfills, etc.) are required even before index (module 0) is required
-                      originalMetroRequire(id)
-                    : // Once module 0 is required, we initialize our patches
-                      // We also revert __r to its original value, for performance reasons
-                      // biome-ignore lint/performance/noDelete: This is faster than using Object.defineProperty
-                      (delete globalThis.__r, (globalThis.__r = originalMetroRequire), onceIndexModuleRequired())
-        },
-    },
-    __d: {
-        configurable: true,
-        // __d() is used to define a module
-        // Before the first module is being defined, we clear the modules list (so we can get the module list instance)
-        // We also revert __d to its original value, for performance reasons
-        get: () => {
-            // biome-ignore lint/performance/noDelete: This is faster than using Object.defineProperty
-            delete globalThis.__d
-            globalThis.__d = metroDefine
-
-            modules = __c!()
-            return metroDefine
-        },
-        set: v => {
-            metroDefine = v
-        },
-    },
-})
-
-export let modules: Metro.ModuleList
-
-function onceIndexModuleRequired() {
+onModuleInitialized(0, async function onceIndexModuleRequired() {
     if (!__BUILD_FLAG_INIT_DISABLE_PATCH_LOG_PROMISE_REJECTIONS__) require('./patches/log-promise-rejections')
 
-    initialize().catch(e => {
-        const { ClientInfoModule, DeviceModule } = require('@revenge-mod/modules/native')
+    try {
+        logger.log('Revenge loaded!')
+    } catch (e) {
+        const { ClientInfoModule, DeviceModule } = require('@revenge-mod/modules/native') satisfies
+            // biome-ignore format: Don't format this please
+            typeof import('@revenge-mod/modules/native')
 
+        // TODO(init): Move to use native module
         alert(
-            [
-                'Failed to load Revenge!',
-                '',
-                `Discord: ${ClientInfoModule.Version} (${ClientInfoModule.Build})`,
-                `Device: ${DeviceModule.deviceManufacturer} ${DeviceModule.deviceModel}`,
-                '',
+            // biome-ignore lint/style/useTemplate: I want this to be readable, thank you
+            'Failed to load Revenge!\n' +
+                `Discord: ${ClientInfoModule.Version} (${ClientInfoModule.Build})\n` +
+                `Device: ${DeviceModule.deviceManufacturer} ${DeviceModule.deviceModel}\n\n` +
                 getErrorStack(e),
-            ].join('\n'),
         )
-    })
-}
-
-/*
-    ! This function is blocking app startup !
-    We need to make sure it's as fast as possible
-*/
-async function initialize() {
-    logger.log('Revenge loaded!')
-    __r(0)
-}
+    }
+})

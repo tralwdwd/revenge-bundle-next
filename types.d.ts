@@ -1,5 +1,6 @@
 // All of these typings are exported, be careful what you export here!
 
+import type { Metro } from '@revenge-mod/modules'
 import type { ErrorUtils as RNErrorUtils } from 'react-native'
 
 /// HERMES
@@ -63,9 +64,9 @@ declare global {
 
 declare global {
     var nativeModuleProxy: Record<string, unknown>
-    var __r: Metro.RequireFn
-    var __c: Metro.ClearFn
-    var __d: Metro.DefineFn
+    var __r: Metro.RequireFn | undefined
+    var __c: Metro.ClearFn | undefined
+    var __d: Metro.DefineFn | undefined
 }
 
 /// REACT NATIVE
@@ -84,11 +85,11 @@ declare global {
     const ErrorUtils: RNErrorUtils
 }
 
-export namespace ReactNativeInternals {
+export namespace ReactNative {
     namespace AssetsRegistry {
-        // export type AssetDestPathResolver = 'android' | 'generic'
+        export type AssetDestPathResolver = 'android' | 'generic'
 
-        export type PackagerAsset = {
+        export interface PackagerAsset {
             __packager_asset: boolean
             fileSystemLocation?: string
             httpServerLocation?: string
@@ -98,7 +99,7 @@ export namespace ReactNativeInternals {
             hash: string
             name: string
             type: string
-            // resolver?: AssetDestPathResolver
+            resolver?: AssetDestPathResolver
         }
 
         export function registerAsset(asset: PackagerAsset): number
