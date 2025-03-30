@@ -4,7 +4,7 @@
  */
 
 export const _instances = new WeakSet<object>()
-// export const _targets = new WeakMap<object, object>()
+export const _targets = new WeakMap<object, object>()
 
 const OriginalProxy = globalThis.Proxy
 globalThis.Proxy = new Proxy(OriginalProxy, {
@@ -12,7 +12,7 @@ globalThis.Proxy = new Proxy(OriginalProxy, {
         // @ts-expect-error
         const prox = new OriginalProxy(...args)
         _instances.add(prox)
-        // _targets.set(prox, args[0])
+        _targets.set(prox, args[0])
         return prox
     },
 })
