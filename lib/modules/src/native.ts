@@ -1,6 +1,3 @@
-// nativeModuleProxy is not initialized until React Native is loaded
-import '@revenge-mod/utils/index-required-file'
-
 import type { DiscordNativeModules } from '../types/discord.native'
 
 /**
