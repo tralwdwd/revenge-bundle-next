@@ -24,13 +24,6 @@
     "react-native": "0.76.6",
     "typescript": "^5.7.3"
   },
-  "workspaces": [
-    "lib/*",
-    "plugins/*"
-  ],
-  "trustedDependencies": [
-    "@biomejs/biome",
-    "@parcel/watcher",
-    "@swc/core"
-  ]
+  "workspaces": ["lib/*", "plugins/*"],
+  "trustedDependencies": ["@biomejs/biome", "@parcel/watcher", "@swc/core"]
 }

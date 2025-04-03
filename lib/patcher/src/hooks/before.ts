@@ -1,9 +1,9 @@
 import {
+    type HookNode,
+    type PatchedFunctionProxyState,
     createPatchedFunctionProxy,
     patchedFunctionProxyStates,
     unproxy,
-    type HookNode,
-    type PatchedFunctionProxyState,
 } from '../_internal'
 
 function unpatchBefore<T extends UnknownFunction>(

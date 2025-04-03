@@ -3,8 +3,8 @@ import './preinit'
 import './patches/prevent-immutablize'
 import './patches/proxy'
 
-import { getErrorStack } from '@revenge-mod/utils/errors'
 import { onModuleInitialized } from '@revenge-mod/modules/metro/subscriptions'
+import { getErrorStack } from '@revenge-mod/utils/errors'
 
 import { logger } from './shared'
 

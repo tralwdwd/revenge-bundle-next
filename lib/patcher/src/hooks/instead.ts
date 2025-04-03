@@ -1,11 +1,11 @@
 import {
+    type FunctionProxyState,
+    type InsteadHookNode,
+    type PatchedFunctionProxyState,
     createPatchedFunctionProxy,
     patchedFunctionProxyHandler,
     patchedFunctionProxyStates,
     unproxy,
-    type FunctionProxyState,
-    type InsteadHookNode,
-    type PatchedFunctionProxyState,
 } from '../_internal'
 
 const insteadHookProxyHandler = {
