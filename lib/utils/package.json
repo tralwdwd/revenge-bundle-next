@@ -9,8 +9,8 @@
     "./functions": {
       "default": "./src/functions.ts"
     },
-    "./index-required-file": {
-      "default": "./src/index-required-file.ts"
+    "./generators": {
+      "default": "./src/generators.ts"
     },
     "./logger": {
       "default": "./src/logger.ts"
