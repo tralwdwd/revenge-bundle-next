@@ -1,71 +1,91 @@
-import { _isExportsBad } from '../metro/_internal'
+import { _isExportBad } from '~/metro/_internal'
 
+import type { If } from '@revenge-mod/utils/types'
+import type { Metro } from '#/metro'
 import type { Filter } from './filters'
-import type { LookupModulesOptions } from './lookup'
-import type { Metro } from '../../types'
 
-const FindResultFlags = {
-    // ? Our design does not allow for this to be used, but it is here for future reference.
-    // /**
-    //  * The find was unsuccessful.
-    //  */
-    // NotFound: 0,
+export type RunFilterOptions = {
     /**
-     * A module was found and the find was successful.
-     * However, the module type could not be determined. It is most likely a CommonJS module.
+     * For ES modules, whether to skip checking the default export.
+     *
+     * @default false
+     */
+    esmSkipDefault?: boolean
+}
+
+export type RunFilterReturnExportsOptions<ReturnNamespace extends boolean = boolean> = RunFilterOptions &
+    If<
+        ReturnNamespace,
+        {
+            /**
+             * For ES modules, whether to return the whole module with all exports instead of just the default export **if the default export matches**.
+             *
+             * CommonJS modules will always return all exports.
+             *
+             * @default false
+             */
+            esmReturnNamespace: true
+        },
+        {
+            esmReturnNamespace?: false
+        }
+    >
+
+const FilterResultFlags = {
+    /**
+     * A module was found.
      */
     Found: 1,
     /**
-     * The module was found and the find was successful.
-     * The module is an ES module, and the filter matched the module namespace.
+     * A module was found, and it is an ES module, and the filter matched the module namespace.
      */
     ESModuleNamespace: 2,
     /**
-     * The module was found and the find was successful.
-     * The module is an ES module, and the filter matched the default export.
+     * A module was found, and it is an ES module, and the filter matched the default export.
      */
     ESModuleDefault: 3,
 }
 
-export type FindResultFlag = (typeof FindResultFlags)[keyof typeof FindResultFlags]
+export type FilterResultFlag = (typeof FilterResultFlags)[keyof typeof FilterResultFlags]
 
-export function runFilterReturnExports(
-    filter: Filter<any>,
-    exports: Metro.ModuleExports,
+// The reason this returns a flag is because flags are never falsy, while exports may be falsy when using ID-only filters (eg. `byDependencies`).
+export function runFilter<F extends Filter>(
+    filter: F,
     id: Metro.ModuleID,
-    options?: LookupModulesOptions,
-) {
-    const flag = runFilter(filter, exports, id, options)
-
-    if (flag) {
-        if (flag === FindResultFlags.ESModuleDefault && !options?.esmReturnNamespace) return exports.default
-
-        return exports
-    }
-}
-
-export function runFilter(
-    filter: Filter<any>,
-    exports: Metro.ModuleExports,
-    id: Metro.ModuleID,
-    options?: LookupModulesOptions,
-): FindResultFlag | false {
-    if (exports.__esModule) {
+    exports: F extends Filter<any, true> ? Metro.ModuleExports : undefined,
+    options?: RunFilterOptions,
+): FilterResultFlag | false {
+    if (exports?.__esModule) {
         const { default: defaultExport } = exports
 
-        if (!options?.esmSkipDefault && !_isExportsBad(defaultExport) && filter(defaultExport, id)) {
+        // TODO(modules/caches/flags): could cache here that default export is bad
+        if (!options?.esmSkipDefault && !_isExportBad(defaultExport) && filter(id, defaultExport)) {
             // TODO(modules/finders/caches::esm::default)
-            return FindResultFlags.ESModuleDefault
+            return FilterResultFlags.ESModuleDefault
         }
 
-        if (filter(exports, id)) {
+        if (filter(id, exports)) {
             // TODO(modules/finders/caches::esm::namespace)
-            return FindResultFlags.ESModuleNamespace
+            return FilterResultFlags.ESModuleNamespace
         }
-    } else if (filter(exports, id)) {
+    } else if (filter(id, exports)) {
         // TODO(modules/finders/caches)
-        return FindResultFlags.Found
+        return FilterResultFlags.Found
     }
 
     return false
+}
+
+export function runFilterReturnExports(
+    filter: Filter,
+    id: Metro.ModuleID,
+    exports: Metro.ModuleExports,
+    options?: RunFilterReturnExportsOptions,
+) {
+    const flag = runFilter(filter, id, exports, options)
+
+    if (flag) {
+        if (flag === FilterResultFlags.ESModuleDefault && !options?.esmReturnNamespace) return exports.default
+        return exports
+    }
 }

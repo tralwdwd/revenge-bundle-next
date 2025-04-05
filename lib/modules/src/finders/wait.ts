@@ -1,20 +1,13 @@
+import { onAnyModuleInitialized, onModuleFinishedImporting } from '~/metro'
+import { _bl, _mMetadatas } from '~/metro/_internal'
 import { runFilterReturnExports } from './_internal'
-import { onAnyModuleInitialized, onModuleFinishedImporting } from '../metro'
-import { _bl, _mMetadatas } from '../metro/_internal'
 
 import type { MaybeDefaultExportMatched } from '.'
+import type { Metro } from '#/metro'
 import type { Filter, FilterResult } from './filters'
 import type { LookupModulesOptions } from './lookup'
-import type { Metro } from '../../types'
 
-export type WaitForModulesOptions = LookupModulesOptions & {
-    /**
-     * Abort signal for the wait.
-     *
-     * **The find will only be aborted when it is pending/requires waiting for the module to be initialized.**
-     */
-    abortSignal?: AbortSignal
-}
+export type WaitForModulesOptions = LookupModulesOptions
 
 /**
  * Wait for modules to initialize by its exports.
@@ -32,45 +25,34 @@ export type WaitForModulesOptions = LookupModulesOptions & {
  * waitForModule(
  *   byName<typeof import('@shopify/flash-list')>('FlashList'),
  *   // (exports: typeof import('@shopify/flash-list'), id: Metro.ModuleID) => any
- *   (exports, id) => {...}
+ *   (id, exports) => {...}
  * )
  * ```
  */
-export function waitForModules<F extends Filter<any>>(
+export function waitForModules<F extends Filter>(
     filter: F,
-    callback: (exports: FilterResult<F>, id: Metro.ModuleID) => any,
+    callback: (id: Metro.ModuleID, exports: FilterResult<F>) => any,
 ): () => void
-export function waitForModules<F extends Filter<any>, O extends WaitForModulesOptions>(
+
+export function waitForModules<F extends Filter, O extends WaitForModulesOptions | undefined>(
     filter: F,
     callback: (
-        exports: O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>,
         id: Metro.ModuleID,
+        exports: O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>,
     ) => any,
-    options?: O,
+    options: O,
 ): () => void
-export function waitForModules<F extends Filter<any>, O extends WaitForModulesOptions>(
-    filter: F,
-    callback: (
-        exports: O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>,
-        id: Metro.ModuleID,
-    ) => any,
-    options?: O,
+
+export function waitForModules(
+    filter: Filter,
+    callback: (id: Metro.ModuleID, exports: Metro.ModuleExports) => any,
+    options?: WaitForModulesOptions,
 ) {
-    const unsub = onAnyModuleInitialized(({ exports }, id) => {
+    const unsub = onAnyModuleInitialized((id, exports) => {
         if (_bl.has(id)) return
-        const result = runFilterReturnExports(filter, exports, id, options)
-        if (result) callback(result, id)
+        const result = runFilterReturnExports(filter, id, exports, options)
+        if (result) callback(id, exports)
     })
-
-    const signal = options?.abortSignal
-    if (signal) {
-        if (signal.aborted) {
-            unsub()
-            return unsub
-        }
-
-        signal.addEventListener('abort', unsub, { once: true })
-    }
 
     return unsub
 }
@@ -81,27 +63,14 @@ export function waitForModules<F extends Filter<any>, O extends WaitForModulesOp
  * @param callback The callback to call once the module is initialized.
  * @returns A function to unsubscribe.
  */
-export function waitForModuleByImportedPath<T = any>(
-    path: string,
-    callback: (exports: T, id: Metro.ModuleID) => any,
-    options?: WaitForModulesOptions,
-) {
+export function waitForModuleByImportedPath<T = any>(path: string, callback: (id: Metro.ModuleID, exports: T) => any) {
     const unsub = onModuleFinishedImporting((id, cmpPath) => {
         if (path === cmpPath) {
-            callback(_mMetadatas.get(id)![1]!.exports, id)
+            const { exports } = _mMetadatas.get(id)![1]!
+            callback(id, exports)
             unsub()
         }
     })
-
-    const signal = options?.abortSignal
-    if (signal) {
-        if (signal.aborted) {
-            unsub()
-            return unsub
-        }
-
-        signal.addEventListener('abort', unsub, { once: true })
-    }
 
     return unsub
 }

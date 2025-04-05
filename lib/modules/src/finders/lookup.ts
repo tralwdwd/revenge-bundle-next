@@ -1,69 +1,104 @@
-import { runFilter, runFilterReturnExports } from './_internal'
-import { _mInited, _mMetadatas, _mPaths } from '../metro/_internal'
+import { _mInited, _mMetadatas, _mPaths, _mUninited } from '~/metro/_internal'
+import {
+    runFilter,
+    runFilterReturnExports,
+    type RunFilterOptions,
+    type RunFilterReturnExportsOptions,
+} from './_internal'
 
 import type { MaybeDefaultExportMatched } from '.'
+import type { Metro } from '#/metro'
 import type { Filter, FilterResult } from './filters'
 
-export type LookupModulesOptions<ReturnNamespace extends boolean = boolean> = {
+export type BaseLookupModulesOptions = RunFilterOptions
+
+export type LookupModulesOptions<ReturnNamespace extends boolean = boolean> =
+    RunFilterReturnExportsOptions<ReturnNamespace>
+
+export type LookupModulesResult<O extends LookupModulesOptions, F extends Filter> = O extends LookupModulesOptions<true>
+    ? MaybeDefaultExportMatched<FilterResult<F>>
+    : FilterResult<F>
+
+export type LookupModuleIdsOptions<IncludeUninitialized extends boolean = boolean> = BaseLookupModulesOptions & {
     /**
-     * For ES modules, whether to skip checking the default export.
+     * Whether to include initialized modules in the lookup.
+     *
+     * @default true
+     */
+    includeInitialized?: boolean
+    /**
+     * Whether to include uninitialized modules in the lookup.
+     *
+     * Options that require modules to be initialized (eg. `esmReturnNamespace`, `esmSkipDefault`) will be ignored during uninitialized module ID lookup.
      *
      * @default false
      */
-    esmSkipDefault?: boolean
-} & (ReturnNamespace extends true
-    ? {
-          /**
-           * For ES modules, whether to return the whole module with all exports instead of just the default export if the default export matches.
-           *
-           * CommonJS modules will always return all exports.
-           *
-           * @default false
-           */
-          esmReturnNamespace: true
-      }
-    : {
-          esmReturnNamespace?: false
-      })
-
-/**
- * Lookup module IDs by its exports.
- * This is the way to get **initialized** module IDs that match a filter.
- *
- * @param filter The filter to use.
- * @param options The options to use for the lookup.
- * @returns A generator that yields the module exports that match the filter.
- */
-export function* lookupModuleIds(filter: Filter<any>, options?: LookupModulesOptions) {
-    for (const id of _mInited) {
-        const { exports } = _mMetadatas.get(id)![1]!
-        if (runFilter(filter, exports, id, options)) yield id
-    }
+    includeUninitialized?: IncludeUninitialized
 }
 
 /**
+ * Lookup module IDs by its exports. You may lookup both uninitialized module IDs when filtering via ID-only filters (eg. `byDependencies`).
+ *
+ * @param filter The filter to use.
+ * @param options The options to use for the lookup.
+ * @returns A generator that yields the module exports that match the filter.
+ *
+ * @example
+ * ```ts
+ * const lookup = lookupModuleIds(byProps('createElement'))
+ * // Log all module IDs that export React
+ * for (const id of lookup) console.log(id)
+ * ```
+ *
+ * @example Lookup uninitialized modules
+ * ```ts
+ * const lookup = lookupModuleIds(byDependencies([...]), { includeUninitialized: true })
+ * // Log all module IDs that has those dependencies
+ * for (const id of lookup) console.log(id)
+ * ```
+ */
+export function* lookupModuleIds<O extends LookupModuleIdsOptions>(
+    filter: O extends LookupModuleIdsOptions<true> ? Filter<any, false> : Filter,
+    options?: O,
+): Generator<Metro.ModuleID, undefined> {
+    if (options?.includeInitialized ?? true)
+        for (const id of _mInited) {
+            const { exports } = _mMetadatas.get(id)![1]!
+            if (runFilter(filter, id, exports, options)) yield id
+        }
+
+    if (options?.includeUninitialized)
+        for (const id of _mUninited) if (runFilter<Filter<any, false>>(filter, id, undefined, options)) yield id
+}
+
+export function lookupModules<F extends Filter>(filter: F): Generator<FilterResult<F>, undefined>
+
+export function lookupModules<F extends Filter, O extends LookupModulesOptions>(
+    filter: F,
+    options: O,
+): Generator<LookupModulesResult<O, F>, undefined>
+
+/**
  * Lookup modules by its exports.
- * This is the way to get **initialized** module exports that match a filter.
+ *
+ * `lookupModules` only filters initialized modules. You will need to use `waitForModules` to filter initializing modules.
  *
  * @param filter The filter to use.
  * @param options The options to use for the lookup.
  * @returns A generator that yields the module exports that match the filter.
  */
-export function lookupModules<F extends Filter<any>>(filter: F): Generator<FilterResult<F>>
-export function lookupModules<F extends Filter<any>, O extends LookupModulesOptions>(
-    filter: F,
-    options: O,
-): Generator<O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>>
-export function* lookupModules<F extends Filter<any>, O extends LookupModulesOptions>(filter: F, options?: O) {
+export function* lookupModules<F extends Filter, O extends LookupModulesOptions>(filter: F, options?: O) {
     for (const id of _mInited) {
         const { exports } = _mMetadatas.get(id)![1]!
-        const result = runFilterReturnExports(filter, exports, id, options)
+        const result = runFilterReturnExports(filter, id, exports, options)
         if (result) yield result
     }
 }
 
 /**
  * Lookup module exports by its imported path.
+ *
+ * `lookupModuleByImportedPath` only finds initialized modules. You will need to use `waitForModuleByImportedPath` to filter initializing modules.
  *
  * @param path The path to lookup the module by.
  * @returns The module exports if the module is initialized, or undefined if the module is not found or not initialized.

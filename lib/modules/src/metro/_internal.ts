@@ -1,7 +1,7 @@
 import { isProxy } from '@revenge-mod/utils/proxy'
 import { _executeSubscription } from './subscriptions/_internal'
 
-import type { Metro } from '../../types/metro'
+import type { Metro } from '#/metro'
 
 export const _bl = new Set<Metro.ModuleID>()
 
@@ -44,7 +44,7 @@ export function patchMetroDefine(metroDefine: Metro.DefineFn) {
                 } finally {
                     _mInitingId = prevIId
                     _mUninited.delete(id)
-                    _executeSubscription(id, m)
+                    _executeSubscription(id, m.exports)
                 }
             }) satisfies Metro.FactoryFn,
             id,
@@ -74,6 +74,22 @@ export function _blacklist(id: Metro.ModuleID) {
 }
 
 /**
+ * Returns whether a particular export of a module is bad.
+ * @param export The exports of the module
+ * @returns Whether the module has bad exports
+ * @internal
+ */
+export function _isExportBad(exp: Metro.ModuleExports) {
+    return (
+        // Nullish?
+        exp === undefined ||
+        exp === null ||
+        // Is it a proxy?
+        isProxy(exp)
+    )
+}
+
+/**
  * Returns whether the module has bad exports. If it does, it should be blacklisted and never hooked into.
  * @param exports The exports of the module
  * @returns Whether the module has bad exports
@@ -81,11 +97,9 @@ export function _blacklist(id: Metro.ModuleID) {
  */
 export function _isExportsBad(exports: Metro.ModuleExports) {
     return (
-        exports === undefined ||
-        exports === null ||
-        // Empty object (module 0 for example, exports an empty object)
-        (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length) ||
-        isProxy(exports.default) ||
+        // Exports will always be an object, we are checking if the object is empty
+        !Reflect.ownKeys(exports).length ||
+        // Circular reference
         exports === globalThis
     )
 }

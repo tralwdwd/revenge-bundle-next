@@ -1,22 +1,22 @@
-import { lookupModuleByImportedPath, lookupModuleIds, lookupModules, type LookupModulesOptions } from './lookup'
-import { waitForModuleByImportedPath, waitForModules, type WaitForModulesOptions } from './wait'
+import { type LookupModulesOptions, lookupModuleByImportedPath, lookupModuleIds, lookupModules } from './lookup'
+import { type WaitForModulesOptions, waitForModuleByImportedPath, waitForModules } from './wait'
 
-import type { MaybeDefaultExportMatched } from '.'
+import type { LookupModuleIdsOptions, MaybeDefaultExportMatched } from '.'
+import type { Metro } from '#/metro'
 import type { Filter, FilterResult } from './filters'
-import type { Metro } from '../../types/metro'
+import { proxify, type ProxifyOptions } from '@revenge-mod/utils/proxy'
 
-export type FindModuleOptions = WaitForModulesOptions & {
-    // TODO(modules/finders::options.force): This can cause issues by initializing unexpected modules. Likely won't actually be implemented.
-    // Maybe we can add an option to force initialize when cached instead.
-    // /**
-    //  * Force initialization of modules that haven't been initialized yet. **Not recommended for general use.**
-    //  *
-    //  * Forcing initialization of modules can lead to unexpected behavior and side effects and should be avoided if possible.
-    //  *
-    //  * @default false
-    //  */
-    // force?: boolean
+export type BaseFindModuleOptions = {
+    /**
+     * Abort signal for the find.
+     */
+    abortSignal?: AbortSignal
+    // TODO(modules/finders/find::options): Add an option to force initialize when module ID is known (find is cached).
 }
+
+export type FindModuleOptions = WaitForModulesOptions & BaseFindModuleOptions
+
+export type FindModuleIdOptions = LookupModuleIdsOptions & FindModuleOptions
 
 /**
  * Find a module by its exports.
@@ -33,44 +33,24 @@ export type FindModuleOptions = WaitForModulesOptions & {
  * const ReactNative = await findModule(byProps<typeof import('react-native')>('AppRegistry'))
  * ```
  */
-export function findModule<F extends Filter<any>>(filter: F): Promise<FilterResult<F>>
-export function findModule<F extends Filter<any>, O extends FindModuleOptions>(
+export function findModule<F extends Filter>(filter: F): Promise<FilterResult<F>>
+export function findModule<F extends Filter, O extends FindModuleOptions>(
     filter: F,
     options: O,
 ): Promise<O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>>
-export function findModule<F extends Filter<any>, O extends FindModuleOptions>(filter: F, options?: O) {
+export function findModule<F extends Filter, O extends FindModuleOptions>(filter: F, options?: O) {
     type Result = FilterResult<F>
 
     return new Promise<O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<Result> : Result>((ok, err) => {
         for (const exports of lookupModules(filter, options!)) return ok(exports)
 
-        // TODO(modules/finders::options.force): Initial implementation for `options.force`.
-        // if (options?.force) {
-        //     if (signal) console.warn(
-        //         "You shouldn't use `options.force` and `options.abortSignal` together! `options.abortSignal` will be ignored.",
-        //     )
+        const unsub = waitForModules(filter, (_, exports) => ok(exports), options)
 
-        //     for (const id of _uninitdIds) {
-        //         // TODO(modules/finders): check blacklist cache
+        const onAbort = () => {
+            unsub()
+            err(new Error(`${findModule.name} aborted before resolved: ${filter.key}`))
+        }
 
-        //         try {
-        //             __r!(id)
-        //         } catch {}
-
-        //         const { exports } = _modules.get(id)![1]!
-        //         if (_initdIds.has(id)) {
-        //             const result = runFilter(filter, exports, options)
-        //             if (result) return rs(result)
-        //         }
-        //     }
-
-        //     // TODO(modules/finders/caches::notfound)
-        //     return
-        // }
-
-        waitForModules(filter, ok, options)
-
-        const onAbort = () => err(new Error(`findModule aborted before resolved: ${filter.key}`))
         const signal = options?.abortSignal
         if (signal) {
             if (signal.aborted) return onAbort()
@@ -84,7 +64,7 @@ export function findModule<F extends Filter<any>, O extends FindModuleOptions>(f
  *
  * @param filter The filter to use to find the module.
  * @param options The options to use for the find.
- * @returns A promise that resolves to the module ID or rejects if the module is not found.
+ * @returns A promise that resolves to the module ID or rejects if the find is aborted before a module ID is found.
  *
  * @example
  * ```ts
@@ -94,18 +74,22 @@ export function findModule<F extends Filter<any>, O extends FindModuleOptions>(f
  * const React = __r(ReactId)
  * const ReactNative = __r(ReactNativeId)
  */
-export function findModuleId<F extends Filter<any>>(filter: F): Promise<Metro.ModuleID>
-export function findModuleId<F extends Filter<any>, O extends FindModuleOptions>(
+export function findModuleId<F extends Filter>(filter: F): Promise<Metro.ModuleID>
+export function findModuleId<F extends Filter, O extends FindModuleIdOptions>(
     filter: F,
     options: O,
 ): Promise<O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>>
-export function findModuleId(filter: Filter<any>, options?: FindModuleOptions) {
+export function findModuleId(filter: Filter, options?: FindModuleIdOptions) {
     return new Promise<Metro.ModuleID>((ok, err) => {
         for (const id of lookupModuleIds(filter, options)) return ok(id)
 
-        waitForModules(filter, (_, id) => ok(id), options)
+        const unsub = waitForModules(filter, (_, id) => ok(id), options)
 
-        const onAbort = () => err(new Error(`findModuleId aborted before resolved: ${filter.key}`))
+        const onAbort = () => {
+            unsub()
+            err(new Error(`${findModuleId.name} aborted before resolved: ${filter.key}`))
+        }
+
         const signal = options?.abortSignal
         if (signal) {
             if (signal.aborted) return onAbort()
@@ -114,14 +98,24 @@ export function findModuleId(filter: Filter<any>, options?: FindModuleOptions) {
     })
 }
 
-export function findModuleByImportedPath(path: string, options?: FindModuleOptions) {
+/**
+ * Find a module by its imported path.
+ * @param path The path to find the module by.
+ * @param options The options to use for the find.
+ * @returns A promise that resolves to the module's exports or rejects if the find is aborted before the module is found.
+ */
+export function findModuleByImportedPath(path: string, options?: BaseFindModuleOptions) {
     return new Promise<any>((ok, err) => {
-        const m1 = lookupModuleByImportedPath(path)
-        if (m1) return ok(m1)
+        const m = lookupModuleByImportedPath(path)
+        if (m) return ok(m)
 
-        waitForModuleByImportedPath(path, ok, options)
+        const unsub = waitForModuleByImportedPath(path, (_, exports) => ok(exports))
 
-        const onAbort = () => err(new Error(`findModuleByImportedPath aborted before resolved: ${path}`))
+        const onAbort = () => {
+            unsub()
+            err(new Error(`${findModuleByImportedPath.name} aborted before resolved: ${path}`))
+        }
+
         const signal = options?.abortSignal
         if (signal) {
             if (signal.aborted) return onAbort()
@@ -130,16 +124,8 @@ export function findModuleByImportedPath(path: string, options?: FindModuleOptio
     })
 }
 
-export type FindModuleSyncOptions = WaitForModulesOptions & {
-    /**
-     * The hint for the proxified object.
-     *
-     * @default 'function'
-     */
-    hint?: 'object' | 'function'
-}
-
-// TODO(modules/finders::sync): make a lazyValue function to create a proxified object instead of dupe
+export type BaseFindModuleSyncOptions = BaseFindModuleOptions & ProxifyOptions
+export type FindModuleSyncOptions = FindModuleOptions & BaseFindModuleSyncOptions
 
 /**
  * Find a module by its exports synchronously.
@@ -150,7 +136,7 @@ export type FindModuleSyncOptions = WaitForModulesOptions & {
  *
  * @example A little bit after index module is required:
  * ```ts
- * const React = findModuleSync(byProps<typeof import('react')>('createElement'))
+ * const React = findModuleSync(byProps<typeof import('react')>('createElement'), { hint: 'object' })
  * const App = findModuleSync(byName<React.FC>('App'))
  *
  * // React is defined here because React is loaded before index module is required
@@ -167,45 +153,31 @@ export type FindModuleSyncOptions = WaitForModulesOptions & {
  * })
  * ```
  */
-export function findModuleSync<F extends Filter<any>>(filter: F): FilterResult<F>
-export function findModuleSync<F extends Filter<any>, O extends FindModuleSyncOptions>(
+export function findModuleSync<F extends Filter>(filter: F): FilterResult<F>
+export function findModuleSync<F extends Filter, O extends FindModuleSyncOptions>(
     filter: F,
     options: O,
 ): O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>
-export function findModuleSync<F extends Filter<any>, O extends FindModuleSyncOptions>(filter: F, options?: O) {
+export function findModuleSync<F extends Filter, O extends FindModuleSyncOptions>(filter: F, options?: O) {
     for (const exports of lookupModules(filter, options!)) return exports
 
-    type Result = FilterResult<F>
-    let value: (O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<Result> : Result) | undefined
+    let value: unknown | undefined
     const unsub = waitForModules(
         filter,
-        exports => {
+        (_, exports) => {
             unsub()
             value = exports
         },
         options,
     )
 
-    const handler: ProxyHandler<any> = {
-        // biome-ignore lint/complexity/noBannedTypes: Function is the right type here
-        apply: (_, thisArg, argArray) => Reflect.apply(value as Function, thisArg, argArray),
-        // biome-ignore lint/complexity/noBannedTypes: Function is the right type here
-        construct: (_, argArray, newTarget) => Reflect.construct(value as Function, argArray, newTarget),
-        defineProperty: (_, property, attributes) => Reflect.defineProperty(value!, property, attributes),
-        deleteProperty: (_, p) => Reflect.deleteProperty(value!, p),
-        get: (_, p, receiver) => Reflect.get(value!, p, receiver),
-        getOwnPropertyDescriptor: (_, p) => Reflect.getOwnPropertyDescriptor(value!, p),
-        getPrototypeOf: _ => Reflect.getPrototypeOf(value!),
-        has: (_, p) => Reflect.has(value!, p),
-        isExtensible: _ => Reflect.isExtensible(value!),
-        ownKeys: _ => Reflect.ownKeys(value!),
-        preventExtensions: _ => Reflect.preventExtensions(value!),
-        set: (_, p, newValue, receiver) => Reflect.set(value!, p, newValue, receiver),
-        setPrototypeOf: (_, v) => Reflect.setPrototypeOf(value!, v),
+    const signal = options?.abortSignal
+    if (signal) {
+        if (signal.aborted) unsub()
+        else signal.addEventListener('abort', unsub, { once: true })
     }
 
-    // biome-ignore lint/complexity/useArrowFunction: We need a function with a constructor
-    return new Proxy((options?.hint === 'object' ? {} : function () {}) as any, handler) as FilterResult<F>
+    return proxify(() => value, options)
 }
 
 /**
@@ -215,38 +187,24 @@ export function findModuleSync<F extends Filter<any>, O extends FindModuleSyncOp
  * @param options The options to use for the find.
  * @returns The module exports object if the module is already initialized, or proxified object of the module exports once the module is initialized, or undefined if otherwise.
  */
-export function findModuleByImportedPathSync<T = any>(path: string, options?: FindModuleSyncOptions): T | undefined {
-    const m1 = lookupModuleByImportedPath<T>(path)
-    if (m1) return m1
+export function findModuleByImportedPathSync<T = any>(
+    path: string,
+    options?: BaseFindModuleSyncOptions,
+): T | undefined {
+    const m = lookupModuleByImportedPath<T>(path)
+    if (m) return m
 
-    let value: T | undefined
-    const unsub = waitForModuleByImportedPath(
-        path,
-        (exports: T) => {
-            unsub()
-            value = exports
-        },
-        options,
-    )
+    let value: unknown | undefined
+    const unsub = waitForModuleByImportedPath(path, (_, exports) => {
+        unsub()
+        value = exports
+    })
 
-    const handler: ProxyHandler<any> = {
-        // biome-ignore lint/complexity/noBannedTypes: Function is the right type here
-        apply: (_, thisArg, argArray) => Reflect.apply(value as Function, thisArg, argArray),
-        // biome-ignore lint/complexity/noBannedTypes: Function is the right type here
-        construct: (_, argArray, newTarget) => Reflect.construct(value as Function, argArray, newTarget),
-        defineProperty: (_, property, attributes) => Reflect.defineProperty(value!, property, attributes),
-        deleteProperty: (_, p) => Reflect.deleteProperty(value!, p),
-        get: (_, p, receiver) => Reflect.get(value!, p, receiver),
-        getOwnPropertyDescriptor: (_, p) => Reflect.getOwnPropertyDescriptor(value!, p),
-        getPrototypeOf: _ => Reflect.getPrototypeOf(value!),
-        has: (_, p) => Reflect.has(value!, p),
-        isExtensible: _ => Reflect.isExtensible(value!),
-        ownKeys: _ => Reflect.ownKeys(value!),
-        preventExtensions: _ => Reflect.preventExtensions(value!),
-        set: (_, p, newValue, receiver) => Reflect.set(value!, p, newValue, receiver),
-        setPrototypeOf: (_, v) => Reflect.setPrototypeOf(value!, v),
+    const signal = options?.abortSignal
+    if (signal) {
+        if (signal.aborted) unsub()
+        else signal.addEventListener('abort', unsub, { once: true })
     }
 
-    // biome-ignore lint/complexity/useArrowFunction: We need a function with a constructor
-    return new Proxy((options?.hint === 'object' ? {} : function () {}) as any, handler) as T
+    return proxify(() => value, options)
 }

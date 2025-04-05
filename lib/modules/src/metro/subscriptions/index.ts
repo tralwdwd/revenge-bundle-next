@@ -1,8 +1,8 @@
+import type { Metro } from '#/metro'
 import { _all, _importedPath, _specific } from './_internal'
-import type { Metro } from '../../../types/metro'
 
-export type ModuleInitializedCallback = (module: Metro.Module, id: Metro.ModuleID) => void
-export type ModuleWithImportedPathInitializedCallback = (id: Metro.ModuleID, importedPath: string) => void
+export type ModuleInitializedCallback = (id: Metro.ModuleID, exports: Metro.ModuleExports) => void
+export type ModuleWithImportedPathInitializedCallback = (id: Metro.ModuleID, path: string) => void
 
 /**
  * Registers a callback to be called when any module is initialized. **Some module exports may be bad.**

@@ -1,10 +1,11 @@
-import { _mMetadatas, _mInitingId, _mPaths, _mUninited, _bl } from './_internal'
+import '@revenge-mod/assets/patches'
+
+import { _bl, _mInitingId, _mMetadatas, _mPaths, _mUninited } from './_internal'
 import { onAnyModuleInitialized } from './subscriptions'
 
-import '@revenge-mod/assets/patches'
 import { _executeImportedPathSubscription } from './subscriptions/_internal'
 
-const unsubForImportTracker = onAnyModuleInitialized(({ exports }, id) => {
+const unsubForImportTracker = onAnyModuleInitialized((id, exports) => {
     if (_bl.has(id)) return
 
     const orig = exports.fileFinishedImporting
