@@ -104,7 +104,7 @@ export function _isExportsBad(exports: Metro.ModuleExports) {
         exports === null ||
         // Can't run isProxy() on this because this isn't your typical proxy:
         // https://github.com/discord/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
-        (globalThis.nativeModuleProxy && exports === nativeModuleProxy) ||
+        exports === nativeModuleProxy ||
         // Checking if the object is empty
         (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length)
     )
