@@ -29,9 +29,6 @@
     },
     "lib/modules": {
       "name": "@revenge-mod/modules",
-      "dependencies": {
-        "@revenge-mod/types": "workspace:*",
-      },
     },
     "lib/patcher": {
       "name": "@revenge-mod/patcher",

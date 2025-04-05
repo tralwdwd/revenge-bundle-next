@@ -6,3 +6,5 @@ declare global {
 
     const __BUILD_FLAG_INIT_DISABLE_PATCH_LOG_PROMISE_REJECTIONS__: boolean
 }
+
+export {}

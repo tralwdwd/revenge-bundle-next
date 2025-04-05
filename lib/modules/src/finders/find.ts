@@ -1,10 +1,10 @@
 import { type LookupModulesOptions, lookupModuleByImportedPath, lookupModuleIds, lookupModules } from './lookup'
 import { type WaitForModulesOptions, waitForModuleByImportedPath, waitForModules } from './wait'
 
+import { type ProxifyOptions, proxify } from '@revenge-mod/utils/proxy'
 import type { LookupModuleIdsOptions, MaybeDefaultExportMatched } from '.'
-import type { Metro } from '#/metro'
+import type { Metro } from '../../types/metro'
 import type { Filter, FilterResult } from './filters'
-import { proxify, type ProxifyOptions } from '@revenge-mod/utils/proxy'
 
 export type BaseFindModuleOptions = {
     /**

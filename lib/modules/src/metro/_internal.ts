@@ -1,7 +1,7 @@
 import { isProxy } from '@revenge-mod/utils/proxy'
 import { _executeSubscription } from './subscriptions/_internal'
 
-import type { Metro } from '#/metro'
+import type { Metro } from '../../types/metro'
 
 export const _bl = new Set<Metro.ModuleID>()
 

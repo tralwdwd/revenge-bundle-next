@@ -1,7 +1,7 @@
-import { _isExportBad } from '~/metro/_internal'
+import { _isExportBad } from '../metro/_internal'
 
 import type { If } from '@revenge-mod/utils/types'
-import type { Metro } from '#/metro'
+import type { Metro } from '../../types/metro'
 import type { Filter } from './filters'
 
 export type RunFilterOptions = {

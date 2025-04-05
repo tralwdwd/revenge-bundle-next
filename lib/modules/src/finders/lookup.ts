@@ -1,13 +1,13 @@
-import { _mInited, _mMetadatas, _mPaths, _mUninited } from '~/metro/_internal'
+import { _mInited, _mMetadatas, _mPaths, _mUninited } from '../metro/_internal'
 import {
-    runFilter,
-    runFilterReturnExports,
     type RunFilterOptions,
     type RunFilterReturnExportsOptions,
+    runFilter,
+    runFilterReturnExports,
 } from './_internal'
 
 import type { MaybeDefaultExportMatched } from '.'
-import type { Metro } from '#/metro'
+import type { Metro } from '../../types/metro'
 import type { Filter, FilterResult } from './filters'
 
 export type BaseLookupModulesOptions = RunFilterOptions

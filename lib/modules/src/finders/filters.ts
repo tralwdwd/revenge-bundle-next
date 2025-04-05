@@ -1,7 +1,7 @@
-import { _mMetadatas } from '~/metro/_internal'
+import { _mMetadatas } from '../metro/_internal'
 
 import type { If, LogicalOr } from '@revenge-mod/utils/types'
-import type { Metro } from '#/metro'
+import type { Metro } from '../../types/metro'
 
 export type FilterResult<F> = F extends Filter<infer R, boolean> ? R : never
 

@@ -1,4 +1,4 @@
-import type { Metro } from '#/metro'
+import type { Metro } from '../../../types/metro'
 import { _all, _importedPath, _specific } from './_internal'
 
 export type ModuleInitializedCallback = (id: Metro.ModuleID, exports: Metro.ModuleExports) => void

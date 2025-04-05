@@ -1,9 +1,0 @@
-{
-  "extends": "@revenge-mod/types/internal/tsconfig.json",
-  "compilerOptions": {
-    "paths": {
-      "~/*": ["./src/*"],
-      "#/*": ["./types/*"]
-    }
-  }
-}

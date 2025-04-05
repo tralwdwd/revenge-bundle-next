@@ -1,9 +1,9 @@
-import { onAnyModuleInitialized, onModuleFinishedImporting } from '~/metro'
-import { _bl, _mMetadatas } from '~/metro/_internal'
+import { onAnyModuleInitialized, onModuleFinishedImporting } from '../metro'
+import { _bl, _mMetadatas } from '../metro/_internal'
 import { runFilterReturnExports } from './_internal'
 
 import type { MaybeDefaultExportMatched } from '.'
-import type { Metro } from '#/metro'
+import type { Metro } from '../../types/metro'
 import type { Filter, FilterResult } from './filters'
 import type { LookupModulesOptions } from './lookup'
 

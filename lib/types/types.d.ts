@@ -1,7 +1,7 @@
 // All of these typings are exported, be careful what you export here!
 
-import type { Metro } from '@revenge-mod/modules'
 import type { Buffer as _Buffer } from 'buffer'
+import type { Metro } from '@revenge-mod/modules'
 import type { ErrorUtils as RNErrorUtils } from 'react-native'
 
 /// HERMES

@@ -1,5 +1,5 @@
 import type { ModuleInitializedCallback, ModuleWithImportedPathInitializedCallback } from '.'
-import type { Metro } from '#/metro'
+import type { Metro } from '../../../types/metro'
 
 export const _all = new Set<ModuleInitializedCallback>()
 export const _specific = new Map<Metro.ModuleID, Set<ModuleInitializedCallback>>()

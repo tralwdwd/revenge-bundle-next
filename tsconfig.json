@@ -1,4 +1,7 @@
 {
-  "extends": "@revenge-mod/types/internal/tsconfig.json",
-  "exclude": ["scripts"]
+  "extends": "@revenge-mod/types/tsconfig",
+  "compilerOptions": {
+    "types": ["@revenge-mod/types", "./types"]
+  },
+  "include": ["lib", "plugins", "src"]
 }
