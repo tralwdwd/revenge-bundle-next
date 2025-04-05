@@ -29,9 +29,15 @@
     },
     "lib/modules": {
       "name": "@revenge-mod/modules",
+      "dependencies": {
+        "@revenge-mod/types": "workspace:*",
+      },
     },
     "lib/patcher": {
       "name": "@revenge-mod/patcher",
+    },
+    "lib/types": {
+      "name": "@revenge-mod/types",
     },
     "lib/utils": {
       "name": "@revenge-mod/utils",
@@ -410,6 +416,8 @@
     "@revenge-mod/modules": ["@revenge-mod/modules@workspace:lib/modules"],
 
     "@revenge-mod/patcher": ["@revenge-mod/patcher@workspace:lib/patcher"],
+
+    "@revenge-mod/types": ["@revenge-mod/types@workspace:lib/types"],
 
     "@revenge-mod/utils": ["@revenge-mod/utils@workspace:lib/utils"],
 
