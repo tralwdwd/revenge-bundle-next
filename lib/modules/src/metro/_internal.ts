@@ -84,6 +84,8 @@ export function _isExportBad(exp: Metro.ModuleExports) {
         // Nullish?
         exp === undefined ||
         exp === null ||
+        // Circular reference
+        exp === globalThis ||
         // Is it a proxy?
         isProxy(exp)
     )
@@ -97,9 +99,13 @@ export function _isExportBad(exp: Metro.ModuleExports) {
  */
 export function _isExportsBad(exports: Metro.ModuleExports) {
     return (
-        // Exports will always be an object, we are checking if the object is empty
-        !Reflect.ownKeys(exports).length ||
-        // Circular reference
-        exports === globalThis
+        // Nullish?
+        exports === undefined ||
+        exports === null ||
+        // Can't run isProxy() on this because this isn't your typical proxy:
+        // https://github.com/discord/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
+        (globalThis.nativeModuleProxy && exports === nativeModuleProxy) ||
+        // Checking if the object is empty
+        (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length)
     )
 }
