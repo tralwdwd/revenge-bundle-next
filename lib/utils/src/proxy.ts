@@ -1,11 +1,11 @@
-import { _instances, _targets } from '../../init/src/patches/proxy'
+import { _targets } from '../../init/src/patches/proxy'
 
 /**
  * Returns whether the object is a proxy
  * @param obj The object to check
  */
 export function isProxy(obj: object) {
-    return _instances.has(obj)
+    return _targets.has(obj)
 }
 
 /**
@@ -17,6 +17,21 @@ export function getProxyTarget(obj: object) {
     return _targets.get(obj)
 }
 
+const proxifyMetadatas = new WeakMap<object, [() => unknown, cacheable: boolean, cache?: unknown]>()
+
+const proxifyHandler = Object.fromEntries(
+    Object.entries(Reflect).map(([k, fn]) => [
+        k,
+        (hint: object, ...args: any[]) => {
+            const m = proxifyMetadatas.get(hint)!
+            // @ts-expect-error
+            if (m[1]) return fn(m[2] ?? (m[2] = m[0]()), ...args)
+            // @ts-expect-error
+            return fn(m[0](), ...args)
+        },
+    ]),
+) as ProxyHandler<object>
+
 export type ProxifyOptions = {
     /**
      * The hint for the proxified value.
@@ -24,6 +39,10 @@ export type ProxifyOptions = {
      * @default 'function'
      */
     hint?: 'object' | 'function'
+    /**
+     * Whether the proxified value should be cached.
+     */
+    cache?: boolean
 }
 
 /**
@@ -33,24 +52,8 @@ export type ProxifyOptions = {
  * @returns A proxified value that will be updated when the signal is updated.
  */
 export function proxify(signal: () => unknown, options?: ProxifyOptions) {
-    const handler = {
-        // biome-ignore lint/complexity/noBannedTypes: Function is the right type here
-        apply: (_, thisArg, argArray) => Reflect.apply(signal() as Function, thisArg, argArray),
-        // biome-ignore lint/complexity/noBannedTypes: Function is the right type here
-        construct: (_, argArray, newTarget) => Reflect.construct(signal() as Function, argArray, newTarget),
-        defineProperty: (_, property, attributes) => Reflect.defineProperty(signal()!, property, attributes),
-        deleteProperty: (_, p) => Reflect.deleteProperty(signal()!, p),
-        get: (_, p, receiver) => Reflect.get(signal()!, p, receiver),
-        getOwnPropertyDescriptor: (_, p) => Reflect.getOwnPropertyDescriptor(signal()!, p),
-        getPrototypeOf: _ => Reflect.getPrototypeOf(signal()!),
-        has: (_, p) => Reflect.has(signal()!, p),
-        isExtensible: _ => Reflect.isExtensible(signal()!),
-        ownKeys: _ => Reflect.ownKeys(signal()!),
-        preventExtensions: _ => Reflect.preventExtensions(signal()!),
-        set: (_, p, newValue, receiver) => Reflect.set(signal()!, p, newValue, receiver),
-        setPrototypeOf: (_, v) => Reflect.setPrototypeOf(signal()!, v),
-    } as ProxyHandler<object>
-
     // biome-ignore lint/complexity/useArrowFunction: We need a function with a constructor
-    return new Proxy((options?.hint === 'object' ? {} : function () {}) as any, handler)
+    const hint = (options?.hint === 'object' ? {} : function () {}) as any
+    proxifyMetadatas.set(hint, [signal, options?.cache ?? false])
+    return new Proxy(hint, proxifyHandler)
 }
