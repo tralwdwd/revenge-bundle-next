@@ -20,9 +20,7 @@ export type FindModuleOptions = WaitForModulesOptions & LookupModulesOptions & B
 export type FindModuleIdOptions = LookupModuleIdsOptions & FindModuleOptions
 
 /**
- * Find a module by its exports.
- *
- * This is a combination of `lookupModule` and `waitForModule`.
+ * Find a module.
  *
  * @param filter The filter to use to find the module.
  * @param options The options to use for the find.
@@ -30,8 +28,11 @@ export type FindModuleIdOptions = LookupModuleIdsOptions & FindModuleOptions
  *
  * @example
  * ```ts
+ * // Resolves after 1 event loop, because the module is already initialized
  * const React = await findModule(byProps<typeof import('react')>('createElement'))
- * const ReactNative = await findModule(byProps<typeof import('react-native')>('AppRegistry'))
+ *
+ * // Resolves when the module is initialized
+ * const FlashList = await findModule(byProps<typeof import('@shopify/flash-list')>('FlashList'))
  * ```
  */
 export function findModule<F extends Filter>(filter: F): Promise<FilterResult<F>>
@@ -77,7 +78,7 @@ export function findModule<F extends Filter, O extends FindModuleOptions>(filter
 }
 
 /**
- * Find a module by its ID.
+ * Find a module ID.
  *
  * @param filter The filter to use to find the module.
  * @param options The options to use for the find.
@@ -85,11 +86,14 @@ export function findModule<F extends Filter, O extends FindModuleOptions>(filter
  *
  * @example
  * ```ts
+ * // Resolves after 1 event loop, because the module is already initialized
  * const ReactId = await findModuleId(byProps('createElement'))
- * const ReactNativeId = await findModuleId(byProps('AppRegistry'))
- *
  * const React = __r(ReactId)
- * const ReactNative = __r(ReactNativeId)
+ *
+ * // Resolves when the module is initialized
+ * const FlashListId = await findModuleId(byProps('FlashList'))
+ * const FlashListModule = __r(FlashListId)
+ * ```
  */
 export function findModuleId<F extends Filter>(filter: F): Promise<Metro.ModuleID>
 
@@ -134,9 +138,16 @@ export function findModuleId(filter: Filter, options?: FindModuleIdOptions) {
 
 /**
  * Find a module by its imported path.
+ *
  * @param path The path to find the module by.
  * @param options The options to use for the find.
  * @returns A promise that resolves to the module's exports or rejects if the find is aborted before the module is found.
+ *
+ * @example
+ * ```ts
+ * const SettingsConstants = await findModuleByImportedPath('modules/main_tabs_v2/native/settings/SettingsConstants.tsx')
+ * console.log('Settings page opened') // Logs once the module is initialized
+ * ```
  */
 export function findModuleByImportedPath<T>(path: string, options?: BaseFindModuleOptions): Promise<T> {
     return new Promise((ok, err) => {
@@ -172,7 +183,7 @@ export type BaseFindModuleSyncOptions = BaseFindModuleOptions & ProxifyOptions
 export type FindModuleSyncOptions = FindModuleOptions & BaseFindModuleSyncOptions
 
 /**
- * Find a module by its exports synchronously.
+ * Find a module synchronously.
  *
  * @param filter The filter to use to find the module.
  * @param options The options to use for the find.
@@ -183,17 +194,21 @@ export type FindModuleSyncOptions = FindModuleOptions & BaseFindModuleSyncOption
  * const React = findModuleSync(byProps<typeof import('react')>('createElement'), { hint: 'object' })
  * const App = findModuleSync(byName<React.FC>('App'))
  *
- * // No proxification happens because React is loaded before index module is required
  * console.log(React)
- * // { createElement: ..., ... }
+ * // No proxification happens because React is loaded before index module is required
+ * // Logs: { createElement: ..., ... }
  *
  * console.log(App)
  * // Logs: [Function], but is actually undefined, calling it will throw an error
+ * console.log(unproxify(App))
+ * // Logs: undefined
  *
  * onAppInitialized(() => {
- *    // When the app is initialized, the App component must also be initialized
  *    console.log(App)
+ *    // When the app is initialized, the App component must also be initialized
  *    // Logs: [Function], but is actually function App() { ... }
+ *    console.log(unproxify(App))
+ *    // Logs: function App() { ... }
  * })
  * ```
  */
@@ -230,9 +245,16 @@ export function findModuleSync<F extends Filter, O extends FindModuleSyncOptions
 /**
  * Find a module by its imported path synchronously.
  *
+ * @see {@link findModuleSync} for more details on proxification.
+ *
  * @param path The path to find the module by.
  * @param options The options to use for the find.
  * @returns The module exports object if the module is already initialized, or proxified object of the module exports once the module is initialized, or undefined if otherwise.
+ *
+ * @example
+ * ```ts
+ * const Logger = findModuleByImportedPathSync<typeof DiscordModules.Logger>('modules/debug/Logger.tsx')
+ * ```
  */
 export function findModuleByImportedPathSync<T = any>(
     path: string,

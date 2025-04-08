@@ -43,8 +43,10 @@ export type LookupModuleIdsOptions<IncludeUninitialized extends boolean = boolea
     BaseLookupModulesOptions<IncludeUninitialized>
 
 /**
- * Lookup module IDs by their exports.
- * You may lookup both uninitialized module IDs by passing `options.includeUninitialized` when filtering via ID-only filters (eg. `byDependencies`).
+ * Lookup module IDs.
+ *
+ * You can lookup uninitialized module IDs by passing `options.includeUninitialized` when filtering via without-exports filters (eg. `byDependencies`).
+ * Use the `moduleStateAware` helper to filter dynamically based on whether the module is initialized or not.
  *
  * @param filter The filter to use.
  * @param options The options to use for the lookup.
@@ -78,11 +80,21 @@ export function* lookupModuleIds<O extends LookupModuleIdsOptions>(
 }
 
 /**
- * Lookup initialized modules by their exports.
+ * Lookup modules.
+ *
+ * You can lookup uninitialized modules by passing `options.includeUninitialized` when filtering via without-exports filters (eg. `byDependencies`).
+ * Use the `moduleStateAware` helper to filter dynamically based on whether the module is initialized or not.
  *
  * @param filter The filter to use.
  * @param options The options to use for the lookup.
  * @returns A generator that yields the module exports that match the filter.
+ *
+ * @example
+ * ```ts
+ * const lookup = lookupModules(byProps('x'))
+ * // Log all module exports that has exports.x
+ * for (const exports of lookup) console.log(exports)
+ * ```
  */
 export function lookupModules<F extends Filter>(filter: F): Generator<FilterResult<F>, undefined>
 
@@ -103,7 +115,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
 }
 
 /**
- * Lookup a module ID by its exports. Skipping creating a `Generator`.
+ * Lookup a module ID. Skipping creating a `Generator`.
  *
  * @see {@link lookupModuleIds} for more documentation.
  *
@@ -113,15 +125,15 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
  *
  * @example
  * ```ts
- * const id = lookupModuleIds(byProps('createElement'))
- * // Log the first module ID that exports React
+ * const id = lookupModuleId(byProps('createElement'))
+ * // Log the first initialized module ID that exports React
  * console.log(id)
  * ```
  *
  * @example Lookup uninitialized modules
  * ```ts
- * const id = lookupModuleIds(byDependencies([...]), { includeUninitialized: true })
- * // Log the first module ID that has those dependencies
+ * const id = lookupModuleId(byDependencies([...]), { includeUninitialized: true })
+ * // Log the first initialized module ID that has those dependencies
  * console.log(id)
  * ```
  */
@@ -139,13 +151,18 @@ export function lookupModuleId<O extends LookupModuleIdsOptions>(
 }
 
 /**
- * Lookup an initialized module by its exports. Skipping creating a `Generator`.
+ * Lookup a module. Skipping creating a `Generator`.
  *
  * @see {@link lookupModules} for more documentation.
  *
  * @param filter The filter to use.
  * @param options The options to use for the lookup.
  * @returns The first module exports that match the filter.
+ *
+ * @example
+ * ```ts
+ * const React = lookupModule(byProps<typeof import('react')>('createElement'))
+ * ```
  */
 export function lookupModule<F extends Filter>(filter: F): FilterResult<F> | undefined
 
@@ -168,8 +185,15 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
 /**
  * Lookup an initialized module by its imported path.
  *
+ * Think of it as if you are doing a `import * as exports from path`, the app must have already initialized the module or this will return `undefined`.
+ *
  * @param path The path to lookup the module by.
- * @returns The module exports if the module is initialized, or undefined if the module is not found or not initialized.
+ * @returns The module exports if the module is initialized, or `undefined` if the module is not found or not initialized.
+ *
+ * @example
+ * ```ts
+ * const { default: Logger } = lookupModuleByImportedPath<{ default: typeof DiscordModules.Logger }>('modules/debug/Logger.tsx')
+ * ```
  */
 export function lookupModuleByImportedPath<T = any>(path: string): T | undefined {
     const id = _mPaths.get(path)

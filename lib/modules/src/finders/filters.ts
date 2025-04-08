@@ -24,11 +24,7 @@ export type Filter<_Inferable = any, WithExports extends boolean = boolean> = If
  *
  * @example
  * ```ts
- * // function createFilterGenerator<Arguments, WithExports>(filter, keyFor): ...
- * // * Arguments: The arguments for the filter function.
- * // * WithExports: Whether the filter function also filters exports.
- *
- * const custom = createFilterGenerator<[arg1: number, arg2: string], false>(
+ * const custom = createFilterGenerator<[arg1: number, arg2: string]>(
  *   ([arg1, arg2], id, exports) => {
  *     // filter logic
  *     return true
@@ -78,7 +74,7 @@ export type ByProps = <T extends Record<string, any> = Record<string, any>>(
  * ```
  */
 export const byProps = createFilterGenerator<Parameters<ByProps>>(
-    (props, _, exports) => props.every(prop => exports[prop]),
+    (props, _, exports) => props.every(prop => prop in exports),
     props => `revenge.props(${props.join(',')})`,
 ) as ByProps
 
@@ -231,6 +227,16 @@ export function some(...filters: Filter[]): Filter {
  *
  * @param initializedFilter The filter to use for initialized modules.
  * @param uninitializedFilter The filter to use for uninitialized modules.
+ *
+ * @example
+ * ```ts
+ * // will filter byProps('x') for initialized modules
+ * // and byDependencies([1, 485, , 2]) for uninitialized modules
+ * const SomeModule = await findModule(moduleStateAware(
+ *   byProps('x'),
+ *   byDependencies([1, 485, , 2]),
+ * ))
+ * ```
  */
 export function moduleStateAware<IF extends Filter>(
     initializedFilter: IF,

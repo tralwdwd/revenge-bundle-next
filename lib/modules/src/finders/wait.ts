@@ -15,7 +15,7 @@ export type WaitForModulesResult<
 > = O extends RunFilterReturnExportsOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>
 
 /**
- * Wait for modules to initialize by their exports. **Callback won't be called if the module is already initialized!**
+ * Wait for modules to initialize. **Callback won't be called if the module is already initialized!**
  *
  * @param filter The filter to use.
  * @param callback The callback to call when matching modules are initialized.
@@ -24,10 +24,13 @@ export type WaitForModulesResult<
  *
  * @example
  * ```ts
- * waitForModules(
+ * const unsub = waitForModules(
  *   byName<typeof import('@shopify/flash-list')>('FlashList'),
  *   // (exports: typeof import('@shopify/flash-list'), id: Metro.ModuleID) => any
- *   (id, exports) => {...}
+ *   (id, exports) => {
+ *     unsub()
+ *     // Do something with the module...
+ *   }
  * )
  * ```
  */
@@ -57,11 +60,23 @@ export function waitForModules(
 }
 
 /**
- * Wait for a module to initialize by its imported path.
+ * Wait for a module to initialize by its imported path. Once callback is called, the subscription will be removed automatically.
+ *
+ * Think of it as if you are doing `import * as exports from path`, and you are also waiting for the app to initialize the module by itself.
  *
  * @param path The path to wait for.
  * @param callback The callback to call once the module is initialized.
  * @returns A function to unsubscribe.
+ *
+ * @example
+ * ```ts
+ * waitForModuleByImportedPath(
+ *   'utils/PlatformUtils.tsx',
+ *   (id, exports) => {
+ *      // Do something with the module...
+ *   }
+ * )
+ * ```
  */
 export function waitForModuleByImportedPath<T = any>(path: string, callback: (id: Metro.ModuleID, exports: T) => any) {
     const unsub = onModuleFinishedImporting((id, cmpPath) => {
