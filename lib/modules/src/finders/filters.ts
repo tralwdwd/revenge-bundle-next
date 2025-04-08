@@ -1,16 +1,17 @@
-import { _mMetadatas } from '../metro/_internal'
+import { _mInited, _mMetadatas } from '../metro/_internal'
 
 import type { If, LogicalOr } from '@revenge-mod/utils/types'
 import type { Metro } from '../../types/metro'
 
 export type FilterResult<F> = F extends Filter<infer R, boolean> ? R : never
 
-export type IsFilterWithExports<F> = F extends Filter<any, infer W> ? W : never
+export type IsFilterWithExports<F> = F extends Filter<any, infer WE> ? WE : never
 
-export type IsFilterGeneratorWithExports<F> = F extends (...args: any[]) => infer F ? IsFilterWithExports<F> : never
-
-export interface Filter<_Inferable = any, WithExports extends boolean = boolean> {
-    (id: Metro.ModuleID, exports: If<WithExports, Metro.ModuleExports, never>): boolean
+export type Filter<_Inferable = any, WithExports extends boolean = boolean> = If<
+    WithExports,
+    (id: Metro.ModuleID, exports: Metro.ModuleExports) => boolean,
+    (id: Metro.ModuleID, exports?: undefined) => boolean
+> & {
     key: string
 }
 
@@ -38,15 +39,24 @@ export interface Filter<_Inferable = any, WithExports extends boolean = boolean>
  *
  * @see {@link byProps} for an example on custom-typed filters.
  */
-export function createFilterGenerator<A extends any[], WithExports extends boolean>(
-    filter: (args: A, id: Metro.ModuleID, exps: If<WithExports, Metro.ModuleExports, never>) => boolean,
+export function createFilterGenerator<A extends any[]>(
+    filter: (args: A, id: Metro.ModuleID, exports: Metro.ModuleExports) => boolean,
     keyFor: (args: A) => string,
-) {
+): (...args: A) => Filter<object, true>
+
+export function createFilterGenerator<A extends any[]>(
+    filter: (args: A, id: Metro.ModuleID) => boolean,
+    keyFor: (args: A) => string,
+): (...args: A) => Filter<object, false>
+
+export function createFilterGenerator<A extends any[]>(
+    filter: (args: A, id: Metro.ModuleID, exports?: Metro.ModuleExports) => boolean,
+    keyFor: (args: A) => string,
+): (...args: any[]) => Filter {
     return (...args: A) => {
-        const f = (id: Metro.ModuleID, exps: If<WithExports, Metro.ModuleExports, never>) => filter(args, id, exps)
+        const f = (id: Metro.ModuleID, exports?: Metro.ModuleExports) => filter(args, id, exports)
         f.key = keyFor(args)
-        // biome-ignore lint/complexity/noBannedTypes: So it doesn't turn into `any` when you combine it with other typed filters
-        return f as Filter<{}, WithExports>
+        return f
     }
 }
 
@@ -67,7 +77,7 @@ export type ByProps = <T extends Record<string, any> = Record<string, any>>(
  * // const React: typeof import('react')
  * ```
  */
-export const byProps = createFilterGenerator<Parameters<ByProps>, IsFilterGeneratorWithExports<ByProps>>(
+export const byProps = createFilterGenerator<Parameters<ByProps>>(
     (props, _, exports) => props.every(prop => exports[prop]),
     props => `revenge.props(${props.join(',')})`,
 ) as ByProps
@@ -106,7 +116,7 @@ export type ByName = <T extends string | object>(
  * const SomeClass = await findModule(byName<{ new(param: string): SomeClass }>('SomeClass'))
  * // const SomeClass: { new(): SomeClass, name: 'SomeClass' }
  */
-export const byName = createFilterGenerator<Parameters<ByName>, IsFilterGeneratorWithExports<ByName>>(
+export const byName = createFilterGenerator<Parameters<ByName>>(
     ([name], _, exports) => exports.name === name,
     ([name]) => `revenge.name(${name})`,
 ) as ByName
@@ -123,7 +133,7 @@ export const byName = createFilterGenerator<Parameters<ByName>, IsFilterGenerato
  * const Logger = await findModule(byDependencies([4, , 2]))
  * ```
  */
-export const byDependencies = createFilterGenerator<[Array<Metro.ModuleID | undefined>], false>(
+export const byDependencies = createFilterGenerator<[Array<Metro.ModuleID | undefined>]>(
     ([deps], id) => {
         const actDeps = _mMetadatas.get(id)![0]
         if (actDeps.length === deps.length)
@@ -167,14 +177,14 @@ export function every<F1 extends Filter, F2 extends Filter, F3 extends Filter>(
 >
 
 export function every(...filters: Filter[]): Filter {
-    const cf: Filter = (id, exports) => {
+    const f = (id: Metro.ModuleID, exports?: Metro.ModuleExports) => {
         for (const filter of filters) if (!filter(id, exports)) return false
         return true
     }
 
-    cf.key = `revenge.every(${filters.map(filter => filter.key).join(',')})`
+    f.key = `revenge.every(${filters.map(filter => filter.key).join(',')})`
 
-    return cf
+    return f
 }
 
 /**
@@ -206,12 +216,32 @@ export function some<F1 extends Filter, F2 extends Filter, F3 extends Filter>(
 >
 
 export function some(...filters: Filter[]): Filter {
-    const cf: Filter = (id, exports) => {
+    const f = (id: Metro.ModuleID, exports?: Metro.ModuleExports) => {
         for (const filter of filters) if (filter(id, exports)) return true
         return false
     }
 
-    cf.key = `revenge.some(${filters.map(filter => filter.key).join(',')})`
+    f.key = `revenge.some(${filters.map(filter => filter.key).join(',')})`
 
-    return cf
+    return f
+}
+
+/**
+ * Filter modules depending on their initialized state.
+ *
+ * @param initializedFilter The filter to use for initialized modules.
+ * @param uninitializedFilter The filter to use for uninitialized modules.
+ */
+export function moduleStateAware<IF extends Filter>(
+    initializedFilter: IF,
+    uninitializedFilter: Filter<any, false>,
+): Filter<FilterResult<IF>, false> {
+    const f = (id: Metro.ModuleID, exports?: Metro.ModuleExports) => {
+        if (_mInited.has(id)) return initializedFilter(id, exports)
+        return uninitializedFilter(id)
+    }
+
+    f.key = `revenge.moduleStateAware(${initializedFilter.key},${uninitializedFilter.key})`
+
+    return f
 }

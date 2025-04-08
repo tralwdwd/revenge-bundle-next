@@ -49,10 +49,23 @@ const FilterResultFlags = {
 export type FilterResultFlag = (typeof FilterResultFlags)[keyof typeof FilterResultFlags]
 
 // The reason this returns a flag is because flags are never falsy, while exports may be falsy when using ID-only filters (eg. `byDependencies`).
-export function runFilter<F extends Filter>(
-    filter: F,
+
+// Currently, we only have options that are relevant for checking exports
+// If we add more options later on, do NOT forget about
+// adding them here, and passing them in the lookup* functions
+export function runFilter(filter: Filter<any, false>, id: Metro.ModuleID): FilterResultFlag | false
+
+export function runFilter(
+    filter: Filter,
     id: Metro.ModuleID,
-    exports: F extends Filter<any, true> ? Metro.ModuleExports : undefined,
+    exports: Metro.ModuleExports,
+    options?: RunFilterOptions,
+): FilterResultFlag | false
+
+export function runFilter(
+    filter: Filter,
+    id: Metro.ModuleID,
+    exports?: Metro.ModuleExports,
     options?: RunFilterOptions,
 ): FilterResultFlag | false {
     if (exports?.__esModule) {
