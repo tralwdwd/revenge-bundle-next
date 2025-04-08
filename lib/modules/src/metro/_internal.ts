@@ -74,19 +74,14 @@ export function _blacklist(id: Metro.ModuleID) {
 }
 
 /**
- * Returns whether a particular export of a module is bad.
- * @param export The exports of the module
- * @returns Whether the module has bad exports
- * @internal
+ * Returns whether a particular module export is bad. This is used for filter functions to check whether an export is filterable.
+ * @param exp The export to check
  */
-export function _isExportBad(exp: Metro.ModuleExports) {
+export function _isExportBad(exp: Metro.ModuleExports[PropertyKey]) {
     return (
         // Nullish?
-        exp === undefined ||
-        exp === null ||
-        // Circular reference
-        exp === globalThis ||
-        // Is it a proxy?
+        exp == null ||
+        // Is it a proxy? (discord-intl has proxy exports)
         isProxy(exp)
     )
 }
@@ -100,12 +95,11 @@ export function _isExportBad(exp: Metro.ModuleExports) {
 export function _isExportsBad(exports: Metro.ModuleExports) {
     return (
         // Nullish?
-        exports === undefined ||
-        exports === null ||
+        exports == null ||
+        // Checking if the object is empty
+        (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length) ||
         // Can't run isProxy() on this because this isn't your typical proxy:
         // https://github.com/discord/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
-        exports === nativeModuleProxy ||
-        // Checking if the object is empty
-        (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length)
+        exports === nativeModuleProxy
     )
 }
