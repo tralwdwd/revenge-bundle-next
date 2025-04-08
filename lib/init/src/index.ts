@@ -14,7 +14,7 @@ onModuleInitialized(0, async function onceIndexModuleRequired() {
     try {
         logger.log('Revenge loaded!')
     } catch (e) {
-        const { ClientInfoModule, DeviceModule } = require('@revenge-mod/modules/native') satisfies
+        const { ClientInfoModule, DeviceModule } = require('@revenge-mod/modules/native') as
             // biome-ignore format: Don't format this please
             typeof import('@revenge-mod/modules/native')
 
