@@ -1,7 +1,7 @@
-import { isProxy } from '@revenge-mod/utils/proxy'
 import { _executeSubscription } from './subscriptions/_internal'
 
 import type { Metro } from '../../types/metro'
+import { isBlacklisted, isModuleExportBad } from '.'
 
 export const _bl = new Set<Metro.ModuleID>()
 
@@ -12,16 +12,16 @@ export const _mUninited = new Set<Metro.ModuleID>()
 /** Initialized IDs */
 export const _mInited = new Set<Metro.ModuleID>()
 
-export const _mMetadatas = new Map<Metro.ModuleID, [deps: Metro.DependencyMap, module?: Metro.Module]>()
 export const _mPaths = new Map<string, Metro.ModuleID>()
+export const _mMd = new Map<Metro.ModuleID, [deps: Metro.DependencyMap, module?: Metro.Module]>()
 
 export function patchMetroDefine(metroDefine: Metro.DefineFn) {
     return ((origFactory, id, deps) => {
         // deps won't be undefined last time I checked
-        const metadata = [deps!] as typeof _mMetadatas extends Map<any, infer V> ? V : never
-        _mMetadatas.set(id, metadata)
+        const metadata = [deps!] as typeof _mMd extends Map<any, infer V> ? V : never
+        _mMd.set(id, metadata)
 
-        if (_bl.has(id)) {
+        if (isBlacklisted(id)) {
             metroDefine(origFactory, id, deps)
             return
         }
@@ -38,7 +38,7 @@ export function patchMetroDefine(metroDefine: Metro.DefineFn) {
                 try {
                     origFactory(g, r, ipD, ipA, m, e, d)
 
-                    if (_isExportsBad(m.exports)) _blacklist(id)
+                    if (isModuleExportBad(m.exports)) _blacklist(id)
                     // If exports isn't bad, we can put it in the list of initialized modules
                     else _mInited.add(id)
                 } finally {
@@ -58,9 +58,9 @@ export function patchMetroDefine(metroDefine: Metro.DefineFn) {
  *
  * Blacklisting modules prevents Revenge from doing the following things:
  *
- * - Iterating over the module during `find()`s
+ * - Iterating over the module during `find()`s.
  *
- * @param id The module ID to blacklist
+ * @param id The module ID to blacklist.
  * @internal
  */
 export function _blacklist(id: Metro.ModuleID) {
@@ -71,35 +71,4 @@ export function _blacklist(id: Metro.ModuleID) {
     // _mInited.delete(id)
 
     // TODO(modules): caching
-}
-
-/**
- * Returns whether a particular module export is bad. This is used for filter functions to check whether an export is filterable.
- * @param exp The export to check
- */
-export function _isExportBad(exp: Metro.ModuleExports[PropertyKey]) {
-    return (
-        // Nullish?
-        exp == null ||
-        // Is it a proxy? (discord-intl has proxy exports)
-        isProxy(exp)
-    )
-}
-
-/**
- * Returns whether the module has bad exports. If it does, it should be blacklisted and never hooked into.
- * @param exports The exports of the module
- * @returns Whether the module has bad exports
- * @internal
- */
-export function _isExportsBad(exports: Metro.ModuleExports) {
-    return (
-        // Nullish?
-        exports == null ||
-        // Checking if the object is empty
-        (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length) ||
-        // Can't run isProxy() on this because this isn't your typical proxy:
-        // https://github.com/discord/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
-        exports === nativeModuleProxy
-    )
 }

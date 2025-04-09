@@ -48,7 +48,7 @@ export function findModule<F extends Filter, O extends FindModuleOptions>(filter
     return new Promise<O extends RunFilterReturnExportsOptions<true> ? MaybeDefaultExportMatched<Result> : Result>(
         (ok, err) => {
             const exports = lookupModule<F, O>(filter, options!)
-            if (exports !== undefined) return ok(exports)
+            if (exports != null) return ok(exports)
 
             const unsub = waitForModules<F, O>(
                 filter,
@@ -105,7 +105,7 @@ export function findModuleId<F extends Filter, O extends FindModuleIdOptions>(
 export function findModuleId(filter: Filter, options?: FindModuleIdOptions) {
     return new Promise<Metro.ModuleID>((ok, err) => {
         const id = lookupModuleId(filter, options)
-        if (id !== undefined) {
+        if (id != null) {
             ok(id)
             return
         }
@@ -152,7 +152,7 @@ export function findModuleId(filter: Filter, options?: FindModuleIdOptions) {
 export function findModuleByImportedPath<T>(path: string, options?: BaseFindModuleOptions): Promise<T> {
     return new Promise((ok, err) => {
         const exports = lookupModuleByImportedPath(path)
-        if (exports !== undefined) {
+        if (exports != null) {
             ok(exports)
             return
         }
@@ -221,7 +221,7 @@ export function findModuleSync<F extends Filter, O extends FindModuleSyncOptions
 
 export function findModuleSync<F extends Filter, O extends FindModuleSyncOptions>(filter: F, options?: O) {
     const exports = lookupModule(filter, options!)
-    if (exports !== undefined) return exports
+    if (exports != null) return exports
 
     let value: unknown | undefined
     const unsub = waitForModules(
@@ -261,7 +261,7 @@ export function findModuleByImportedPathSync<T = any>(
     options?: BaseFindModuleSyncOptions,
 ): T | undefined {
     const exports = lookupModuleByImportedPath<T>(path)
-    if (exports !== undefined) return exports
+    if (exports != null) return exports
 
     let value: unknown | undefined
     const unsub = waitForModuleByImportedPath(path, (_, exports) => {

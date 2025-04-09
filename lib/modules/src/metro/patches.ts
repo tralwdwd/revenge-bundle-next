@@ -1,13 +1,13 @@
 import '@revenge-mod/assets/patches'
 
-import { _bl, _mInitingId, _mMetadatas, _mPaths, _mUninited } from './_internal'
-import { onAnyModuleInitialized } from './subscriptions'
+import { _mInitingId, _mPaths } from './_internal'
 
 import { _executeImportedPathSubscription } from './subscriptions/_internal'
 
-const unsubForImportTracker = onAnyModuleInitialized((id, exports) => {
-    if (_bl.has(id)) return
+import { waitForModules } from '../finders'
+import { byProps } from '../finders/filters'
 
+const unsubForImportTracker = waitForModules(byProps('fileFinishedImporting'), (_, exports) => {
     const orig = exports.fileFinishedImporting
     if (orig) {
         unsubForImportTracker()

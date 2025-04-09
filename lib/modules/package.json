@@ -10,7 +10,7 @@
       "default": "./src/finders/filters.ts"
     },
     "./metro": {
-      "default": "./src/metro.ts"
+      "default": "./src/metro/index.ts"
     },
     "./metro/subscriptions": {
       "default": "./src/metro/subscriptions/index.ts"

@@ -1,4 +1,6 @@
-import { _mInited, _mMetadatas } from '../metro/_internal'
+import { _mInited } from '../metro/_internal'
+
+import { getModuleDependencies } from '../metro'
 
 import type { If, LogicalOr } from '@revenge-mod/utils/types'
 import type { Metro } from '../../types/metro'
@@ -46,13 +48,13 @@ export function createFilterGenerator<A extends any[]>(
 ): (...args: A) => Filter<object, false>
 
 export function createFilterGenerator<A extends any[]>(
-    filter: (args: A, id: Metro.ModuleID, exports?: Metro.ModuleExports) => boolean,
+    f: (args: A, id: Metro.ModuleID, exports?: Metro.ModuleExports) => boolean,
     keyFor: (args: A) => string,
 ): (...args: any[]) => Filter {
     return (...args: A) => {
-        const f = (id: Metro.ModuleID, exports?: Metro.ModuleExports) => filter(args, id, exports)
-        f.key = keyFor(args)
-        return f
+        const filter = (id: Metro.ModuleID, exports?: Metro.ModuleExports) => f(args, id, exports)
+        filter.key = keyFor(args)
+        return filter
     }
 }
 
@@ -74,7 +76,7 @@ export type ByProps = <T extends Record<string, any> = Record<string, any>>(
  * ```
  */
 export const byProps = createFilterGenerator<Parameters<ByProps>>(
-    (props, _, exports) => props.every(prop => prop in exports),
+    (props, _, exports) => typeof exports === 'object' && props.every(prop => prop in exports),
     props => `revenge.props(${props.join(',')})`,
 ) as ByProps
 
@@ -117,10 +119,15 @@ export const byName = createFilterGenerator<Parameters<ByName>>(
     ([name]) => `revenge.name(${name})`,
 ) as ByName
 
+export type ComparableDependencyMap = Array<Metro.ModuleID | undefined | ComparableDependencyMap> & {
+    loose?: boolean
+}
+
 /**
  * Filter modules by their dependency map.
  *
- * @param deps The dependency map to check for, can be a sparse array or have `undefined` for "any dependency". **Order and size matters!**
+ * @param deps The dependency map to check for, can be a sparse array or have `undefined` to be any dependency ("dynamic"). **Order and size matters!**
+ * @see {@link looseDeps} to make comparisons less strict.
  *
  * @example
  * ```ts
@@ -129,20 +136,77 @@ export const byName = createFilterGenerator<Parameters<ByName>>(
  * const Logger = await findModule(byDependencies([4, , 2]))
  * ```
  */
-export const byDependencies = createFilterGenerator<[Array<Metro.ModuleID | undefined>]>(
-    ([deps], id) => {
-        const actDeps = _mMetadatas.get(id)![0]
-        if (actDeps.length === deps.length)
-            for (let i = 0; i < deps.length; i++) {
-                const cmp = deps[i]
-                if (Number.isInteger(cmp) && actDeps[i] !== cmp) return false
-            }
-        else return false
-
-        return true
-    },
-    deps => `revenge.deps(${deps.join(',')})`,
+export const byDependencies = createFilterGenerator<[deps: ComparableDependencyMap]>(
+    ([deps], id) => compareDeps(id, deps, deps.loose),
+    deps => `revenge.deps(${depsToKey(deps)})`,
 )
+
+/**
+ * Make this set of comparable dependencies as loose, to be used with {@link byDependencies}.
+ *
+ * Making a dependency loose skips the exact length check, but the order of the set dependencies still matters.
+ * If you mark an index as dynamic, the same index must also be present in the other map during comparison to pass.
+ *
+ * @param deps The dependency map to make loose. This permanently modifies the array.
+ * @returns The modified dependency map.
+ */
+export function looseDeps(deps: ComparableDependencyMap) {
+    deps.loose = true
+    return deps
+}
+
+function compareDeps(of: Metro.ModuleID, compare: ComparableDependencyMap, loose = false): boolean {
+    const stack: Array<[of: Metro.ModuleID[], compare: ComparableDependencyMap, loose: boolean]> = []
+    stack.push([getModuleDependencies(of)!, compare, loose])
+
+    while (stack.length) {
+        const [of, compare, loose] = stack.pop()!
+        if (loose ? of.length < compare.length : of.length !== compare.length) return false
+
+        for (let i = 0; i < compare.length; i++) {
+            const orig = of[i]
+            const cmp = compare[i]
+            if (cmp === undefined) continue
+
+            if (Array.isArray(cmp)) {
+                const dependencies = getModuleDependencies(orig)
+                if (!dependencies) return false
+                stack.push([dependencies, cmp, cmp.loose ?? false])
+            } else if (orig !== cmp) return false
+        }
+    }
+
+    return true
+}
+
+function depsToKey(deps: ComparableDependencyMap): string {
+    let key = ''
+
+    for (const dep of deps)
+        if (dep === undefined) key += ','
+        else if (Array.isArray(dep)) {
+            if (dep.loose) key += '#'
+            key += `[${depsToKey(dep)}],`
+        } else key += `${dep},`
+
+    return key.substring(0, key.length - 1)
+}
+
+export type Every = {
+    <F1 extends Filter, F2 extends Filter>(
+        f1: F1,
+        f2: F2,
+    ): Filter<FilterResult<F1> & FilterResult<F2>, LogicalOr<IsFilterWithExports<F1>, IsFilterWithExports<F2>>>
+    <F1 extends Filter, F2 extends Filter, F3 extends Filter>(
+        f1: F1,
+        f2: F2,
+        f3: F3,
+    ): Filter<
+        FilterResult<F1> & FilterResult<F2> & FilterResult<F3>,
+        LogicalOr<LogicalOr<IsFilterWithExports<F1>, IsFilterWithExports<F2>>, IsFilterWithExports<F3>>
+    >
+    (...filters: Filter[]): Filter
+}
 
 /**
  * Combines multiple filters into one, returning true if **every** filter matches.
@@ -158,29 +222,25 @@ export const byDependencies = createFilterGenerator<[Array<Metro.ModuleID | unde
  * ))
  * ```
  */
-export function every<F1 extends Filter, F2 extends Filter>(
-    f1: F1,
-    f2: F2,
-): Filter<FilterResult<F1> & FilterResult<F2>, LogicalOr<IsFilterWithExports<F1>, IsFilterWithExports<F2>>>
+export const every = createFilterGenerator<[...filters: Filter[]]>(
+    (filters, id, exports) => filters.every(filter => filter(id, exports)),
+    filters => `revenge.every(${filtersToKey(filters)})`,
+) as Every
 
-export function every<F1 extends Filter, F2 extends Filter, F3 extends Filter>(
-    f1: F1,
-    f2: F2,
-    f3: F3,
-): Filter<
-    FilterResult<F1> & FilterResult<F2> & FilterResult<F3>,
-    LogicalOr<LogicalOr<IsFilterWithExports<F1>, IsFilterWithExports<F2>>, IsFilterWithExports<F3>>
->
-
-export function every(...filters: Filter[]): Filter {
-    const f = (id: Metro.ModuleID, exports?: Metro.ModuleExports) => {
-        for (const filter of filters) if (!filter(id, exports)) return false
-        return true
-    }
-
-    f.key = `revenge.every(${filters.map(filter => filter.key).join(',')})`
-
-    return f
+export type Some = {
+    <F1 extends Filter, F2 extends Filter>(
+        f1: F1,
+        f2: F2,
+    ): Filter<FilterResult<F1> | FilterResult<F2>, IsFilterWithExports<F1> | IsFilterWithExports<F2>>
+    <F1 extends Filter, F2 extends Filter, F3 extends Filter>(
+        f1: F1,
+        f2: F2,
+        f3: F3,
+    ): Filter<
+        FilterResult<F1> | FilterResult<F2> | FilterResult<F3>,
+        IsFilterWithExports<F1> | IsFilterWithExports<F2> | IsFilterWithExports<F3>
+    >
+    (...filters: Filter[]): Filter
 }
 
 /**
@@ -197,30 +257,21 @@ export function every(...filters: Filter[]): Filter {
  * ))
  * ```
  */
-export function some<F1 extends Filter, F2 extends Filter>(
-    f1: F1,
-    f2: F2,
-): Filter<FilterResult<F1> | FilterResult<F2>, IsFilterWithExports<F1> | IsFilterWithExports<F2>>
+export const some = createFilterGenerator<[...filters: Filter[]]>(
+    (filters, id, exports) => filters.some(filter => filter(id, exports)),
+    filters => `revenge.some(${filtersToKey(filters)})`,
+) as Some
 
-export function some<F1 extends Filter, F2 extends Filter, F3 extends Filter>(
-    f1: F1,
-    f2: F2,
-    f3: F3,
-): Filter<
-    FilterResult<F1> | FilterResult<F2> | FilterResult<F3>,
-    IsFilterWithExports<F1> | IsFilterWithExports<F2> | IsFilterWithExports<F3>
->
-
-export function some(...filters: Filter[]): Filter {
-    const f = (id: Metro.ModuleID, exports?: Metro.ModuleExports) => {
-        for (const filter of filters) if (filter(id, exports)) return true
-        return false
-    }
-
-    f.key = `revenge.some(${filters.map(filter => filter.key).join(',')})`
-
-    return f
+function filtersToKey(filters: Filter[]): string {
+    let s = ''
+    for (const filter of filters) s += `${filter.key},`
+    return s.substring(0, s.length - 1)
 }
+
+export type ModuleStateAware = <IF extends Filter>(
+    initializedFilter: IF,
+    uninitializedFilter: Filter<any, false>,
+) => Filter<FilterResult<IF>, false>
 
 /**
  * Filter modules depending on their initialized state.
@@ -238,16 +289,10 @@ export function some(...filters: Filter[]): Filter {
  * ))
  * ```
  */
-export function moduleStateAware<IF extends Filter>(
-    initializedFilter: IF,
-    uninitializedFilter: Filter<any, false>,
-): Filter<FilterResult<IF>, false> {
-    const f = (id: Metro.ModuleID, exports?: Metro.ModuleExports) => {
+export const moduleStateAware = createFilterGenerator<Parameters<ModuleStateAware>>(
+    ([initializedFilter, uninitializedFilter], id, exports) => {
         if (_mInited.has(id)) return initializedFilter(id, exports)
         return uninitializedFilter(id)
-    }
-
-    f.key = `revenge.moduleStateAware(${initializedFilter.key},${uninitializedFilter.key})`
-
-    return f
-}
+    },
+    ([f1, f2]) => `revenge.moduleStateAware(${f1.key},${f2.key})`,
+) as ModuleStateAware

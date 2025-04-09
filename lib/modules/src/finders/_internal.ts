@@ -1,4 +1,4 @@
-import { _isExportBad } from '../metro/_internal'
+import { isModuleExportBad } from '../metro'
 
 import type { If } from '@revenge-mod/utils/types'
 import type { Metro } from '../../types/metro'
@@ -72,7 +72,7 @@ export function runFilter(
         const { default: defaultExport } = exports
 
         // TODO(modules/caches/flags): could cache here that default export is bad
-        if (!options?.esmSkipDefault && !_isExportBad(defaultExport) && filter(id, defaultExport)) {
+        if (!options?.esmSkipDefault && !isModuleExportBad(defaultExport) && filter(id, defaultExport)) {
             // TODO(modules/finders/caches::esm::default)
             return FilterResultFlags.ESModuleDefault
         }

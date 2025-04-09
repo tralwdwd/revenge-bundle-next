@@ -1,10 +1,12 @@
-import { _mInited, _mMetadatas, _mPaths, _mUninited } from '../metro/_internal'
+import { _mInited, _mPaths, _mUninited } from '../metro/_internal'
 import {
     type RunFilterOptions,
     type RunFilterReturnExportsOptions,
     runFilter,
     runFilterReturnExports,
 } from './_internal'
+
+import { getInitializedModuleExports } from '../metro'
 
 import type { MaybeDefaultExportMatched } from '.'
 import type { Metro } from '../../types/metro'
@@ -71,10 +73,7 @@ export function* lookupModuleIds<O extends LookupModuleIdsOptions>(
     options?: O,
 ): Generator<Metro.ModuleID, undefined> {
     if (options?.includeInitialized ?? true)
-        for (const id of _mInited) {
-            const { exports } = _mMetadatas.get(id)![1]!
-            if (runFilter(filter, id, exports, options)) yield id
-        }
+        for (const id of _mInited) if (runFilter(filter, id, getInitializedModuleExports(id), options)) yield id
 
     if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) yield id
 }
@@ -106,9 +105,8 @@ export function lookupModules<
 export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     if (options?.includeInitialized ?? true)
         for (const id of _mInited) {
-            const { exports } = _mMetadatas.get(id)![1]!
-            const result = runFilterReturnExports(filter, id, exports, options)
-            if (result) yield result
+            const result = runFilterReturnExports(filter, id, getInitializedModuleExports(id), options)
+            if (result != null) yield result
         }
 
     if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) yield __r(id)
@@ -142,10 +140,7 @@ export function lookupModuleId<O extends LookupModuleIdsOptions>(
     options?: O,
 ): Metro.ModuleID | undefined {
     if (options?.includeInitialized ?? true)
-        for (const id of _mInited) {
-            const { exports } = _mMetadatas.get(id)![1]!
-            if (runFilter(filter, id, exports, options)) return id
-        }
+        for (const id of _mInited) if (runFilter(filter, id, getInitializedModuleExports(id), options)) return id
 
     if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) return id
 }
@@ -174,9 +169,8 @@ export function lookupModule<F extends Filter, O extends LookupModulesOptions>(
 export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
     if (options?.includeInitialized ?? true)
         for (const id of _mInited) {
-            const { exports } = _mMetadatas.get(id)![1]!
-            const result = runFilterReturnExports(filter, id, exports, options)
-            if (result) return result
+            const result = runFilterReturnExports(filter, id, getInitializedModuleExports(id), options)
+            if (result != null) return result
         }
 
     if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) return __r(id)
@@ -199,5 +193,5 @@ export function lookupModuleByImportedPath<T = any>(path: string): T | undefined
     const id = _mPaths.get(path)
     if (id === undefined) return
 
-    if (_mMetadatas.has(id)) return _mMetadatas.get(id)![1]!.exports
+    return getInitializedModuleExports(id)
 }

@@ -1,5 +1,4 @@
-import { onAnyModuleInitialized, onModuleFinishedImporting } from '../metro'
-import { _bl, _mMetadatas } from '../metro/_internal'
+import { getInitializedModuleExports, isBlacklisted, onAnyModuleInitialized, onModuleFinishedImporting } from '../metro'
 import { runFilterReturnExports, type RunFilterReturnExportsOptions } from './_internal'
 
 import type { MaybeDefaultExportMatched } from '.'
@@ -51,9 +50,9 @@ export function waitForModules(
     options?: WaitForModulesOptions,
 ) {
     const unsub = onAnyModuleInitialized((id, exports) => {
-        if (_bl.has(id)) return
+        if (isBlacklisted(id)) return
         const result = runFilterReturnExports(filter, id, exports, options)
-        if (result) callback(id, exports)
+        if (result != null) callback(id, exports)
     })
 
     return unsub
@@ -81,9 +80,8 @@ export function waitForModules(
 export function waitForModuleByImportedPath<T = any>(path: string, callback: (id: Metro.ModuleID, exports: T) => any) {
     const unsub = onModuleFinishedImporting((id, cmpPath) => {
         if (path === cmpPath) {
-            const { exports } = _mMetadatas.get(id)![1]!
-            callback(id, exports)
             unsub()
+            callback(id, getInitializedModuleExports(id))
         }
     })
 
