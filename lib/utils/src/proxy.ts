@@ -169,10 +169,9 @@ export function destructure<T extends object>(proxified: T, options?: ProxifyOpt
                 const v = unproxify(proxified)[p]
 
                 if (v == null) throw new TypeError(`Cannot destructure and proxify ${v} (reading '${String(p)}')`)
+                if (typeof v === 'function' || typeof v === 'object') return v
                 // Forcefully proxify primitives
-                if (typeof v !== 'object' && typeof v !== 'function') return Object(v)
-
-                return v
+                return Object(v)
             }, options),
     })
 }
