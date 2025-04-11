@@ -1,7 +1,7 @@
 import { _executeSubscription } from './subscriptions/_internal'
+import { isBlacklisted, isModuleExportsBad } from './utils'
 
 import type { Metro } from '../../types/metro'
-import { isBlacklisted, isModuleExportBad } from '.'
 
 export const _bl = new Set<Metro.ModuleID>()
 
@@ -9,7 +9,7 @@ export const _bl = new Set<Metro.ModuleID>()
 export let _mInitingId = -1
 /** Uninitialized IDs */
 export const _mUninited = new Set<Metro.ModuleID>()
-/** Initialized IDs */
+/** Known initialized IDs (exports aren't bad) */
 export const _mInited = new Set<Metro.ModuleID>()
 
 export const _mPaths = new Map<string, Metro.ModuleID>()
@@ -21,35 +21,37 @@ export function patchMetroDefine(metroDefine: Metro.DefineFn) {
         const metadata = [deps!] as typeof _mMd extends Map<any, infer V> ? V : never
         _mMd.set(id, metadata)
 
-        if (isBlacklisted(id)) {
-            metroDefine(origFactory, id, deps)
-            return
+        if (isBlacklisted(id)) metroDefine(origFactory, id, deps)
+        else {
+            _mUninited.add(id)
+
+            metroDefine(
+                ((global, req, importDefault, importAll, module, exports, deps) => {
+                    metadata[1] = module
+
+                    const prevIId = _mInitingId
+                    _mInitingId = id
+
+                    try {
+                        origFactory(global, req, importDefault, importAll, module, exports, deps)
+                        // Don't use exports here, as modules can set module.exports to a different object
+                        if (isModuleExportsBad(module.exports)) throw undefined
+
+                        // Add the module to the initialized set only if the factory doesn't error or the exports aren't bad
+                        _mInited.add(id)
+                    } catch {
+                        _blacklist(id)
+                    } finally {
+                        _mInitingId = prevIId
+                        _mUninited.delete(id)
+                        // Don't use exports here, as modules can set module.exports to a different object
+                        _executeSubscription(id, module.exports)
+                    }
+                }) satisfies Metro.FactoryFn,
+                id,
+                deps,
+            )
         }
-
-        _mUninited.add(id)
-
-        metroDefine(
-            ((g, r, ipD, ipA, m, e, d) => {
-                metadata[1] = m
-
-                const prevIId = _mInitingId
-                _mInitingId = id
-
-                try {
-                    origFactory(g, r, ipD, ipA, m, e, d)
-
-                    if (isModuleExportBad(m.exports)) _blacklist(id)
-                    // If exports isn't bad, we can put it in the list of initialized modules
-                    else _mInited.add(id)
-                } finally {
-                    _mInitingId = prevIId
-                    _mUninited.delete(id)
-                    _executeSubscription(id, m.exports)
-                }
-            }) satisfies Metro.FactoryFn,
-            id,
-            deps,
-        )
     }) satisfies Metro.DefineFn
 }
 
@@ -65,6 +67,8 @@ export function patchMetroDefine(metroDefine: Metro.DefineFn) {
  */
 export function _blacklist(id: Metro.ModuleID) {
     _bl.add(id)
+    // In case blacklisting happens before the module is initialized
+    _mUninited.delete(id)
 
     // Usually we'd also remove the module from _mInited too,
     // but we already have an else block in the patchMetroDefine function that does that for us.
