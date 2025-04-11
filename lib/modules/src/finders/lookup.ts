@@ -37,8 +37,8 @@ export type LookupModulesOptions<
 > = RunFilterReturnExportsOptions<ReturnNamespace> & BaseLookupModulesOptions<IncludeUninitialized>
 
 export type LookupModulesResult<
-    O extends LookupModulesOptions,
     F extends Filter,
+    O extends LookupModulesOptions,
 > = O extends RunFilterReturnExportsOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>
 
 export type LookupModuleIdsOptions<IncludeUninitialized extends boolean = boolean> =
@@ -100,7 +100,7 @@ export function lookupModules<F extends Filter>(filter: F): Generator<FilterResu
 export function lookupModules<
     F extends O extends BaseLookupModulesOptions<true> ? Filter<any, false> : Filter,
     O extends LookupModulesOptions,
->(filter: F, options: O): Generator<LookupModulesResult<O, F>, undefined>
+>(filter: F, options: O): Generator<LookupModulesResult<F, O>, undefined>
 
 export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     if (options?.includeInitialized ?? true)
@@ -164,7 +164,7 @@ export function lookupModule<F extends Filter>(filter: F): FilterResult<F> | und
 export function lookupModule<F extends Filter, O extends LookupModulesOptions>(
     filter: F,
     options: O,
-): LookupModulesResult<O, F> | undefined
+): LookupModulesResult<F, O> | undefined
 
 export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
     if (options?.includeInitialized ?? true)
