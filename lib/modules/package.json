@@ -18,6 +18,10 @@
     "./native": {
       "default": "./src/native.ts"
     },
+    "./types/*": {
+      "default": "./types/*.d.ts",
+      "types": "./types/*.d.ts"
+    },
     "./_/metro": {
       "default": "./src/metro/_internal.ts"
     }
