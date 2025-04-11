@@ -15,9 +15,20 @@ export type BaseFindModuleOptions = {
     // TODO(modules/finders/find::options): Add an option to force initialize when module ID is known (find is cached).
 }
 
-export type FindModuleOptions = WaitForModulesOptions & LookupModulesOptions & BaseFindModuleOptions
+export type FindModuleOptions<
+    ReturnNamespace extends boolean = boolean,
+    IncludeUninitialized extends boolean = boolean,
+> = WaitForModulesOptions<ReturnNamespace> &
+    LookupModulesOptions<ReturnNamespace, IncludeUninitialized> &
+    BaseFindModuleOptions
 
-export type FindModuleIdOptions = LookupModuleIdsOptions & FindModuleOptions
+export type FindModuleIdOptions<IncludeUninitialized extends boolean = boolean> =
+    LookupModuleIdsOptions<IncludeUninitialized> & BaseFindModuleOptions
+
+export type FindModuleResult<
+    F extends Filter,
+    O extends FindModuleOptions,
+> = O extends RunFilterReturnExportsOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>
 
 /**
  * Find a module.
@@ -37,44 +48,40 @@ export type FindModuleIdOptions = LookupModuleIdsOptions & FindModuleOptions
  */
 export function findModule<F extends Filter>(filter: F): Promise<FilterResult<F>>
 
-export function findModule<F extends Filter, O extends FindModuleOptions>(
-    filter: F,
-    options: O,
-): Promise<O extends RunFilterReturnExportsOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>>
+export function findModule<
+    F extends O extends FindModuleOptions<boolean, true> ? Filter<any, false> : Filter,
+    O extends FindModuleOptions,
+>(filter: F, options: O): Promise<FindModuleResult<F, O>>
 
-export function findModule<F extends Filter, O extends FindModuleOptions>(filter: F, options?: O) {
-    type Result = FilterResult<F>
+export function findModule(filter: Filter, options?: FindModuleOptions) {
+    return new Promise((ok, err) => {
+        const exports = lookupModule(filter, options!)
+        if (exports != null) return ok(exports)
 
-    return new Promise<O extends RunFilterReturnExportsOptions<true> ? MaybeDefaultExportMatched<Result> : Result>(
-        (ok, err) => {
-            const exports = lookupModule<F, O>(filter, options!)
-            if (exports != null) return ok(exports)
-
-            const unsub = waitForModules<F, O>(
-                filter,
-                (_, exports) => {
-                    unsub()
-                    ok(exports)
-                },
-                options!,
-            )
-
-            const onAbort = () => {
+        const unsub = waitForModules(
+            filter,
+            (_, exports) => {
                 unsub()
-                err(new Error(`${findModule.name} aborted before resolved: ${filter.key}`))
+                ok(exports)
+            },
+            options!,
+        )
+
+        const onAbort = () => {
+            unsub()
+            err(new Error(`${findModule.name} aborted before resolved: ${filter.key}`))
+        }
+
+        const signal = options?.abortSignal
+        if (signal) {
+            if (signal.aborted) {
+                onAbort()
+                return
             }
 
-            const signal = options?.abortSignal
-            if (signal) {
-                if (signal.aborted) {
-                    onAbort()
-                    return
-                }
-
-                signal.addEventListener('abort', onAbort, { once: true })
-            }
-        },
-    )
+            signal.addEventListener('abort', onAbort, { once: true })
+        }
+    })
 }
 
 /**
@@ -95,15 +102,11 @@ export function findModule<F extends Filter, O extends FindModuleOptions>(filter
  * const FlashListModule = __r(FlashListId)
  * ```
  */
-export function findModuleId<F extends Filter>(filter: F): Promise<Metro.ModuleID>
-
-export function findModuleId<F extends Filter, O extends FindModuleIdOptions>(
-    filter: F,
-    options: O,
-): Promise<O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>>
-
-export function findModuleId(filter: Filter, options?: FindModuleIdOptions) {
-    return new Promise<Metro.ModuleID>((ok, err) => {
+export function findModuleId<O extends FindModuleIdOptions>(
+    filter: O extends FindModuleIdOptions<true> ? Filter<any, false> : Filter,
+    options?: O,
+): Promise<Metro.ModuleID> {
+    return new Promise((ok, err) => {
         const id = lookupModuleId(filter, options)
         if (id != null) {
             ok(id)
@@ -180,7 +183,10 @@ export function findModuleByImportedPath<T>(path: string, options?: BaseFindModu
 }
 
 export type BaseFindModuleSyncOptions = BaseFindModuleOptions & ProxifyOptions
-export type FindModuleSyncOptions = FindModuleOptions & BaseFindModuleSyncOptions
+export type FindModuleSyncOptions<
+    ReturnNamespace extends boolean = boolean,
+    IncludeUninitialized extends boolean = boolean,
+> = FindModuleOptions<ReturnNamespace, IncludeUninitialized> & BaseFindModuleSyncOptions
 
 /**
  * Find a module synchronously.
@@ -212,14 +218,14 @@ export type FindModuleSyncOptions = FindModuleOptions & BaseFindModuleSyncOption
  * })
  * ```
  */
-export function findModuleSync<F extends Filter>(filter: F): FilterResult<F>
+export function findModuleSync<F extends Filter>(filter: F): FilterResult<F> | undefined
 
-export function findModuleSync<F extends Filter, O extends FindModuleSyncOptions>(
-    filter: F,
-    options: O,
-): O extends LookupModulesOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>
+export function findModuleSync<
+    F extends O extends FindModuleSyncOptions<boolean, true> ? Filter<any, false> : Filter,
+    O extends FindModuleSyncOptions,
+>(filter: F, options: O): FindModuleResult<F, O> | undefined
 
-export function findModuleSync<F extends Filter, O extends FindModuleSyncOptions>(filter: F, options?: O) {
+export function findModuleSync(filter: Filter, options?: FindModuleSyncOptions) {
     const exports = lookupModule(filter, options!)
     if (exports != null) return exports
 
