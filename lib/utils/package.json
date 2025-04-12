@@ -15,11 +15,14 @@
     "./logger": {
       "default": "./src/logger.ts"
     },
-    "./types": {
-      "types": "./src/types.d.ts"
-    },
     "./proxy": {
       "default": "./src/proxy.ts"
+    },
+    "./objects": {
+      "default": "./src/objects.ts"
+    },
+    "./types": {
+      "types": "./src/types.d.ts"
     }
   }
 }
