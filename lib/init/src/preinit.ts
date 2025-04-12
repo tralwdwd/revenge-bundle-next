@@ -1,13 +1,6 @@
 import { patchMetroDefine } from '@revenge-mod/modules/_/metro'
+import { interceptProperty } from '@revenge-mod/utils/objects'
 
-if (globalThis.__d) globalThis.__d = patchMetroDefine(globalThis.__d)
-else
-    Object.defineProperty(globalThis, '__d', {
-        configurable: true,
-        set: v => {
-            // @ts-expect-error
-            // biome-ignore lint/performance/noDelete: This is only done one time ever
-            delete globalThis.__d
-            globalThis.__d = patchMetroDefine(v)
-        },
-    })
+// By doing this, we are assuming __METRO_GLOBAL_PREFIX is an empty string
+// and globalThis.__d isn't already set (which should be the case anyways)
+const unintercept = interceptProperty('__d', (_, mDefine) => (unintercept(), patchMetroDefine(mDefine)))
