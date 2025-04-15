@@ -1,5 +1,6 @@
 {
   "name": "@revenge-mod/revenge",
+  "version": "0.1.0",
   "private": true,
   "module": "src/index.ts",
   "type": "module",
@@ -17,7 +18,10 @@
     "rolldown": "^1.0.0-beta.7-commit.eeb1005"
   },
   "peerDependencies": {
-    "@react-navigation/core": "^5.0.0",
+    "@react-navigation/core": "^7.0.0",
+    "@react-navigation/native": "^7.0.0",
+    "@react-navigation/stack": "^7.0.0",
+    "@shopify/flash-list": "1.7.2",
     "@types/react": "^18.3.1",
     "buffer": "^6.0.3",
     "react": "18.3.1",
