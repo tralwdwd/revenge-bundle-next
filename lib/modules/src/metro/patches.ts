@@ -14,7 +14,7 @@ const unsubForImportTracker = waitForModules(byProps('fileFinishedImporting'), (
         exports.fileFinishedImporting = (path: string) => {
             orig(path)
             _mPaths.set(path, _mInitingId)
-            _executeImportedPathSubscription(_mInitingId, path)
+            _executeImportedPathSubscription(path)
         }
     }
 })

@@ -3,12 +3,12 @@ import './preinit'
 import './patches/prevent-immutablize'
 import './patches/proxy'
 
-import { onModuleInitialized } from '@revenge-mod/modules/metro/subscriptions'
+import { onModuleFirstRequired } from '@revenge-mod/modules/metro/subscriptions'
 import { getErrorStack } from '@revenge-mod/utils/errors'
 
 import { logger } from './shared'
 
-onModuleInitialized(0, async function onceIndexModuleRequired() {
+onModuleFirstRequired(0, async function onceIndexModuleRequired() {
     if (!__BUILD_FLAG_INIT_DISABLE_PATCH_LOG_PROMISE_REJECTIONS__) require('./patches/log-promise-rejections')
 
     try {
