@@ -1,28 +1,35 @@
 import { isProxy } from '@revenge-mod/utils/proxy'
-import { _bl, _mMd, _mInited } from './_internal'
+import { _mInited, _mMd, _mUninited } from './_internal'
+
 import type { Metro } from '../../types/metro'
 
 /**
- * Returns whether a module is blacklisted.
- * @param id The module ID to check.
+ * Returns whether an uninitialized module is blacklisted.
+ *
+ * @see {@link isModuleExportsBad} for more information on what is considered a bad module export.
+ *
+ * @param id The module ID.
  */
-export function isBlacklisted(id: Metro.ModuleID) {
-    return _bl.has(id)
+export function isUninitializedModuleBlacklisted(id: Metro.ModuleID): boolean {
+    return !_mUninited.has(id)
 }
 
 /**
- * Returns whether a module is initialized.
- * @param id The module ID to check.
+ * Returns whether an initialized module is blacklisted.
+ *
+ * @see {@link isModuleExportsBad} for more information on what is considered a bad module export.
+ *
+ * @param id The module ID.
  */
-export function isModuleInitialized(id: Metro.ModuleID) {
-    return _mInited.has(id)
+export function isInitializedModuleBlacklisted(id: Metro.ModuleID): boolean {
+    return !_mInited.has(id)
 }
 
 /**
  * Returns the dependencies of a module.
  * @param id The module ID.
  */
-export function getModuleDependencies(id: Metro.ModuleID) {
+export function getModuleDependencies(id: Metro.ModuleID): Metro.DependencyMap | undefined {
     return _mMd.get(id)?.[0]
 }
 
@@ -30,7 +37,7 @@ export function getModuleDependencies(id: Metro.ModuleID) {
  * Returns the exports of an initialized module.
  * @param id The module ID.
  */
-export function getInitializedModuleExports(id: Metro.ModuleID) {
+export function getInitializedModuleExports(id: Metro.ModuleID): Metro.ModuleExports | undefined {
     return _mMd.get(id)?.[1]?.exports
 }
 
@@ -38,7 +45,7 @@ export function getInitializedModuleExports(id: Metro.ModuleID) {
  * Returns whether a particular module export is bad. This is used for filter functions to check whether an export is filterable.
  * @param exp The export to check.
  */
-export function isModuleExportBad(exp: Metro.ModuleExports[PropertyKey]) {
+export function isModuleExportBad(exp: Metro.ModuleExports[PropertyKey]): boolean {
     return (
         // Nullish?
         exp == null ||
@@ -51,18 +58,22 @@ export function isModuleExportBad(exp: Metro.ModuleExports[PropertyKey]) {
 }
 
 /**
- * Returns whether the module has bad exports. If it does, it should be blacklisted and never hooked into.
+ * Returns whether the module has bad exports. If it does, it will be blacklisted to avoid filtering issues.
+ *
+ * `/finders` will always avoid blacklisted modules. To look for blacklisted modules, use `/metro/subscriptions`.
+ *
+ * **Which module exports are considered bad?** Anything not an object or function, or an empty object.
+ *
  * @param exports The exports of the module.
  */
-export function isModuleExportsBad(exports: Metro.ModuleExports) {
+export function isModuleExportsBad(exports: Metro.ModuleExports): boolean {
     return (
         // Nullish?
         exports == null ||
-        // Booleans are not useful
-        typeof exports === 'boolean' ||
-        // Number exports are not particularly useful either
-        // Usually can be found in asset modules, but we already have patches for those
-        typeof exports === 'number' ||
+        // Isn't an object or function?
+        // - Number exports are not useful, usually just an asset ID
+        // - String, Boolean, Symbol, BigInt exports are not useful (who would do `module.exports = ...`?)
+        !(typeof exports === 'object' || exports.__proto__ === Function.prototype) ||
         // Checking if the object is empty
         (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length)
     )
