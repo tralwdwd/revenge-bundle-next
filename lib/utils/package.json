@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./callbacks": {
+      "default": "./src/callbacks.ts"
+    },
     "./errors": {
       "default": "./src/errors.ts"
     },

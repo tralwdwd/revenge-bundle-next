@@ -1,23 +1,12 @@
-import { join } from 'path'
 import watcher from '@parcel/watcher'
+import { debounce } from '@revenge-mod/utils/callbacks'
 import chalk from 'chalk'
+import { join } from 'path'
 import build from './build'
 
 const cwdify = (path: string) => join(process.cwd(), path)
-
 const Sources = ['src', 'lib', 'plugins'].map(cwdify)
 const ExitTriggers = ['scripts', 'package.json', 'bun.lock'].map(cwdify)
-
-function debounce<F extends (...args: any[]) => any>(func: F, timeout: number) {
-    let timer: NodeJS.Timer
-    return (...args: Parameters<F>) =>
-        new Promise(rs => {
-            clearTimeout(timer)
-            timer = setTimeout(() => {
-                rs(func(...args))
-            }, timeout)
-        })
-}
 
 const buildDevWithDebounceAndCatchErrors = debounce(async () => {
     needRebuild = false
