@@ -36,7 +36,7 @@ const _proxifyHandler = {
         const target = unproxifyFromHint(hint)
         const val = Reflect.get(target!, p, recv)
 
-        if (val && val.__proto__ === Function.prototype)
+        if (typeof val === 'function')
             return new Proxy(val, {
                 // If thisArg happens to be a proxified value, we will use the target object instead
                 apply: (fn, thisArg, args) => Reflect.apply(fn, thisArg === recv ? target : thisArg, args),

@@ -79,7 +79,7 @@ export function isModuleExportsBad(exports: Metro.ModuleExports): boolean {
         // Isn't an object or function?
         // - Number exports are not useful, usually just an asset ID
         // - String, Boolean, Symbol, BigInt exports are not useful (who would do `module.exports = ...`?)
-        !(typeof exports === 'object' || exports.__proto__ === Function.prototype) ||
+        !(typeof exports === 'object' || typeof exports === 'function') ||
         // Checking if the object is empty
         (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length)
     )
