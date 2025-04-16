@@ -9,8 +9,7 @@ export const _initAll = new Set<ModuleInitializedCallback>()
 export const _initSpecific = new Map<Metro.ModuleID, Set<ModuleInitializedCallback>>()
 export const _importedPath = new Set<ModuleWithImportedPathInitializedCallback>()
 
-export function _executeRequiredSubscription() {
-    const id = _mInitingId
+export function _executeRequiredSubscription(id: Metro.ModuleID) {
     for (const cb of _reqAll) cb(id)
     if (_reqSpecific.has(id)) {
         for (const cb of _reqSpecific.get(id)!) cb(id)
@@ -18,8 +17,7 @@ export function _executeRequiredSubscription() {
     }
 }
 
-export function _executeInitializedSubscription(exports: Metro.ModuleExports) {
-    const id = _mInitingId
+export function _executeInitializedSubscription(id: Metro.ModuleID, exports: Metro.ModuleExports) {
     for (const cb of _initAll) cb(id, exports)
     if (_initSpecific.has(id)) {
         for (const cb of _initSpecific.get(id)!) cb(id, exports)
@@ -27,6 +25,6 @@ export function _executeInitializedSubscription(exports: Metro.ModuleExports) {
     }
 }
 
-export function _executeImportedPathSubscription(path: string) {
-    for (const cb of _importedPath) cb(_mInitingId, path)
+export function _executeImportedPathSubscription(id: Metro.ModuleID, path: string) {
+    for (const cb of _importedPath) cb(id, path)
 }

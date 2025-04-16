@@ -28,7 +28,7 @@ export function patchMetroDefine(metroDefine: Metro.DefineFn) {
                 const prevIId = _mInitingId
                 _mInitingId = id
 
-                _executeRequiredSubscription()
+                _executeRequiredSubscription(id)
 
                 try {
                     origFactory(global, req, importDefault, importAll, module, exports, deps)
@@ -43,7 +43,7 @@ export function patchMetroDefine(metroDefine: Metro.DefineFn) {
                     _mInitingId = prevIId
                     _mUninited.delete(id)
                     // Don't use exports here, as modules can set module.exports to a different object
-                    _executeInitializedSubscription(module.exports)
+                    _executeInitializedSubscription(id, module.exports)
                 }
             }) satisfies Metro.FactoryFn,
             id,
@@ -72,4 +72,17 @@ export function _blacklist(id: Metro.ModuleID) {
     // _mInited.delete(id)
 
     // TODO(modules): caching
+}
+
+/// BLACKLIST RESTORATION
+
+if (globalThis.__REVENGE_CACHE_MODULE_BLACKLIST__)
+    for (const id of globalThis.__REVENGE_CACHE_MODULE_BLACKLIST__) _blacklist(id)
+
+// @ts-expect-error
+// biome-ignore lint/performance/noDelete: no
+delete globalThis.__REVENGE_CACHE_MODULE_BLACKLIST__
+
+declare namespace globalThis {
+    const __REVENGE_CACHE_MODULE_BLACKLIST__: Metro.ModuleID[] | undefined
 }
