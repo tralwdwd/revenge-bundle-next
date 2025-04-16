@@ -76,7 +76,8 @@ export type ByProps = <T extends Record<string, any> = Record<string, any>>(
  * ```
  */
 export const byProps = createFilterGenerator<Parameters<ByProps>>(
-    (props, _, exports) => props.every(prop => prop in exports),
+    (props, _, exports) =>
+        (typeof exports === 'object' || typeof exports === 'function') && props.every(prop => prop in exports),
     props => `revenge.props(${props.join(',')})`,
 ) as ByProps
 
@@ -223,7 +224,14 @@ export type Every = {
  * ```
  */
 export const every = createFilterGenerator<[...filters: Filter[]]>(
-    (filters, id, exports) => filters.every(filter => filter(id, exports)),
+    (filters, id, exports) => {
+        for (const filter of filters) {
+            if (filter(id, exports)) continue
+            return false
+        }
+
+        return true
+    },
     filters => `revenge.every(${filtersToKey(filters)})`,
 ) as Every
 
@@ -258,7 +266,13 @@ export type Some = {
  * ```
  */
 export const some = createFilterGenerator<[...filters: Filter[]]>(
-    (filters, id, exports) => filters.some(filter => filter(id, exports)),
+    (filters, id, exports) => {
+        for (const filter of filters) {
+            if (filter(id, exports)) return true
+        }
+
+        return false
+    },
     filters => `revenge.some(${filtersToKey(filters)})`,
 ) as Some
 
