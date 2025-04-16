@@ -1,12 +1,28 @@
-import { getInitializedModuleExports, isBlacklisted, onAnyModuleInitialized, onModuleFinishedImporting } from '../metro'
-import { runFilterReturnExports, type RunFilterReturnExportsOptions } from './_internal'
+import { exportsFromFilterResultFlag, runFilter, type RunFilterReturnExportsOptions } from './_internal'
+import {
+    getInitializedModuleExports,
+    initializedModuleHasBadExports,
+    onAnyModuleInitialized,
+    onModuleFinishedImporting,
+} from '../metro'
 
 import type { MaybeDefaultExportMatched } from '.'
 import type { Metro } from '../../types/metro'
 import type { Filter, FilterResult } from './filters'
 
-export type WaitForModulesOptions<ReturnNamespace extends boolean = boolean> =
-    RunFilterReturnExportsOptions<ReturnNamespace>
+export type BaseWaitForModulesOptions<IncludeAll extends boolean = boolean> = {
+    /**
+     * Whether to include all modules, including ones with bad exports.
+     *
+     * @default false
+     */
+    includeAll?: IncludeAll
+}
+
+export type WaitForModulesOptions<
+    ReturnNamespace extends boolean = boolean,
+    IncludeBadExports extends boolean = boolean,
+> = RunFilterReturnExportsOptions<ReturnNamespace> & BaseWaitForModulesOptions<IncludeBadExports>
 
 export type WaitForModulesResult<
     F extends Filter,
@@ -38,28 +54,32 @@ export function waitForModules<F extends Filter>(
     callback: (id: Metro.ModuleID, exports: FilterResult<F>) => any,
 ): () => void
 
-export function waitForModules<F extends Filter, O extends WaitForModulesOptions>(
-    filter: F,
-    callback: (id: Metro.ModuleID, exports: WaitForModulesResult<F, O>) => any,
-    options: O,
-): () => void
+export function waitForModules<
+    F extends O extends WaitForModulesOptions<boolean, true> ? Filter<any, false> : Filter,
+    O extends WaitForModulesOptions,
+>(filter: F, callback: (id: Metro.ModuleID, exports: WaitForModulesResult<F, O>) => any, options: O): () => void
 
 export function waitForModules(
     filter: Filter,
     callback: (id: Metro.ModuleID, exports: Metro.ModuleExports) => any,
     options?: WaitForModulesOptions,
 ) {
-    const unsub = onAnyModuleInitialized((id, exports) => {
-        if (isBlacklisted(id)) return
-        const result = runFilterReturnExports(filter, id, exports, options)
-        if (result != null) callback(id, exports)
-    })
-
-    return unsub
+    return options?.includeAll
+        ? onAnyModuleInitialized((id, exports) => {
+              const flag = runFilter(filter, id, exports, options)
+              if (flag) callback(id, exportsFromFilterResultFlag(flag, exports, options))
+          })
+        : onAnyModuleInitialized((id, exports) => {
+              if (initializedModuleHasBadExports(id)) return
+              const flag = runFilter(filter, id, exports, options)
+              if (flag) callback(id, exportsFromFilterResultFlag(flag, exports, options))
+          })
 }
 
 /**
- * Wait for a module to initialize by its imported path. Once callback is called, the subscription will be removed automatically.
+ * Wait for a module to initialize by its imported path. **Callback won't be called if the module is already initialized!**
+ *
+ * Once callback is called, the subscription will be removed automatically, because modules have unique imported paths.
  *
  * Think of it as if you are doing `import * as exports from path`, and you are also waiting for the app to initialize the module by itself.
  *
@@ -77,10 +97,15 @@ export function waitForModules(
  * )
  * ```
  */
-export function waitForModuleByImportedPath<T = any>(path: string, callback: (id: Metro.ModuleID, exports: T) => any) {
+export function waitForModuleByImportedPath<T = any>(
+    path: string,
+    callback: (id: Metro.ModuleID, exports: T) => any,
+    options?: BaseWaitForModulesOptions,
+) {
     const unsub = onModuleFinishedImporting((id, cmpPath) => {
         if (path === cmpPath) {
             unsub()
+            if (!options?.includeAll && initializedModuleHasBadExports(id)) return
             callback(id, getInitializedModuleExports(id))
         }
     })

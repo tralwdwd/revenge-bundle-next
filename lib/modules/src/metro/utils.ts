@@ -4,24 +4,24 @@ import { _mInited, _mMd, _mUninited } from './_internal'
 import type { Metro } from '../../types/metro'
 
 /**
- * Returns whether an uninitialized module is blacklisted.
+ * Returns whether an uninitialized module has bad exports.
  *
- * @see {@link isModuleExportsBad} for more information on what is considered a bad module export.
+ * @see {@link isModuleExportsBad} for more information on what is considered bad module exports.
  *
  * @param id The module ID.
  */
-export function isUninitializedModuleBlacklisted(id: Metro.ModuleID): boolean {
+export function uninitializedModuleHasBadExports(id: Metro.ModuleID): boolean {
     return !_mUninited.has(id)
 }
 
 /**
- * Returns whether an initialized module is blacklisted.
+ * Returns whether an initialized module has bad exports.
  *
- * @see {@link isModuleExportsBad} for more information on what is considered a bad module export.
+ * @see {@link isModuleExportsBad} for more information on what is considered bad module exports.
  *
  * @param id The module ID.
  */
-export function isInitializedModuleBlacklisted(id: Metro.ModuleID): boolean {
+export function initializedModuleHasBadExports(id: Metro.ModuleID): boolean {
     return !_mInited.has(id)
 }
 
@@ -34,11 +34,19 @@ export function getModuleDependencies(id: Metro.ModuleID): Metro.DependencyMap |
 }
 
 /**
+ * Returns whether a module is initialized.
+ * @param id The module ID.
+ */
+export function isModuleInitialized(id: Metro.ModuleID): boolean {
+    return _mMd.get(id)?.[1]!
+}
+
+/**
  * Returns the exports of an initialized module.
  * @param id The module ID.
  */
 export function getInitializedModuleExports(id: Metro.ModuleID): Metro.ModuleExports | undefined {
-    return _mMd.get(id)?.[1]?.exports
+    return _mMd.get(id)?.[2]?.exports
 }
 
 /**
@@ -58,9 +66,7 @@ export function isModuleExportBad(exp: Metro.ModuleExports[PropertyKey]): boolea
 }
 
 /**
- * Returns whether the module has bad exports. If it does, it will be blacklisted to avoid filtering issues.
- *
- * `/finders` will always avoid blacklisted modules. To look for blacklisted modules, use `/metro/subscriptions`.
+ * Returns whether the module has bad exports. If it does, it will be "blacklisted" to avoid filtering issues.
  *
  * **Which module exports are considered bad?** Anything not an object or function, or an empty object.
  *

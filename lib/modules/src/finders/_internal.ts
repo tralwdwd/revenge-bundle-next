@@ -89,16 +89,11 @@ export function runFilter(
     return false
 }
 
-export function runFilterReturnExports(
-    filter: Filter,
-    id: Metro.ModuleID,
+export function exportsFromFilterResultFlag(
+    flag: FilterResultFlag,
     exports: Metro.ModuleExports,
     options?: RunFilterReturnExportsOptions,
 ) {
-    const flag = runFilter(filter, id, exports, options)
-
-    if (flag) {
-        if (flag === FilterResultFlags.ESModuleDefault && !options?.esmReturnNamespace) return exports.default
-        return exports
-    }
+    if (flag === FilterResultFlags.ESModuleDefault && !options?.esmReturnNamespace) return exports.default
+    return exports
 }

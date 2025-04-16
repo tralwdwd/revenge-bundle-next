@@ -1,6 +1,6 @@
 import { _initAll, _importedPath, _initSpecific, _reqSpecific, _reqAll } from './_internal'
 
-import type { isInitializedModuleBlacklisted } from '../utils'
+import type { initializedModuleHasBadExports } from '../utils'
 import type { Metro } from '../../../types/metro'
 
 export type ModuleRequiredCallback = (id: Metro.ModuleID) => void
@@ -10,7 +10,7 @@ export type ModuleWithImportedPathInitializedCallback = (id: Metro.ModuleID, pat
 /**
  * Registers a callback to be called when any module is initialized.
  *
- * @see {@link isInitializedModuleBlacklisted} to avoid bad module exports.
+ * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *
  * @param callback The callback to be called.
  * @returns A function that unregisters the callback.
@@ -23,7 +23,7 @@ export function onAnyModuleInitialized(callback: ModuleInitializedCallback) {
 /**
  * Registers a callback to be called when a specific module is initialized.
  *
- * @see {@link isInitializedModuleBlacklisted} to avoid bad module exports.
+ * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *
  * @param id The ID of the module.
  * @param callback The callback to be called.
@@ -39,7 +39,7 @@ export function onModuleInitialized(id: Metro.ModuleID, callback: ModuleInitiali
 /**
  * Registers a callback to be called when a module with a specific import path is initialized.
  *
- * @see {@link isInitializedModuleBlacklisted} to avoid bad module exports.
+ * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *
  * @param callback The callback to be called.
  * @returns A function that unregisters the callback.
@@ -52,7 +52,7 @@ export function onModuleFinishedImporting(callback: ModuleWithImportedPathInitia
 /**
  * Registers a callback to be called when any module is required the first time.
  *
- * @see {@link isInitializedModuleBlacklisted} to avoid bad module exports.
+ * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *
  * @param callback The callback to be called.
  * @returns A function that unregisters the callback.
@@ -65,7 +65,7 @@ export function onAnyModuleFirstRequired(callback: ModuleRequiredCallback) {
 /**
  * Registers a callback to be called when a specific module is required the first time.
  *
- * @see {@link isInitializedModuleBlacklisted} to avoid bad module exports.
+ * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *
  * @param id The ID of the module.
  * @param callback The callback to be called.

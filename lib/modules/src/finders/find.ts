@@ -6,6 +6,7 @@ import type { LookupModuleIdsOptions, MaybeDefaultExportMatched } from '.'
 import type { Metro } from '../../types/metro'
 import type { Filter, FilterResult } from './filters'
 import type { RunFilterReturnExportsOptions } from './_internal'
+import type { If } from '@revenge-mod/utils/types'
 
 export type BaseFindModuleOptions = {
     /**
@@ -22,8 +23,10 @@ export type FindModuleOptions<
     LookupModulesOptions<ReturnNamespace, IncludeUninitialized> &
     BaseFindModuleOptions
 
-export type FindModuleIdOptions<IncludeUninitialized extends boolean = boolean> =
-    LookupModuleIdsOptions<IncludeUninitialized> & BaseFindModuleOptions
+export type FindModuleIdOptions<
+    IncludeUninitialized extends boolean = boolean,
+    IncludeAll extends If<IncludeUninitialized, false, boolean> = If<IncludeUninitialized, false, boolean>,
+> = LookupModuleIdsOptions<IncludeUninitialized, IncludeAll> & BaseFindModuleOptions
 
 export type FindModuleResult<
     F extends Filter,
@@ -32,6 +35,9 @@ export type FindModuleResult<
 
 /**
  * Find a module.
+ *
+ * @see {@link lookupModule}
+ * @see {@link waitForModules}
  *
  * @param filter The filter to use to find the module.
  * @param options The options to use for the find.
@@ -86,6 +92,9 @@ export function findModule(filter: Filter, options?: FindModuleOptions) {
 
 /**
  * Find a module ID.
+ *
+ * @see {@link lookupModuleId}
+ * @see {@link waitForModules}
  *
  * @param filter The filter to use to find the module.
  * @param options The options to use for the find.
@@ -190,6 +199,11 @@ export type FindModuleSyncOptions<
 
 /**
  * Find a module synchronously.
+ *
+ * @see {@link lookupModule}
+ * @see {@link waitForModules}
+ *
+ * @see {@link proxify} for how proxification works.
  *
  * @param filter The filter to use to find the module.
  * @param options The options to use for the find.

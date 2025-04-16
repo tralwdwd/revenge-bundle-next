@@ -11,18 +11,19 @@ export const _mUninited = new Set<Metro.ModuleID>()
 export const _mInited = new Set<Metro.ModuleID>()
 
 export const _mPaths = new Map<string, Metro.ModuleID>()
-export const _mMd = new Map<Metro.ModuleID, [deps: Metro.DependencyMap, module?: Metro.Module]>()
+export const _mMd = new Map<Metro.ModuleID, [deps: Metro.DependencyMap, initialized: boolean, module?: Metro.Module]>()
 
 export function patchMetroDefine(metroDefine: Metro.DefineFn) {
     return ((origFactory, id, deps) => {
         // deps won't be undefined last time I checked
-        const metadata = [deps!] as typeof _mMd extends Map<any, infer V> ? V : never
+        const metadata = [deps!, false] as typeof _mMd extends Map<any, infer V> ? V : never
         _mMd.set(id, metadata)
         _mUninited.add(id)
 
         metroDefine(
             ((global, req, importDefault, importAll, module, exports, deps) => {
-                metadata[1] = module
+                metadata[1] = true
+                metadata[2] = module
 
                 const prevIId = _mInitingId
                 _mInitingId = id

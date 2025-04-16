@@ -76,7 +76,7 @@ export type ByProps = <T extends Record<string, any> = Record<string, any>>(
  * ```
  */
 export const byProps = createFilterGenerator<Parameters<ByProps>>(
-    (props, _, exports) => typeof exports === 'object' && props.every(prop => prop in exports),
+    (props, _, exports) => props.every(prop => prop in exports),
     props => `revenge.props(${props.join(',')})`,
 ) as ByProps
 
@@ -274,7 +274,7 @@ export type ModuleStateAware = <IF extends Filter>(
 ) => Filter<FilterResult<IF>, false>
 
 /**
- * Filter modules depending on their initialized state.
+ * Filter modules depending on their initialized state. **Initialized modules with bad exports are skipped.**
  *
  * @param initializedFilter The filter to use for initialized modules.
  * @param uninitializedFilter The filter to use for uninitialized modules.
@@ -291,8 +291,45 @@ export type ModuleStateAware = <IF extends Filter>(
  */
 export const moduleStateAware = createFilterGenerator<Parameters<ModuleStateAware>>(
     ([initializedFilter, uninitializedFilter], id, exports) => {
-        if (_mInited.has(id)) return initializedFilter(id, exports)
+        if (isModuleInitialized(id)) {
+            if (initializedModuleHasBadExports(id)) return initializedFilter(id, exports)
+            return false
+        }
+
         return uninitializedFilter(id)
     },
     ([f1, f2]) => `revenge.moduleStateAware(${f1.key},${f2.key})`,
 ) as ModuleStateAware
+
+export type PreferExports = <WEF extends Filter>(
+    withExportsFilter: WEF,
+    exportslessFilter: Filter<any, false>,
+) => Filter<FilterResult<WEF>, false>
+
+/**
+ * Filter modules depending on if their exports are available and filterable.
+ *
+ * @see {@link isModuleExportsBad} for more information on what is considered bad module exports.
+ *
+ * @see {@link moduleStateAware} for an alternative that filters based on the module's initialized state.
+ *
+ * @param withExportsFilter The filter to use for modules with proper exports.
+ * @param exportslessFilter The filter to use for modules without proper exports (uninitialized or bad).
+ *
+ * @example
+ * ```ts
+ * // will filter byProps('x') for modules with proper exports
+ * // and byDependencies([1, 485, , 2]) for without proper exports (uninitialized or bad)
+ * const SomeModule = await findModule(preferExports(
+ *   byProps('x'),
+ *   byDependencies([1, 485, , 2]),
+ * ))
+ * ```
+ */
+export const preferExports = createFilterGenerator<Parameters<PreferExports>>(
+    ([withExportsFilter, exportslessFilter], id, exports) => {
+        if (_mInited.has(id)) return withExportsFilter(id, exports)
+        return exportslessFilter(id)
+    },
+    ([f1, f2]) => `revenge.preferExports(${f1.key},${f2.key})`,
+) as PreferExports

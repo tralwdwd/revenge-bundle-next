@@ -1,9 +1,9 @@
-import { _mInited, _mPaths, _mUninited } from '../metro/_internal'
+import { _mInited, _mMd, _mPaths, _mUninited } from '../metro/_internal'
 import {
     type RunFilterOptions,
     type RunFilterReturnExportsOptions,
     runFilter,
-    runFilterReturnExports,
+    exportsFromFilterResultFlag,
 } from './_internal'
 
 import { getInitializedModuleExports } from '../metro'
@@ -11,6 +11,7 @@ import { getInitializedModuleExports } from '../metro'
 import type { MaybeDefaultExportMatched } from '.'
 import type { Metro } from '../../types/metro'
 import type { Filter, FilterResult } from './filters'
+import type { If } from '@revenge-mod/utils/types'
 
 export type BaseLookupModulesOptions<IncludeUninitialized extends boolean = boolean> = RunFilterOptions & {
     /**
@@ -41,14 +42,32 @@ export type LookupModulesResult<
     O extends LookupModulesOptions,
 > = O extends RunFilterReturnExportsOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>
 
-export type LookupModuleIdsOptions<IncludeUninitialized extends boolean = boolean> =
-    BaseLookupModulesOptions<IncludeUninitialized>
+export type LookupModuleIdsOptions<
+    IncludeUninitialized extends boolean = boolean,
+    IncludeAll extends If<IncludeUninitialized, false, boolean> = If<IncludeUninitialized, false, boolean>,
+> = RunFilterOptions &
+    (
+        | (BaseLookupModulesOptions<IncludeUninitialized> & {
+              includeAll?: false
+          })
+        | ({
+              /**
+               * Whether to include all modules, including ones with bad exports.
+               *
+               * @default false
+               */
+              includeAll: IncludeAll
+          } & BaseLookupModulesOptions<false>)
+    )
 
 /**
  * Lookup module IDs.
  *
  * You can lookup uninitialized module IDs by passing `options.includeUninitialized` when filtering via without-exports filters (eg. `byDependencies`).
  * Use the `moduleStateAware` helper to filter dynamically based on whether the module is initialized or not.
+ *
+ * You can also lookup all modules (even ones with bad exports) by passing `options.includeAll`.
+ * Use the `preferExports` helper to filter dynamically based on whether the module has good exports or not.
  *
  * @param filter The filter to use.
  * @param options The options to use for the lookup.
@@ -72,10 +91,14 @@ export function* lookupModuleIds<O extends LookupModuleIdsOptions>(
     filter: O extends LookupModuleIdsOptions<true> ? Filter<any, false> : Filter,
     options?: O,
 ): Generator<Metro.ModuleID, undefined> {
-    if (options?.includeInitialized ?? true)
-        for (const id of _mInited) if (runFilter(filter, id, getInitializedModuleExports(id), options)) yield id
+    if (options?.includeAll) {
+        for (const id of _mMd.keys()) if (runFilter(filter, id, getInitializedModuleExports(id), options)) yield id
+    } else {
+        if (options?.includeInitialized ?? true)
+            for (const id of _mInited) if (runFilter(filter, id, getInitializedModuleExports(id), options)) yield id
 
-    if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) yield id
+        if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) yield id
+    }
 }
 
 /**
@@ -105,8 +128,9 @@ export function lookupModules<
 export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     if (options?.includeInitialized ?? true)
         for (const id of _mInited) {
-            const result = runFilterReturnExports(filter, id, getInitializedModuleExports(id), options)
-            if (result != null) yield result
+            const exports = getInitializedModuleExports(id)
+            const flag = runFilter(filter, id, exports, options)
+            if (flag) yield exportsFromFilterResultFlag(flag, exports, options)
         }
 
     if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) yield __r(id)
@@ -139,10 +163,14 @@ export function lookupModuleId<O extends LookupModuleIdsOptions>(
     filter: O extends BaseLookupModulesOptions<true> ? Filter<any, false> : Filter,
     options?: O,
 ): Metro.ModuleID | undefined {
-    if (options?.includeInitialized ?? true)
-        for (const id of _mInited) if (runFilter(filter, id, getInitializedModuleExports(id), options)) return id
+    if (options?.includeAll) {
+        for (const id of _mMd.keys()) if (runFilter(filter, id, getInitializedModuleExports(id), options)) return id
+    } else {
+        if (options?.includeInitialized ?? true)
+            for (const id of _mInited) if (runFilter(filter, id, getInitializedModuleExports(id), options)) return id
 
-    if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) return id
+        if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) return id
+    }
 }
 
 /**
@@ -169,11 +197,27 @@ export function lookupModule<F extends Filter, O extends LookupModulesOptions>(
 export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
     if (options?.includeInitialized ?? true)
         for (const id of _mInited) {
-            const result = runFilterReturnExports(filter, id, getInitializedModuleExports(id), options)
-            if (result != null) return result
+            const exports = getInitializedModuleExports(id)
+            const flag = runFilter(filter, id, exports, options)
+            if (flag) return exportsFromFilterResultFlag(flag, exports, options)
         }
 
     if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) return __r(id)
+}
+
+/**
+ * Lookup a module ID by its imported path. **The module may have bad exports.**
+ *
+ * @param path The path to lookup the module ID by.
+ * @returns The module ID if the module is initialized, or `undefined` if the module is not found or not initialized.
+ *
+ * @example
+ * ```ts
+ * const LoggerId = lookupModuleIdByImportedPath('modules/debug/Logger.tsx')
+ * ```
+ */
+export function lookupModuleIdByImportedPath(path: string): Metro.ModuleID | undefined {
+    return _mPaths.get(path)
 }
 
 /**
@@ -190,8 +234,6 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
  * ```
  */
 export function lookupModuleByImportedPath<T = any>(path: string): T | undefined {
-    const id = _mPaths.get(path)
-    if (id === undefined) return
-
-    return getInitializedModuleExports(id)
+    const id = lookupModuleIdByImportedPath(path)
+    return getInitializedModuleExports(id!)
 }
