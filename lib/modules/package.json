@@ -16,7 +16,10 @@
       "default": "./src/metro/subscriptions/index.ts"
     },
     "./native": {
-      "default": "./src/native.ts"
+      "default": "./src/native/index.ts"
+    },
+    "./native/discord": {
+      "default": "./src/native/discord.ts"
     },
     "./types/*": {
       "default": "./types/*.d.ts",
