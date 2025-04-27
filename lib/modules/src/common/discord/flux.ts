@@ -12,5 +12,5 @@ const _stores: Record<string, any> = {}
 
 export const stores = new Proxy(_stores, {
     ownKeys: () => Reflect.ownKeys(_stores),
-    get: (_, name) => Reflect.get(_stores, name),
+    get: (_, name) => stores[name as string],
 })
