@@ -1,0 +1,10 @@
+{
+  "name": "@revenge-mod/assets",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  }
+}

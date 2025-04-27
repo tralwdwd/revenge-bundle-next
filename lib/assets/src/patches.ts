@@ -1,0 +1,49 @@
+import { _mUninited } from '@revenge-mod/modules/_/metro'
+import { waitForModules } from '@revenge-mod/modules/finders'
+import { byProps } from '@revenge-mod/modules/finders/filters'
+import { getModuleDependencies } from '@revenge-mod/modules/metro'
+
+import { _assets } from './_internal'
+
+import type { ReactNative } from '@revenge-mod/types'
+import type { Asset } from '.'
+
+export let AssetRegistry: ReactNative.AssetsRegistry
+
+const unsubForAssetRegistry = waitForModules(byProps('registerAsset'), (arId, exports) => {
+    // We want to do caching only for the re-exported asset-registry
+    if (!getModuleDependencies(arId)!.length) {
+        AssetRegistry = exports as ReactNative.AssetsRegistry
+
+        const orig = exports.registerAsset
+        exports.registerAsset = function registerAsset(asset: Asset) {
+            const { name, type } = asset
+
+            // In-memory cache
+            if (!_assets.has(name)) _assets.set(name, [asset, {}])
+            const reg = _assets.get(name)!
+            reg[1][type] = asset
+
+            return orig(asset)
+        }
+
+        return
+    }
+
+    unsubForAssetRegistry()
+
+    setImmediate(() => {
+        // TODO(assets/patches): conditionally run this if cache does not exist
+        if (true) {
+            // More fragile way, but more performant:
+            // There is exactly one asset before the reexported asset registry, thanks Discord!
+            const firstAssetModuleId = arId - 1
+            for (const id of _mUninited) {
+                if (id < firstAssetModuleId) continue
+
+                const deps = getModuleDependencies(id)!
+                if (deps.length === 1 && deps[0] === arId) __r(id)
+            }
+        }
+    })
+})
