@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./common": {
+      "default": "./src/common.ts"
+    },
     "./finders": {
       "default": "./src/finders/index.ts"
     },
