@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
     "./common": {
       "default": "./src/common.ts"
     },
@@ -23,6 +26,9 @@
     },
     "./native/discord": {
       "default": "./src/native/discord.ts"
+    },
+    "./preinit": {
+      "default": "./src/preinit.ts"
     },
     "./types/*": {
       "default": "./types/*.ts",

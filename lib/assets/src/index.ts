@@ -1,5 +1,3 @@
-import './patches'
-
 import { ReactNative } from '@revenge-mod/modules/common'
 
 import { _assets } from './_internal'

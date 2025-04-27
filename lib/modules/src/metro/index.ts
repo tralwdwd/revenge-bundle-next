@@ -1,5 +1,3 @@
-import './patches'
-
 export * from './subscriptions'
 export * from './utils'
 
