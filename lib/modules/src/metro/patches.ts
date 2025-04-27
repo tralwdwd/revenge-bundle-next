@@ -1,5 +1,3 @@
-import '@revenge-mod/assets/patches'
-
 import { _mInitingId, _mPaths } from './_internal'
 
 import { _executeImportedPathSubscription } from './subscriptions/_internal'
