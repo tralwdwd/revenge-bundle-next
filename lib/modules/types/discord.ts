@@ -72,14 +72,17 @@ export namespace DiscordModules {
      * Logs will be shown in the **Debug Logs** section in settings.
      */
     export interface Logger {
-        new (tag: string): void
-        log(...args: unknown[]): void
-        error(...args: unknown[]): void
-        warn(...args: unknown[]): void
-        info(...args: unknown[]): void
-        debug(...args: unknown[]): void
-        time(...args: unknown[]): void
-        trace(...args: unknown[]): void
-        verbose(...args: unknown[]): void
+        new (
+            tag: string,
+        ): {
+            log(...args: unknown[]): void
+            error(...args: unknown[]): void
+            warn(...args: unknown[]): void
+            info(...args: unknown[]): void
+            debug(...args: unknown[]): void
+            time(...args: unknown[]): void
+            trace(...args: unknown[]): void
+            verbose(...args: unknown[]): void
+        }
     }
 }
