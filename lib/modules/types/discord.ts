@@ -31,6 +31,7 @@ export namespace DiscordModules {
             _isInitialized: boolean
             _version: number
             _reactChangeCallbacks: StoreChangeCallbacks
+            _dispatchToken: string
         }
 
         export interface Dispatcher {

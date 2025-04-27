@@ -7,7 +7,13 @@
       "default": "./src/index.ts"
     },
     "./common": {
-      "default": "./src/common.ts"
+      "default": "./src/common/index.ts"
+    },
+    "./common/discord": {
+      "default": "./src/common/discord/index.ts"
+    },
+    "./common/react": {
+      "default": "./src/common/react.ts"
     },
     "./finders": {
       "default": "./src/finders/index.ts"
