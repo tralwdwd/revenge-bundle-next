@@ -38,7 +38,6 @@ export function patchMetroDefine(metroDefine: Metro.DefineFn) {
                     // Add the module to the initialized set only if the factory doesn't error or the exports aren't bad
                     _mInited.add(id)
                 } catch {
-                    _blacklist(id)
                 } finally {
                     _mInitingId = prevIId
                     _mUninited.delete(id)
@@ -50,39 +49,4 @@ export function patchMetroDefine(metroDefine: Metro.DefineFn) {
             deps,
         )
     }) satisfies Metro.DefineFn
-}
-
-/**
- * Blacklists a module. A module can be blacklisted for several reasons:
- *
- * - If the module is already initialized, it either means:
- *   - The module factory threw an error during initialization
- *   - The module exports are bad after initialization
- * - Otherwise, this module is known to be bad from previous caches
- *
- * @param id The module ID to blacklist.
- * @internal
- */
-export function _blacklist(id: Metro.ModuleID) {
-    // In case blacklisting happens before the module is initialized
-    _mUninited.delete(id)
-
-    // Usually we'd also remove the module from _mInited too,
-    // but we already have an else block in the patchMetroDefine function that does that for us.
-    // _mInited.delete(id)
-
-    // TODO(modules): caching
-}
-
-/// BLACKLIST RESTORATION
-
-if (globalThis.__REVENGE_CACHE_MODULE_BLACKLIST__)
-    for (const id of globalThis.__REVENGE_CACHE_MODULE_BLACKLIST__) _blacklist(id)
-
-// @ts-expect-error
-// biome-ignore lint/performance/noDelete: no
-delete globalThis.__REVENGE_CACHE_MODULE_BLACKLIST__
-
-declare namespace globalThis {
-    const __REVENGE_CACHE_MODULE_BLACKLIST__: Metro.ModuleID[] | undefined
 }

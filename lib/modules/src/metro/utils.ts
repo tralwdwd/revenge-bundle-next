@@ -58,10 +58,7 @@ export function isModuleExportBad(exp: Metro.ModuleExports[PropertyKey]): boolea
         // Nullish?
         exp == null ||
         // Is it a proxy? (discord-intl has proxy exports)
-        isProxy(exp) ||
-        // Can't run isProxy() on this because this isn't your typical proxy:
-        // https://github.com/discord/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
-        exp === nativeModuleProxy
+        isProxy(exp)
     )
 }
 
@@ -81,6 +78,9 @@ export function isModuleExportsBad(exports: Metro.ModuleExports): boolean {
         // - String, Boolean, Symbol, BigInt exports are not useful (who would do `module.exports = ...`?)
         !(typeof exports === 'object' || typeof exports === 'function') ||
         // Checking if the object is empty
-        (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length)
+        (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length) ||
+        // Can't run isProxy() on this because this isn't your typical proxy:
+        // https://github.com/discord/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
+        exports === nativeModuleProxy
     )
 }

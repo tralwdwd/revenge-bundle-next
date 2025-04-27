@@ -53,21 +53,21 @@ export type FilterResultFlag = (typeof FilterResultFlags)[keyof typeof FilterRes
 // Currently, we only have options that are relevant for checking exports
 // If we add more options later on, do NOT forget about
 // adding them here, and passing them in the lookup* functions
-export function runFilter(filter: Filter<any, false>, id: Metro.ModuleID): FilterResultFlag | false
+export function runFilter(filter: Filter<any, false>, id: Metro.ModuleID): FilterResultFlag | undefined
 
 export function runFilter(
     filter: Filter,
     id: Metro.ModuleID,
     exports: Metro.ModuleExports,
     options?: RunFilterOptions,
-): FilterResultFlag | false
+): FilterResultFlag | undefined
 
 export function runFilter(
     filter: Filter,
     id: Metro.ModuleID,
     exports?: Metro.ModuleExports,
     options?: RunFilterOptions,
-): FilterResultFlag | false {
+): FilterResultFlag | undefined {
     if (exports?.__esModule) {
         const { default: defaultExport } = exports
 
@@ -86,7 +86,7 @@ export function runFilter(
         return FilterResultFlags.Found
     }
 
-    return false
+    return
 }
 
 export function exportsFromFilterResultFlag(
