@@ -1,6 +1,6 @@
 import './preinit'
 
-import './patches/prevent-immutablize'
+import './patches/prevent-freeze'
 import './patches/proxy'
 
 import { onModuleFirstRequired, onModuleInitialized } from '@revenge-mod/modules/metro/subscriptions'

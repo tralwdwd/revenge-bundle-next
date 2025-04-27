@@ -1,8 +1,10 @@
-import { objectDefineProperty as defineProperty } from './functions'
+// Retain reference to original functions
+import './functions'
 
 // Heavily inspired by uwu/shelter
 // https://github.com/uwu/shelter/blob/main/packages/shelter/src/exfiltrate.ts
 
+const defineProperty = Object.defineProperty
 // Patch to fix intercepting properties on Object.prototype
 Object.defineProperty = (target, p, d) => {
     if (target === Object.prototype && _intercepting.has(p)) {
