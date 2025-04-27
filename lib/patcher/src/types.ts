@@ -1,6 +1,6 @@
 type FiniteDomain<Key extends PropertyKey> = unknown extends (
     Key extends unknown
-        ? {} extends Record<Key, unknown>
+        ? object extends Record<Key, unknown>
             ? unknown
             : never
         : never

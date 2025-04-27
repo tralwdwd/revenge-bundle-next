@@ -25,7 +25,7 @@
       "default": "./src/objects.ts"
     },
     "./types": {
-      "types": "./src/types.d.ts"
+      "types": "./src/types.ts"
     }
   }
 }

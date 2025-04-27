@@ -48,7 +48,7 @@ export namespace Metro {
 
     export type Module = {
         id?: ModuleID
-        exports: Exports
+        exports: ModuleExports
     }
 
     export type ModuleList = Map<ModuleID, ModuleDefinition>

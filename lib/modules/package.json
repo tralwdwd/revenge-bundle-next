@@ -25,8 +25,8 @@
       "default": "./src/native/discord.ts"
     },
     "./types/*": {
-      "default": "./types/*.d.ts",
-      "types": "./types/*.d.ts"
+      "default": "./types/*.ts",
+      "types": "./types/*.ts"
     },
     "./_/metro": {
       "default": "./src/metro/_internal.ts"
