@@ -1,7 +1,7 @@
 // All of these typings are exported, be careful what you export here!
 
+import type { Metro } from '@revenge-mod/modules/types'
 import type { Buffer as _Buffer } from 'buffer'
-import type { Metro } from '@revenge-mod/modules/types/metro'
 import type { ErrorUtils as RNErrorUtils } from 'react-native'
 
 /// HERMES
@@ -111,7 +111,7 @@ export namespace ReactNative {
     }
 
     export interface AssetsRegistry {
-        registerAsset(asset: PackagerAsset): number
-        getAssetByID(assetId: number): PackagerAsset
+        registerAsset(asset: AssetsRegistry.PackagerAsset): number
+        getAssetByID(assetId: number): AssetsRegistry.PackagerAsset
     }
 }
