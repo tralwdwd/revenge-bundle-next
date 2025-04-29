@@ -1,7 +1,7 @@
 import { _mInitingId } from '../_internal'
 
 import type { ModuleInitializedCallback, ModuleRequiredCallback, ModuleWithImportedPathInitializedCallback } from '.'
-import type { Metro } from '../../../types/metro'
+import type { Metro } from '../../../types'
 
 export const _reqAll = new Set<ModuleRequiredCallback>()
 export const _reqSpecific = new Map<Metro.ModuleID, Set<ModuleRequiredCallback>>()

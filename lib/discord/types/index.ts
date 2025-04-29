@@ -1,3 +1,5 @@
+export * from './native'
+
 export namespace DiscordModules {
     export namespace Flux {
         export type DispatcherPayload = any

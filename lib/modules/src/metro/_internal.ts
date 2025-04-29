@@ -1,7 +1,7 @@
 import { _executeInitializedSubscription, _executeRequiredSubscription } from './subscriptions/_internal'
 import { isModuleExportsBad } from './utils'
 
-import type { Metro } from '../../types/metro'
+import type { Metro } from '../../types'
 
 /** Initializing ID */
 export let _mInitingId = -1

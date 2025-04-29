@@ -1,7 +1,7 @@
 import { waitForModules } from '@revenge-mod/modules/finders'
 import { byProps } from '@revenge-mod/modules/finders/filters'
 
-import type { DiscordModules } from '@revenge-mod/modules/types/discord'
+import type { DiscordModules } from '../types'
 
 waitForModules(byProps<DiscordModules.Flux.Store>('_dispatchToken'), (_, store) => {
     const name = store.getName()

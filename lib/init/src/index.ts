@@ -39,9 +39,9 @@ function runCatching<F extends (...args: any[]) => any>(fn: F) {
         try {
             fn(...args)
         } catch (e) {
-            const { ClientInfoModule, DeviceModule } = require('@revenge-mod/modules/native/discord') as
+            const { ClientInfoModule, DeviceModule } = require('@revenge-mod/discord/native') as
                 // biome-ignore format: Don't format this please
-                typeof import('@revenge-mod/modules/native/discord')
+                typeof import('@revenge-mod/discord/native')
 
             // TODO(init): Move to use native module
             alert(

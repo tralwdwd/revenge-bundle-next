@@ -9,7 +9,7 @@ import {
 import { getInitializedModuleExports } from '../metro'
 
 import type { MaybeDefaultExportMatched } from '.'
-import type { Metro } from '../../types/metro'
+import type { Metro } from '../../types'
 import type { Filter, FilterResult } from './filters'
 import type { If } from '@revenge-mod/utils/types'
 

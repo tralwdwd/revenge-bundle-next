@@ -19,20 +19,13 @@
       "default": "./src/metro/subscriptions/index.ts"
     },
     "./native": {
-      "default": "./src/native/index.ts"
-    },
-    "./native/discord": {
-      "default": "./src/native/discord.ts"
+      "default": "./src/native.ts"
     },
     "./preinit": {
       "default": "./src/preinit.ts"
     },
     "./types": {
-      "default": "./types/index.ts"
-    },
-    "./types/*": {
-      "default": "./types/*.ts",
-      "types": "./types/*.ts"
+      "default": "./types.ts"
     },
     "./_/metro": {
       "default": "./src/metro/_internal.ts"

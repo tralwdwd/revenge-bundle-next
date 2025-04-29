@@ -5,6 +5,15 @@
   "exports": {
     ".": {
       "default": "./src/index.ts"
+    },
+    "./flux": {
+      "default": "./src/flux.ts"
+    },
+    "./native": {
+      "default": "./src/native.ts"
+    },
+    "./types": {
+      "types": "./types/index.ts"
     }
   }
 }

@@ -1,7 +1,7 @@
 import { isProxy } from '@revenge-mod/utils/proxy'
 import { _mInited, _mMd, _mUninited } from './_internal'
 
-import type { Metro } from '../../types/metro'
+import type { Metro } from '../../types'
 
 /**
  * Returns whether an uninitialized module has bad exports.

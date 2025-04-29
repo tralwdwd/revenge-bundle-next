@@ -3,7 +3,7 @@ import { _mInited } from '../metro/_internal'
 import { getModuleDependencies, initializedModuleHasBadExports, isModuleInitialized } from '../metro'
 
 import type { If, LogicalOr } from '@revenge-mod/utils/types'
-import type { Metro } from '../../types/metro'
+import type { Metro } from '../../types'
 
 export type FilterResult<F> = F extends Filter<infer R, boolean> ? R : never
 

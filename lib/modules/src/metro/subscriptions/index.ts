@@ -1,7 +1,7 @@
 import { _initAll, _importedPath, _initSpecific, _reqSpecific, _reqAll } from './_internal'
 
 import type { initializedModuleHasBadExports } from '../utils'
-import type { Metro } from '../../../types/metro'
+import type { Metro } from '../../../types'
 
 export type ModuleRequiredCallback = (id: Metro.ModuleID) => void
 export type ModuleInitializedCallback = (id: Metro.ModuleID, exports: Metro.ModuleExports) => void
