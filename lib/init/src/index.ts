@@ -20,8 +20,12 @@ onModuleFirstRequired(
         onModuleInitialized(
             0,
             runCatching(function onceIndexInitialized() {
+                // Register all plugins
+                require('@plugins/all')
+
                 // Initialize init libraries
                 require('@revenge-mod/assets/init')
+                require('@revenge-mod/plugins/init')
 
                 logger.log('Revenge loaded!')
 
