@@ -6,15 +6,6 @@
     ".": {
       "default": "./src/index.ts"
     },
-    "./common": {
-      "default": "./src/common/index.ts"
-    },
-    "./common/discord": {
-      "default": "./src/common/discord/index.ts"
-    },
-    "./common/react": {
-      "default": "./src/common/react.ts"
-    },
     "./finders": {
       "default": "./src/finders/index.ts"
     },
@@ -35,6 +26,9 @@
     },
     "./preinit": {
       "default": "./src/preinit.ts"
+    },
+    "./types": {
+      "default": "./types/index.ts"
     },
     "./types/*": {
       "default": "./types/*.ts",

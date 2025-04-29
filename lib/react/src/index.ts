@@ -1,7 +1,8 @@
 import { yielded } from '@revenge-mod/utils/generators'
+import { lookupModuleId, lookupModuleIds } from '@revenge-mod/modules/finders'
+import { byProps } from '@revenge-mod/modules/finders/filters'
 
-import { lookupModuleId, lookupModuleIds } from '../finders'
-import { byProps } from '../finders/filters'
+export * as jsxRuntime from './jsx-runtime'
 
 export const ReactModuleId = yielded(lookupModuleIds(byProps<typeof import('react')>('useState')), 1)!
 export const ReactNativeModuleId = lookupModuleId(byProps<typeof import('react-native')>('AppRegistry'))!

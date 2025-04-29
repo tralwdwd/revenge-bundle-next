@@ -27,6 +27,9 @@
     "lib/assets": {
       "name": "@revenge-mod/assets",
     },
+    "lib/discord": {
+      "name": "@revenge-mod/discord",
+    },
     "lib/init": {
       "name": "@revenge-mod/init",
     },
@@ -35,6 +38,12 @@
     },
     "lib/patcher": {
       "name": "@revenge-mod/patcher",
+    },
+    "lib/plugins": {
+      "name": "@revenge-mod/plugins",
+    },
+    "lib/react": {
+      "name": "@revenge-mod/react",
     },
     "lib/types": {
       "name": "@revenge-mod/types",
@@ -418,6 +427,8 @@
     "@react-navigation/stack": ["@react-navigation/stack@7.2.10", "", { "dependencies": { "@react-navigation/elements": "^2.3.8", "color": "^4.2.3" }, "peerDependencies": { "@react-navigation/native": "^7.1.6", "react": ">= 18.2.0", "react-native": "*", "react-native-gesture-handler": ">= 2.0.0", "react-native-safe-area-context": ">= 4.0.0", "react-native-screens": ">= 4.0.0" } }, "sha512-8exYxg/3goQkmtAJFIPpKbFOiMmNRSf99qs5ssX1gQ2JEhwloBl7Bw0snccB1JJ7rghjD5bogj+zcQdC8KSYeg=="],
 
     "@revenge-mod/assets": ["@revenge-mod/assets@workspace:lib/assets"],
+
+    "@revenge-mod/discord": ["@revenge-mod/discord@workspace:lib/discord"],
 
     "@revenge-mod/init": ["@revenge-mod/init@workspace:lib/init"],
 

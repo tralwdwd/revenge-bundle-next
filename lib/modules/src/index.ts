@@ -1,4 +1,3 @@
-export * as common from './common'
 export * as finders from './finders'
 export * as filters from './finders/filters'
 export * as metro from './metro'

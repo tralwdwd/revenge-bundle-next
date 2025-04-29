@@ -1,4 +1,4 @@
-import { ReactNative } from '@revenge-mod/modules/common/react'
+import { ReactNative } from '@revenge-mod/react'
 
 import { _assets } from './_internal'
 import { AssetRegistry } from './patches'

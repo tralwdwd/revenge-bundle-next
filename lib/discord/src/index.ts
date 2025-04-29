@@ -1,7 +1,7 @@
-import { lookupModule } from '../../finders'
-import { byName, byProps } from '../../finders/filters'
+import { lookupModule } from '@revenge-mod/modules/finders'
+import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 
-import type { DiscordModules } from '../../../types/discord'
+import type { DiscordModules } from '@revenge-mod/modules/types/discord'
 
 export * as flux from './flux'
 
