@@ -1,0 +1,16 @@
+{
+  "name": "@revenge-mod/plugins",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./init": {
+      "default": "./src/init.ts"
+    },
+    "./_": {
+      "default": "./src/_internal.ts"
+    }
+  }
+}
