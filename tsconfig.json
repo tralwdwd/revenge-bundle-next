@@ -1,7 +1,10 @@
 {
   "extends": "@revenge-mod/types/tsconfig",
   "compilerOptions": {
-    "types": ["@revenge-mod/types", "./types"]
+    "types": ["@revenge-mod/types", "./types"],
+    "paths": {
+      "@plugins/*": ["./plugins/*"]
+    }
   },
   "include": ["lib", "plugins", "src"]
 }

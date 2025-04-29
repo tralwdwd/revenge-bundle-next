@@ -15,7 +15,8 @@
     "@types/bun": "latest",
     "@unbound-mod/hermesc": "^1.0.3",
     "chalk": "^5.4.1",
-    "rolldown": "^1.0.0-beta.8-commit.d984417"
+    "rolldown": "^1.0.0-beta.8-commit.d984417",
+    "rollup-plugin-tsconfig-paths": "^1.5.2"
   },
   "peerDependencies": {
     "@react-navigation/core": "^7.8.5",
