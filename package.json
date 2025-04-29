@@ -11,22 +11,22 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@parcel/watcher": "^2.5.1",
-    "@swc/core": "^1.11.13",
+    "@swc/core": "^1.11.21",
     "@types/bun": "latest",
     "@unbound-mod/hermesc": "^1.0.3",
     "chalk": "^5.4.1",
-    "rolldown": "^1.0.0-beta.7-commit.eeb1005"
+    "rolldown": "^1.0.0-beta.8-commit.d984417"
   },
   "peerDependencies": {
-    "@react-navigation/core": "^7.0.0",
-    "@react-navigation/native": "^7.0.0",
-    "@react-navigation/stack": "^7.0.0",
+    "@react-navigation/core": "^7.8.5",
+    "@react-navigation/native": "^7.1.6",
+    "@react-navigation/stack": "^7.2.10",
     "@shopify/flash-list": "1.7.2",
-    "@types/react": "^18.3.1",
+    "@types/react": "^18.3.20",
     "buffer": "^6.0.3",
     "react": "18.3.1",
     "react-native": "0.76.6",
-    "typescript": "^5.7.3"
+    "typescript": "^5.8.3"
   },
   "workspaces": ["lib/*", "plugins/*"],
   "trustedDependencies": ["@biomejs/biome", "@parcel/watcher", "@swc/core"]
