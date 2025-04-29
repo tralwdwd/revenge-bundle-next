@@ -15,6 +15,7 @@ onModuleFirstRequired(
 
         // Initialize preinit libraries
         require('@revenge-mod/modules/preinit')
+        require('@revenge-mod/react/preinit')
 
         onModuleInitialized(
             0,
