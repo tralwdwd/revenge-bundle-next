@@ -1,2 +1,2 @@
-import './timing-log'
+import './logging'
 import './staff-settings'

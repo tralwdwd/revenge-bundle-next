@@ -10,17 +10,21 @@ let tsInit: number
 
 registerPlugin(
     {
-        id: 'revenge.timing-log',
-        name: 'Startup Timing Log',
-        description: "Log Revenge's startup timing into Discord's Startup Timing",
+        id: 'revenge.logging',
+        name: 'Logging',
+        description: "Extra logging for Revenge's internal modules",
+        icon: 'PaperIcon',
     },
     {
         init() {
             tsInit = performance.now()
             AppStartPerformance.mark('👊', 'Plugins init', tsInit - tsReg)
         },
-        start() {
+        start({ logger }) {
             AppStartPerformance.mark('👊', 'Plugins start', performance.now() - tsInit)
+            logger.log(
+                `👊 Revenge. Discord, your way. (v: ${__BUILD_VERSION__} c: ${__BUILD_COMMIT__} e: ${__BUILD_ENV__})`,
+            )
         },
     },
     PluginFlags.Enabled,

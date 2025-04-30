@@ -3,6 +3,8 @@ import { $, main } from 'bun'
 import chalk from 'chalk'
 import { type OutputChunk, type RolldownPlugin, rolldown } from 'rolldown'
 
+import pkg from '../package.json'
+
 // If this file is being run directly, build the project
 if (main === import.meta.filename) build()
 
@@ -24,7 +26,8 @@ export default async function build(dev = false, log = true) {
             '.webp': 'dataurl',
         },
         define: {
-            __BUILD_COMMIT__: JSON.stringify(await $`git rev-parse HEAD`.text()),
+            __BUILD_VERSION__: JSON.stringify(pkg.version),
+            __BUILD_COMMIT__: JSON.stringify((await $`git rev-parse HEAD`.text()).substring(0, 7)),
             __BUILD_ENV__: JSON.stringify(dev ? 'development' : 'production'),
             __BUILD_FLAG_INIT_DISABLE_PATCH_LOG_PROMISE_REJECTIONS__: String(!dev),
         },
