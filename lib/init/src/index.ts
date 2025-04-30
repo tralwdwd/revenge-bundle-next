@@ -15,6 +15,7 @@ onModuleFirstRequired(0, function onceIndexRequired() {
         // Initialize preinit libraries
         require('@revenge-mod/modules/preinit')
         require('@revenge-mod/react/preinit')
+        require('@revenge-mod/discord/preinit')
 
         onModuleInitialized(0, function onceIndexInitialized() {
             runCatching(() => {

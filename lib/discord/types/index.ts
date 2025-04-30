@@ -69,6 +69,16 @@ export namespace DiscordModules {
         }
     }
 
+    export namespace AppStartPerformance {
+        export type MarkArgs = [emoji: string, log: string, delta?: number]
+    }
+
+    export interface AppStartPerformance {
+        mark(...args: AppStartPerformance.MarkArgs): void
+        markAndLog(logger: InstanceType<DiscordModules.Logger>, ...args: AppStartPerformance.MarkArgs): void
+        [index: string]: unknown
+    }
+
     /**
      * Discord's `Logger` class.
      *

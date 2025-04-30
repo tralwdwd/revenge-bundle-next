@@ -3,6 +3,8 @@ import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 
 import type { DiscordModules } from '../types'
 
+export * from './preinit'
+
 export * as flux from './flux'
 export * as native from './native'
 
