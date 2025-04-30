@@ -4,7 +4,7 @@ import * as PatcherLibrary from '@revenge-mod/patcher'
 import * as PluginsLibrary from '@revenge-mod/plugins'
 import * as ReactLibrary from '@revenge-mod/react'
 
-const { PluginFlags } = PluginsLibrary
+const { PluginFlags, PluginStatus } = PluginsLibrary
 
 export const _uapi: PluginsLibrary.UnscopedInitPluginApi | PluginsLibrary.UnscopedPluginApi = {
     discord: DiscordLibrary,
@@ -16,89 +16,129 @@ export const _uapi: PluginsLibrary.UnscopedInitPluginApi | PluginsLibrary.Unscop
 }
 
 const _plugins = new Map<PluginsLibrary.PluginManifest['id'], InternalPlugin>()
+const _pluginIFlags = new Map<PluginsLibrary.PluginManifest['id'], InternalPluginFlags>()
 
 export function registerPlugin(
     manifest: PluginsLibrary.PluginManifest,
     lifecycles: PluginsLibrary.PluginLifecycles,
-    flags: PluginsLibrary.PluginFlags = 0,
+    flags: PluginsLibrary.PluginFlags,
+    iFlags: InternalPluginFlags,
 ) {
     // TODO(plugins): verify plugin manifest
     if (_plugins.has(manifest.id)) throw new Error(`Plugin with ID "${manifest.id}" already registered`)
 
+    _pluginIFlags.set(manifest.id, iFlags)
+
     const handleError = (e: unknown) => {
         plugin.errors.push(e)
         plugin.flags |= PluginFlags.Errored
-        return plugin.disable()
+        if (plugin.flags & PluginFlags.Enabled) return plugin.disable()
     }
 
     const plugin: InternalPlugin = {
+        promises: [],
         cleanups: [],
         errors: [],
         manifest,
         lifecycles,
+        status: 0,
         flags,
         prepareStart: () => {
             // const sapi = api as PluginsLibrary.PluginApi
             // sapi.settings ??= ...
         },
         async init() {
-            plugin.flags |= PluginFlags.StatusInit
-            plugin.flags |= PluginFlags.StatusActioning
+            if (!(plugin.flags & PluginFlags.Enabled)) throw new Error(`Plugin "${manifest.id}" is not enabled`)
+            if (plugin.status & (PluginStatus.Initing | PluginStatus.Inited))
+                throw new Error(`Plugin "${manifest.id}" is initializing or already initialized`)
+
+            plugin.status |= PluginStatus.Initing
 
             try {
-                await lifecycles.init?.(api)
-            } catch (e) {
-                handleError(e)
-            }
+                const prom = lifecycles.init?.(api)
+                plugin.promises.push(prom)
+                await prom
 
-            // Not in finally block because plugin.disable() already handles
-            plugin.flags &= ~PluginFlags.StatusInit
-            plugin.flags &= ~PluginFlags.StatusActioning
+                // plugin.disable() already handles, so it's the try block
+                plugin.status |= PluginStatus.Inited
+                plugin.status &= ~PluginStatus.Initing
+            } catch (e) {
+                await handleError(e)
+            }
         },
         async start() {
-            plugin.flags |= PluginFlags.StatusStart
-            plugin.flags |= PluginFlags.StatusActioning
+            if (!(plugin.flags & PluginFlags.Enabled)) throw new Error(`Plugin "${manifest.id}" is not enabled`)
+            if (plugin.status & (PluginStatus.Starting | PluginStatus.Started))
+                throw new Error(`Plugin "${manifest.id}" is starting or already started`)
+
+            // Clear errors from previous runs
+            plugin.errors = []
+            plugin.status &= ~PluginFlags.Errored
+
+            plugin.status |= PluginStatus.Starting
 
             plugin.prepareStart()
 
             try {
-                await lifecycles.start?.(api as PluginsLibrary.PluginApi)
-            } catch (e) {
-                handleError(e)
-            }
+                const prom = lifecycles.start?.(api as PluginsLibrary.PluginApi)
+                plugin.promises.push(prom)
+                await prom
 
-            // Not in finally block because plugin.disable() already handles
-            plugin.flags &= ~PluginFlags.StatusStart
-            plugin.flags &= ~PluginFlags.StatusActioning
+                // plugin.disable() already handles, so it's in the try block
+                plugin.status |= PluginStatus.Started
+                plugin.status &= ~PluginStatus.Starting
+            } catch (e) {
+                await handleError(e)
+            }
         },
         async stop() {
-            plugin.flags &= ~PluginFlags.StatusInit
-            plugin.flags &= ~PluginFlags.StatusStart
-            plugin.flags |= PluginFlags.StatusActioning
+            if (!(plugin.flags & PluginFlags.Enabled)) throw new Error(`Plugin "${manifest.id}" is not enabled`)
+
+            if (plugin.status & PluginStatus.Stopping) throw new Error(`Plugin "${manifest.id}" is stopping`)
+
+            // If the plugin is initializing or starting, we need to wait for it to finish, then we'll stop it
+            if (plugin.status & (PluginStatus.Initing | PluginStatus.Starting)) await Promise.all(plugin.promises)
+
+            if (plugin.status & (PluginStatus.Inited | PluginStatus.Started))
+                throw new Error(`Plugin "${manifest.id}" is not initialized started`)
 
             // In case the plugin only has init() and stop()
             plugin.prepareStart()
 
+            plugin.status |= PluginStatus.Stopping
+
             try {
                 await lifecycles.stop?.(api as PluginsLibrary.PluginApi)
             } catch (e) {
-                handleError(e)
+                await handleError(e)
             } finally {
                 // Run cleanups
                 const results = await Promise.allSettled(plugin.cleanups.map(cleanup => cleanup()))
-                for (const result of results) if (result.status === 'rejected') plugin.errors.push(result.reason)
+                for (const result of results)
+                    if (result.status === 'rejected') {
+                        await handleError(result.reason)
+                        // Some cleanup was unsuccessful, so we need to reload the app
+                        plugin.flags |= PluginFlags.ReloadRequired
+                    }
 
-                plugin.flags &= ~PluginFlags.StatusActioning
+                // Clear unnecessary data
+                plugin.promises = []
+                plugin.cleanups = []
+                plugin.status = 0
+
+                // Call garbage collector to free up memory
+                gc()
+                gc()
             }
         },
         async enable() {
             plugin.flags |= PluginFlags.Enabled
-            if (lifecycles.init) plugin.flags |= PluginFlags.ReloadRequired
         },
         async disable() {
             plugin.flags &= ~PluginFlags.Enabled
-            // If plugin is initialized/started, we need to stop it
-            if (plugin.flags & (PluginFlags.StatusInit | PluginFlags.StatusStart)) await plugin.stop()
+
+            // If plugin is not stopped, and is also not stopping, we need to stop it
+            if (plugin.status && !(plugin.status & PluginStatus.Stopping)) await plugin.stop()
         },
     }
 
@@ -129,9 +169,23 @@ export async function startPlugins() {
 }
 
 export interface InternalPlugin extends PluginsLibrary.Plugin {
+    promises: Promise<void>[]
     cleanups: PluginsLibrary.PluginCleanup[]
     prepareStart(): void
     init(): Promise<void>
     start(): Promise<void>
     stop(): Promise<void>
 }
+
+export const InternalPluginFlags = {
+    /**
+     * Marks the plugin as internal.
+     */
+    Internal: 1 << 0,
+    /**
+     * Marks the plugin as essential. This means it should not be removed, disabled, or stopped by normal means.
+     */
+    Essential: 1 << 1,
+}
+
+export type InternalPluginFlags = (typeof InternalPluginFlags)[keyof typeof InternalPluginFlags]

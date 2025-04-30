@@ -1,6 +1,6 @@
 import type { DiscordModules } from '@revenge-mod/discord/types'
 
-import type { PluginFlags } from './constants'
+import type { PluginFlags, PluginStatus } from './constants'
 
 /**
  * The unscoped plugin API (limited). This API is available as a global for plugins.
@@ -57,6 +57,10 @@ export interface PluginApi extends InitPluginApi {
 //      * The author of the plugin bundle.
 //      */
 //     author: string
+//     /**
+//      * The URL of the plugin bundle.
+//      */
+//     url: string
 // }
 
 export interface PluginManifest {
@@ -121,6 +125,10 @@ export interface Plugin {
      * The plugin flags.
      */
     flags: PluginFlags
+    /**
+     * The plugin status.
+     */
+    status: PluginStatus
     /**
      * Errors encountered during the plugin lifecycles.
      */

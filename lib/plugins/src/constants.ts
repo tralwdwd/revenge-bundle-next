@@ -4,29 +4,23 @@ export const PluginFlags = {
      */
     Enabled: 1 << 0,
     /**
-     * The plugin is an internal plugin.
-     */
-    Internal: 1 << 1,
-    /**
      * The plugin requires a reload to apply changes.
      */
-    ReloadRequired: 1 << 2,
-    /**
-     * The plugin is initialized or initializing.
-     */
-    StatusInit: 1 << 3,
-    /**
-     * The plugin is started or starting.
-     */
-    StatusStart: 1 << 4,
-    /**
-     * The plugin is actioning something, such as initializing or starting.
-     */
-    StatusActioning: 1 << 5,
+    ReloadRequired: 1 << 1,
     /**
      * The plugin has errors.
      */
-    Errored: 1 << 6,
+    Errored: 1 << 2,
+}
+
+export const PluginStatus = {
+    Initing: 1 << 0,
+    Inited: 1 << 1,
+    Starting: 1 << 2,
+    Started: 1 << 3,
+    Stopping: 1 << 4,
 }
 
 export type PluginFlags = (typeof PluginFlags)[keyof typeof PluginFlags]
+
+export type PluginStatus = (typeof PluginStatus)[keyof typeof PluginStatus]

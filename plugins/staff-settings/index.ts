@@ -4,7 +4,7 @@ import { byProps } from '@revenge-mod/modules/finders/filters'
 import { after } from '@revenge-mod/patcher'
 
 import { PluginFlags } from '@revenge-mod/plugins'
-import { registerPlugin } from '@revenge-mod/plugins/_'
+import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
 registerPlugin(
     {
@@ -19,5 +19,6 @@ registerPlugin(
             cleanup(after(UserStoreUtils, 'isStaffEnv', () => true))
         },
     },
-    PluginFlags.Internal | PluginFlags.Enabled,
+    PluginFlags.Enabled,
+    InternalPluginFlags.Internal,
 )
