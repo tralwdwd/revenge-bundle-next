@@ -217,7 +217,7 @@ function depsToKey(deps: ComparableDependencyMap): string {
         else if (Array.isArray(dep)) {
             if (dep.loose) key += '#'
             key += `[${depsToKey(dep)}],`
-        } else key += `${-dep & RootRelativeDepBit ? `r${dep}` : dep},`
+        } else key += `${dep},`
 
     return key.substring(0, key.length - 1)
 }

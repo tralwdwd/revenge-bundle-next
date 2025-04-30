@@ -35,21 +35,13 @@ const FilterResultFlags = {
      */
     Found: 1,
     /**
-     * A module was found, and it is an ES module, and the filter matched the module namespace.
+     * A module was found, and the filter matched the default export.
      */
-    ESModuleNamespace: 2,
+    Default: 2,
     /**
-     * A module was found, and it is an ES module, and the filter matched the default export.
+     * A module was found, and the filter matched the module namespace.
      */
-    ESModuleDefault: 3,
-    /**
-     * A module was found, and it is a CommonJS module, and the filter matched the module namespace.
-     */
-    CJSModuleNamespace: 4,
-    /**
-     * A module was found, and it is a CommonJS module, and the filter matched the default export.
-     */
-    CJSModuleDefault: 5,
+    Namespace: 3,
 }
 
 export type FilterResultFlag = (typeof FilterResultFlags)[keyof typeof FilterResultFlags]
@@ -74,7 +66,7 @@ export function runFilter(
     exports?: Metro.ModuleExports,
     options?: RunFilterOptions,
 ): FilterResultFlag | undefined {
-    if (exports == null) {
+    if (exports === undefined) {
         if ((filter as Filter<any, false>)(id)) {
             // TODO(modules/finders/caches)
             return FilterResultFlags.Found
@@ -83,25 +75,15 @@ export function runFilter(
         return
     }
 
-    const defaultExport = exports.default
-    if (!options?.skipDefault && !isModuleExportBad(defaultExport) && filter(id, defaultExport)) {
-        if (exports.__esModule) {
-            // TODO(modules/finders/caches::esm::default)
-            return FilterResultFlags.ESModuleDefault
-        }
-
-        // TODO(modules/finders/caches::cjs::default)
-        return FilterResultFlags.CJSModuleDefault
+    if (filter(id, exports)) {
+        // TODO(modules/finders/caches::namespace)
+        return FilterResultFlags.Namespace
     }
 
-    if (filter(id, exports)) {
-        if (exports.__esModule) {
-            // TODO(modules/finders/caches::esm::namespace)
-            return FilterResultFlags.ESModuleNamespace
-        }
-
-        // TODO(modules/finders/caches::cjs::namespace)
-        return FilterResultFlags.CJSModuleNamespace
+    const defaultExport = exports.default
+    if (!options?.skipDefault && !isModuleExportBad(defaultExport) && filter(id, defaultExport)) {
+        // TODO(modules/finders/caches::default)
+        return FilterResultFlags.Default
     }
 }
 
@@ -110,11 +92,6 @@ export function exportsFromFilterResultFlag(
     exports: Metro.ModuleExports,
     options?: RunFilterReturnExportsOptions,
 ) {
-    if (
-        (flag === FilterResultFlags.ESModuleDefault || flag === FilterResultFlags.CJSModuleDefault) &&
-        !options?.returnNamespace
-    )
-        return exports.default
-
+    if (flag === FilterResultFlags.Default && !options?.returnNamespace) return exports.default
     return exports
 }
