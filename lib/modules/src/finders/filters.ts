@@ -332,7 +332,7 @@ export type ModuleStateAware = <IF extends Filter>(
 export const moduleStateAware = createFilterGenerator<Parameters<ModuleStateAware>>(
     ([initializedFilter, uninitializedFilter], id, exports) => {
         if (isModuleInitialized(id)) {
-            if (initializedModuleHasBadExports(id)) return initializedFilter(id, exports)
+            if (!initializedModuleHasBadExports(id)) return initializedFilter(id, exports)
             return false
         }
 
