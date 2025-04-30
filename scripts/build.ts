@@ -13,6 +13,9 @@ export default async function build(dev = false, log = true) {
     const bundle = await rolldown({
         input: 'src/index.ts',
         platform: 'neutral',
+        experimental: {
+            strictExecutionOrder: true,
+        },
         resolve: {
             tsconfigFilename: 'tsconfig.json',
         },
