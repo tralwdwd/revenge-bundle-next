@@ -13,6 +13,9 @@ export default async function build(dev = false, log = true) {
     const bundle = await rolldown({
         input: 'src/index.ts',
         platform: 'neutral',
+        resolve: {
+            tsconfigFilename: 'tsconfig.json',
+        },
         treeshake: true,
         keepNames: true,
         moduleTypes: {
@@ -24,8 +27,6 @@ export default async function build(dev = false, log = true) {
             __BUILD_FLAG_INIT_DISABLE_PATCH_LOG_PROMISE_REJECTIONS__: String(!dev),
         },
         plugins: [
-            // @ts-expect-error
-            tsconfigPaths(),
             swcPlugin(),
             hermesCPlugin({
                 flags: [
