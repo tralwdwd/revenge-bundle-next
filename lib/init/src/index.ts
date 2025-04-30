@@ -48,7 +48,7 @@ function runCatching(fn: () => void) {
         // TODO(init): Move to use native module
         alert(
             // biome-ignore lint/style/useTemplate: I want this to be readable, thank you
-            'Failed to load Revenge!\n' +
+            `Failed to load Revenge (${__BUILD_COMMIT__}-${__BUILD_ENV__})\n` +
                 `Discord: ${ClientInfoModule.Version} (${ClientInfoModule.Build})\n` +
                 `Device: ${DeviceModule.deviceManufacturer} ${DeviceModule.deviceModel}\n\n` +
                 getErrorStack(e),

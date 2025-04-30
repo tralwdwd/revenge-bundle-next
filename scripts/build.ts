@@ -1,8 +1,7 @@
 import { transform } from '@swc/core'
-import { main } from 'bun'
+import { $, main } from 'bun'
 import chalk from 'chalk'
 import { type OutputChunk, type RolldownPlugin, rolldown } from 'rolldown'
-import tsconfigPaths from 'rollup-plugin-tsconfig-paths'
 
 // If this file is being run directly, build the project
 if (main === import.meta.filename) build()
@@ -25,7 +24,7 @@ export default async function build(dev = false, log = true) {
             '.webp': 'dataurl',
         },
         define: {
-            __BUILD_COMMIT__: JSON.stringify(''),
+            __BUILD_COMMIT__: JSON.stringify(await $`git rev-parse HEAD`.text()),
             __BUILD_ENV__: JSON.stringify(dev ? 'development' : 'production'),
             __BUILD_FLAG_INIT_DISABLE_PATCH_LOG_PROMISE_REJECTIONS__: String(!dev),
         },
