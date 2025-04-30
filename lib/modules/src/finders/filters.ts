@@ -135,6 +135,12 @@ export type ComparableDependencyMap = Array<Metro.ModuleID | undefined | Compara
  * const Logger = await findModule(byDependencies([4, undefined, 2]))
  * // or
  * const Logger = await findModule(byDependencies([4, , 2]))
+ * // or with relative dependencies
+ * // If Logger's module ID is 20, [19, ..., ..., 2] would match:
+ * const Logger = await findModule(byDependencies([-1, , 2]))
+ * // or with nested dependencies
+ * // The last dependency would need to have zero dependencies:
+ * const Logger = await findModule(byDependencies([4, , []]))
  * ```
  */
 export const byDependencies = createFilterGenerator<[deps: ComparableDependencyMap]>(
@@ -156,24 +162,47 @@ export function looseDeps(deps: ComparableDependencyMap) {
     return deps
 }
 
-function compareDeps(of: Metro.ModuleID, compare: ComparableDependencyMap, loose = false): boolean {
-    const stack: Array<[of: Metro.ModuleID[], compare: ComparableDependencyMap, loose: boolean]> = []
-    stack.push([getModuleDependencies(of)!, compare, loose])
+const RootRelativeDepBit = 1 << 31
+
+/**
+ * Marks this dependency to compare relatively to the root module ID, instead of the module ID of the module being compared.
+ * Useless for single-depth comparisons, but useful for nested comparisons.
+ *
+ * @param id The dependency ID to mark as root relative.
+ */
+export function rootRelativeDep(id: Metro.ModuleID) {
+    return id | RootRelativeDepBit
+}
+
+function compareDeps(rootOf: Metro.ModuleID, compare: ComparableDependencyMap, loose = false): boolean {
+    const stack: Array<[of: Metro.ModuleID, deps: Metro.ModuleID[], compare: ComparableDependencyMap, loose: boolean]> =
+        []
+    stack.push([rootOf, getModuleDependencies(rootOf)!, compare, loose])
 
     while (stack.length) {
-        const [of, compare, loose] = stack.pop()!
-        if (loose ? of.length < compare.length : of.length !== compare.length) return false
+        const [of, deps, compare, loose] = stack.pop()!
+        if (loose ? deps.length < compare.length : deps.length !== compare.length) return false
 
         for (let i = 0; i < compare.length; i++) {
-            const orig = of[i]
+            const orig = deps[i]
             const cmp = compare[i]
             if (cmp === undefined) continue
 
             if (Array.isArray(cmp)) {
                 const dependencies = getModuleDependencies(orig)
                 if (!dependencies) return false
-                stack.push([dependencies, cmp, cmp.loose ?? false])
-            } else if (orig !== cmp) return false
+                stack.push([orig, dependencies, cmp, cmp.loose ?? false])
+            } else if (
+                cmp < 0
+                    ? -cmp & RootRelativeDepBit
+                        ? // Root relative dependency
+                          rootOf + (-cmp & ~RootRelativeDepBit) !== orig
+                        : // Relative dependency
+                          of + cmp !== orig
+                    : // Absolute dependency
+                      cmp !== orig
+            )
+                return false
         }
     }
 
@@ -188,7 +217,7 @@ function depsToKey(deps: ComparableDependencyMap): string {
         else if (Array.isArray(dep)) {
             if (dep.loose) key += '#'
             key += `[${depsToKey(dep)}],`
-        } else key += `${dep},`
+        } else key += `${-dep & RootRelativeDepBit ? `r${dep}` : dep},`
 
     return key.substring(0, key.length - 1)
 }
