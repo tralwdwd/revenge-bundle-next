@@ -3,7 +3,7 @@
   "compilerOptions": {
     "types": ["@revenge-mod/types", "./types"],
     "paths": {
-      "@plugins/*": ["./plugins/*"]
+      "~plugins/*": ["./plugins/*"]
     }
   },
   "include": ["lib", "plugins", "src"]
