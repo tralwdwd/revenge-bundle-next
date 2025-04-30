@@ -267,10 +267,7 @@ export type Some = {
  */
 export const some = createFilterGenerator<[...filters: Filter[]]>(
     (filters, id, exports) => {
-        for (const filter of filters) {
-            if (filter(id, exports)) return true
-        }
-
+        for (const filter of filters) if (filter(id, exports)) return true
         return false
     },
     filters => `revenge.some(${filtersToKey(filters)})`,

@@ -85,8 +85,6 @@ export function runFilter(
         // TODO(modules/finders/caches)
         return FilterResultFlags.Found
     }
-
-    return
 }
 
 export function exportsFromFilterResultFlag(

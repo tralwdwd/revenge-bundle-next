@@ -114,18 +114,18 @@ export function registerPlugin(
     _plugins.set(manifest.id, plugin)
 }
 
-export function initPlugins() {
+export async function initPlugins() {
     const promises: Promise<void>[] = []
     for (const plugin of _plugins.values()) if (plugin.flags & PluginFlags.Enabled) promises.push(plugin.init())
     // These Promises never throw, so it is fine
-    return Promise.all(promises)
+    await Promise.all(promises)
 }
 
-export function startPlugins() {
+export async function startPlugins() {
     const promises: Promise<void>[] = []
     for (const plugin of _plugins.values()) if (plugin.flags & PluginFlags.Enabled) promises.push(plugin.start())
     // These Promises never throw, so it is fine
-    return Promise.all(promises)
+    await Promise.all(promises)
 }
 
 export interface InternalPlugin extends PluginsLibrary.Plugin {
