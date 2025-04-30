@@ -32,18 +32,16 @@ const unsubForAssetRegistry = waitForModules(byProps('registerAsset'), (arId, ex
 
     unsubForAssetRegistry()
 
-    setImmediate(() => {
-        // TODO(assets/patches): conditionally run this if cache does not exist
-        if (true) {
-            // More fragile way, but more performant:
-            // There is exactly one asset before the reexported asset registry, thanks Discord!
-            const firstAssetModuleId = arId - 1
-            for (const id of _mUninited) {
-                if (id < firstAssetModuleId) continue
+    // TODO(assets/patches): conditionally run this if cache does not exist
+    if (true) {
+        // More fragile way, but more performant:
+        // There is exactly one asset before the reexported asset registry, thanks Discord!
+        const firstAssetModuleId = arId - 1
+        for (const id of _mUninited) {
+            if (id < firstAssetModuleId) continue
 
-                const deps = getModuleDependencies(id)!
-                if (deps.length === 1 && deps[0] === arId) __r(id)
-            }
+            const deps = getModuleDependencies(id)!
+            if (deps.length === 1 && deps[0] === arId) __r(id)
         }
-    })
+    }
 })
