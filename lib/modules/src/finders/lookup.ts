@@ -23,7 +23,7 @@ export type BaseLookupModulesOptions<IncludeUninitialized extends boolean = bool
     /**
      * Whether to include uninitialized modules in the lookup.
      *
-     * Options that require modules to be initialized (eg. `esmReturnNamespace`, `esmSkipDefault`) will be ignored during uninitialized module ID lookup.
+     * Options that require modules to be initialized (eg. `returnNamespace`, `skipDefault`) will be ignored during uninitialized module ID lookup.
      *
      * **This will initialize any modules that match the filter and may cause unintended side effects.**
      *
@@ -133,7 +133,14 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
             if (flag) yield exportsFromFilterResultFlag(flag, exports, options)
         }
 
-    if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) yield __r(id)
+    if (options?.includeUninitialized)
+        for (const id of _mUninited)
+            if (runFilter(filter, id)) {
+                // Run the filter again to ensure we have the correct exports
+                const exports = __r(id)
+                const flag = runFilter(filter, id, exports, options)
+                if (flag) yield exportsFromFilterResultFlag(flag, exports, options)
+            }
 }
 
 /**
@@ -202,7 +209,14 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
             if (flag) return exportsFromFilterResultFlag(flag, exports, options)
         }
 
-    if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) return __r(id)
+    if (options?.includeUninitialized)
+        for (const id of _mUninited) {
+            if (runFilter(filter, id)) {
+                const exports = __r(id)
+                const flag = runFilter(filter, id, exports, options)
+                if (flag) return exportsFromFilterResultFlag(flag, exports, options)
+            }
+        }
 }
 
 /**
