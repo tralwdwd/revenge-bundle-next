@@ -27,7 +27,7 @@ onModuleFirstRequired(0, function onceIndexRequired() {
 
                 logger.log('Revenge loaded!')
 
-                setImmediate(() => {
+                setTimeout(() => {
                     // Call garbage collector to clean up memory
                     gc()
                     gc()
