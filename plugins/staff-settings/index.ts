@@ -14,7 +14,7 @@ registerPlugin(
         icon: 'StaffBadgeIcon',
     },
     {
-        init: async ({ cleanup }) => {
+        async init({ cleanup }) {
             const UserStoreUtils = await findModule(byProps('isStaffEnv'))
             cleanup(after(UserStoreUtils, 'isStaffEnv', () => true))
         },

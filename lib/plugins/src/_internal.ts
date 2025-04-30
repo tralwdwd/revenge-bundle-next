@@ -41,7 +41,7 @@ export function registerPlugin(
             // const sapi = api as PluginsLibrary.PluginApi
             // sapi.settings ??= ...
         },
-        init: async () => {
+        async init() {
             plugin.flags |= PluginFlags.StatusInit
             plugin.flags |= PluginFlags.StatusActioning
 
@@ -55,7 +55,7 @@ export function registerPlugin(
             plugin.flags &= ~PluginFlags.StatusInit
             plugin.flags &= ~PluginFlags.StatusActioning
         },
-        start: async () => {
+        async start() {
             plugin.flags |= PluginFlags.StatusStart
             plugin.flags |= PluginFlags.StatusActioning
 
@@ -71,7 +71,7 @@ export function registerPlugin(
             plugin.flags &= ~PluginFlags.StatusStart
             plugin.flags &= ~PluginFlags.StatusActioning
         },
-        stop: async () => {
+        async stop() {
             plugin.flags &= ~PluginFlags.StatusInit
             plugin.flags &= ~PluginFlags.StatusStart
             plugin.flags |= PluginFlags.StatusActioning
@@ -91,11 +91,11 @@ export function registerPlugin(
                 plugin.flags &= ~PluginFlags.StatusActioning
             }
         },
-        enable: async () => {
+        async enable() {
             plugin.flags |= PluginFlags.Enabled
             if (lifecycles.init) plugin.flags |= PluginFlags.ReloadRequired
         },
-        disable: async () => {
+        async disable() {
             plugin.flags &= ~PluginFlags.Enabled
             // If plugin is initialized/started, we need to stop it
             if (plugin.flags & (PluginFlags.StatusInit | PluginFlags.StatusStart)) await plugin.stop()

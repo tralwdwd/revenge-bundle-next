@@ -15,9 +15,10 @@ uapi.assets = AssetsLibrary
 
 initPlugins()
 
-// TODO(plugins/init): move to @revenge-mod/app onAppInitialized
+// TODO(plugins/init): move to @revenge-mod/react/native onRunApplicationCalled
 const unpatch = after(ReactNative.AppRegistry, 'runApplication', ret => {
     unpatch()
+    // Don't block rendering
     setImmediate(startPlugins)
     return ret
 })
