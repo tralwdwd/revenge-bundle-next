@@ -6,11 +6,11 @@ import type { Filter } from './filters'
 
 export type RunFilterOptions = {
     /**
-     * For ES modules, whether to skip checking the default export.
+     * Whether to skip checking the default export.
      *
      * @default false
      */
-    esmSkipDefault?: boolean
+    skipDefault?: boolean
 }
 
 export type RunFilterReturnExportsOptions<ReturnNamespace extends boolean = boolean> = RunFilterOptions &
@@ -18,22 +18,20 @@ export type RunFilterReturnExportsOptions<ReturnNamespace extends boolean = bool
         ReturnNamespace,
         {
             /**
-             * For ES modules, whether to return the whole module with all exports instead of just the default export **if the default export matches**.
-             *
-             * CommonJS modules will always return all exports.
+             * Whether to return the whole module with all exports instead of just the default export **if the default export matches**.
              *
              * @default false
              */
-            esmReturnNamespace: true
+            returnNamespace: true
         },
         {
-            esmReturnNamespace?: false
+            returnNamespace?: false
         }
     >
 
 const FilterResultFlags = {
     /**
-     * A module was found.
+     * A module was found, without exports filtering.
      */
     Found: 1,
     /**
@@ -44,6 +42,14 @@ const FilterResultFlags = {
      * A module was found, and it is an ES module, and the filter matched the default export.
      */
     ESModuleDefault: 3,
+    /**
+     * A module was found, and it is a CommonJS module, and the filter matched the module namespace.
+     */
+    CJSModuleNamespace: 4,
+    /**
+     * A module was found, and it is a CommonJS module, and the filter matched the default export.
+     */
+    CJSModuleDefault: 5,
 }
 
 export type FilterResultFlag = (typeof FilterResultFlags)[keyof typeof FilterResultFlags]
@@ -68,22 +74,34 @@ export function runFilter(
     exports?: Metro.ModuleExports,
     options?: RunFilterOptions,
 ): FilterResultFlag | undefined {
-    if (exports?.__esModule) {
-        const { default: defaultExport } = exports
+    if (exports == null) {
+        if ((filter as Filter<any, false>)(id)) {
+            // TODO(modules/finders/caches)
+            return FilterResultFlags.Found
+        }
 
-        // TODO(modules/caches/flags): could cache here that default export is bad
-        if (!options?.esmSkipDefault && !isModuleExportBad(defaultExport) && filter(id, defaultExport)) {
+        return
+    }
+
+    const defaultExport = exports.default
+    if (!options?.skipDefault && !isModuleExportBad(defaultExport) && filter(id, defaultExport)) {
+        if (exports.__esModule) {
             // TODO(modules/finders/caches::esm::default)
             return FilterResultFlags.ESModuleDefault
         }
 
-        if (filter(id, exports)) {
+        // TODO(modules/finders/caches::cjs::default)
+        return FilterResultFlags.CJSModuleDefault
+    }
+
+    if (filter(id, exports)) {
+        if (exports.__esModule) {
             // TODO(modules/finders/caches::esm::namespace)
             return FilterResultFlags.ESModuleNamespace
         }
-    } else if (filter(id, exports)) {
-        // TODO(modules/finders/caches)
-        return FilterResultFlags.Found
+
+        // TODO(modules/finders/caches::cjs::namespace)
+        return FilterResultFlags.CJSModuleNamespace
     }
 }
 
@@ -92,6 +110,11 @@ export function exportsFromFilterResultFlag(
     exports: Metro.ModuleExports,
     options?: RunFilterReturnExportsOptions,
 ) {
-    if (flag === FilterResultFlags.ESModuleDefault && !options?.esmReturnNamespace) return exports.default
+    if (
+        (flag === FilterResultFlags.ESModuleDefault || flag === FilterResultFlags.CJSModuleDefault) &&
+        !options?.returnNamespace
+    )
+        return exports.default
+
     return exports
 }
