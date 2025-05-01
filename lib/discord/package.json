@@ -15,8 +15,17 @@
     "./preinit": {
       "default": "./src/preinit.ts"
     },
+    "./ui": {
+      "default": "./src/ui/index.ts"
+    },
+    "./ui/settings": {
+      "default": "./src/ui/settings/index.ts"
+    },
     "./types": {
       "types": "./types/index.ts"
+    },
+    "./_/ui/settings": {
+      "default": "./src/ui/settings/_internal.ts"
     }
   }
 }
