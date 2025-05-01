@@ -11,6 +11,7 @@ registerPlugin(
         id: 'revenge.staff-settings',
         name: 'Staff Settings',
         description: "Allows accessing Discord's Staff Settings.",
+        author: 'Revenge',
         icon: 'StaffBadgeIcon',
     },
     {

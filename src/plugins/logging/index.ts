@@ -13,6 +13,7 @@ registerPlugin(
         id: 'revenge.logging',
         name: 'Logging',
         description: "Extra logging for Revenge's internal modules",
+        author: 'Revenge',
         icon: 'PaperIcon',
     },
     {

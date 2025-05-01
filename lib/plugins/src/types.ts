@@ -73,6 +73,10 @@ export interface PluginManifest {
      */
     name: string
     /**
+     * The author of the plugin.
+     */
+    author: string
+    /**
      * The description of the plugin.
      */
     description: string
