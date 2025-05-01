@@ -6,5 +6,5 @@
       "~plugins/*": ["./plugins/*"]
     }
   },
-  "include": ["lib", "plugins", "src"]
+  "include": ["lib", "plugins", "src", "shims"]
 }

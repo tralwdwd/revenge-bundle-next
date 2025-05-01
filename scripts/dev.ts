@@ -12,7 +12,7 @@ console.info(chalk.redBright(`\nRevenge ${chalk.white(`v${pkg.version}`)}\n`))
 
 const cwdify = (path: string) => join(process.cwd(), path)
 const Sources = ['src', 'lib', 'plugins'].map(cwdify)
-const ExitTriggers = ['scripts', 'package.json', 'bun.lock'].map(cwdify)
+const ExitTriggers = ['scripts', 'shims', 'package.json', 'bun.lock'].map(cwdify)
 
 const debouncedBuildDev = debounce(() => ((needRebuild = false), build(true).catch(console.error)), 250)
 

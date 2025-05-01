@@ -2,6 +2,7 @@ import { transform } from '@swc/core'
 import { $, main } from 'bun'
 import chalk from 'chalk'
 import { type OutputChunk, type RolldownPlugin, rolldown } from 'rolldown'
+import { aliasPlugin } from 'rolldown/experimental'
 
 import pkg from '../package.json'
 
@@ -33,6 +34,14 @@ export default async function build(dev = false, log = true) {
         },
         plugins: [
             swcPlugin(),
+            aliasPlugin({
+                entries: [
+                    {
+                        find: 'react/jsx-runtime',
+                        replacement: './shims/react~jsx-runtime.ts',
+                    },
+                ],
+            }),
             hermesCPlugin({
                 flags: [
                     dev ? '-Og' : '-O',

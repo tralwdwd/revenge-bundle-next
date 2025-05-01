@@ -8,6 +8,7 @@
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "noEmit": true,
+    "jsx": "preserve",
     // Type checking
     "strict": true,
     "skipLibCheck": true,
