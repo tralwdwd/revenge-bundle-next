@@ -24,7 +24,7 @@ registerPlugin(
         start({ logger }) {
             AppStartPerformance.mark('👊', 'Plugins start', performance.now() - tsInit)
             logger.log(
-                `👊 Revenge. Discord, your way. (v: ${__BUILD_VERSION__} c: ${__BUILD_COMMIT__} e: ${__BUILD_ENV__})`,
+                `👊 Revenge. Discord, your way. (v: ${__BUILD_VERSION__} r: ${__BUILD_COMMIT__}-${__BUILD_BRANCH__}-${__BUILD_ENV__})`,
             )
         },
     },
