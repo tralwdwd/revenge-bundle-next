@@ -1,4 +1,4 @@
-import { byDependencies, byProps, moduleStateAware } from '@revenge-mod/modules/finders/filters'
+import { byDependencies, byProps, moduleStateAware, relativeDep } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders'
 
 import type { DiscordModules } from '../types'
@@ -8,7 +8,7 @@ export const AppStartPerformance = lookupModule(
     moduleStateAware(
         byProps<DiscordModules.AppStartPerformance>('markAndLog'),
         // biome-ignore lint/suspicious/noSparseArray: Nah
-        byDependencies([-1, , , 2]),
+        byDependencies([relativeDep(-1), , , 2]),
     ),
     {
         includeUninitialized: true,
