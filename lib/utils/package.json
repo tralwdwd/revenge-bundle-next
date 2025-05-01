@@ -18,11 +18,17 @@
     "./logger": {
       "default": "./src/logger.ts"
     },
+    "./objects": {
+      "default": "./src/objects.ts"
+    },
     "./proxy": {
       "default": "./src/proxy.ts"
     },
-    "./objects": {
-      "default": "./src/objects.ts"
+    "./react": {
+      "default": "./src/react.ts"
+    },
+    "./trees": {
+      "default": "./src/trees.ts"
     },
     "./types": {
       "types": "./src/types.ts"
