@@ -1,4 +1,4 @@
-import { findModule } from '@revenge-mod/modules/finders'
+import { waitForModules } from '@revenge-mod/modules/finders'
 import { byProps } from '@revenge-mod/modules/finders/filters'
 
 import { after } from '@revenge-mod/patcher'
@@ -15,9 +15,11 @@ registerPlugin(
         icon: 'StaffBadgeIcon',
     },
     {
-        async init({ cleanup }) {
-            const UserStoreUtils = await findModule(byProps('isStaffEnv'))
-            cleanup(after(UserStoreUtils, 'isStaffEnv', () => true))
+        init({ cleanup }) {
+            const unsub = waitForModules(byProps('isStaffEnv'), (_, UserStoreUtils) => {
+                unsub()
+                cleanup(after(UserStoreUtils, 'isStaffEnv', () => true))
+            })
         },
     },
     PluginFlags.Enabled,
