@@ -12,7 +12,7 @@ console.info(chalk.redBright(`\nRevenge ${chalk.white(`v${pkg.version}`)}\n`))
 
 const cwdify = (path: string) => join(process.cwd(), path)
 const Sources = ['src', 'lib', 'plugins'].map(cwdify)
-const ExitTriggers = ['scripts', 'shims', 'package.json', 'bun.lock'].map(cwdify)
+const ExitTriggers = ['scripts', 'shims', 'package.json', 'bun.lock', 'tsconfig.json'].map(cwdify)
 
 const debouncedBuildDev = debounce(() => ((needRebuild = false), build(true).catch(console.error)), 250)
 
@@ -22,7 +22,7 @@ watcher.subscribe(process.cwd(), (err, events) => {
     if (err) return console.error(err)
 
     if (events.some(it => ExitTriggers.some(se => it.path.startsWith(se)))) {
-        console.error(chalk.redBright('\u26A0 Scripts or packages has changed, exiting!'))
+        console.error(chalk.redBright('\u26A0 Scripts, packages, shims, or tsconfig.json has changed, exiting!'))
         process.exit()
     }
 
