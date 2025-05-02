@@ -1,3 +1,15 @@
+import type { ComponentProps, FC, ReactNode } from 'react'
+import type {
+    ImageSourcePropType,
+    ImageStyle,
+    PressableProps,
+    TextInputProps as RNTextInputProps,
+    TextProps as RNTextProps,
+    TextStyle,
+    ViewProps,
+    ViewStyle,
+} from 'react-native'
+
 export * from './native'
 
 export namespace DiscordModules {
@@ -97,5 +109,313 @@ export namespace DiscordModules {
             trace(...args: unknown[]): void
             verbose(...args: unknown[]): void
         }
+    }
+
+    export namespace Styles {
+        export type TextType = 'heading' | 'text'
+        export type BasicTextSize = 'sm' | 'md' | 'lg'
+        export type BasicTextSizeWithExtraLarges = BasicTextSize | 'xl' | 'xxl'
+        export type TextSize = BasicTextSizeWithExtraLarges | 'xs' | 'xxs'
+        export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
+        export type TextWeightWithExtraBold = TextWeight | 'extrabold'
+        export type RedesignTextCategory = 'message-preview' | 'channel-title'
+
+        export type TextVariant =
+            | `heading-${BasicTextSizeWithExtraLarges}/${TextWeightWithExtraBold}`
+            | `text-${TextSize}/${TextWeight}`
+            | `display-${BasicTextSize}`
+            | `redesign/${RedesignTextCategory}/${TextWeight}`
+            | 'redesign/heading-18/bold'
+            | 'eyebrow'
+
+        export type TextStyleSheet = Record<TextVariant, RNTextProps>
+        export type CreateStylesFn = <const S extends Record<string, TextStyle | ViewStyle | ImageStyle>>(
+            styles: S,
+        ) => () => S
+    }
+
+    export namespace Components {
+        export interface BaseButtonProps extends PressableProps {
+            disabled?: boolean
+            size?: ButtonSize
+            variant?:
+                | 'primary'
+                | 'secondary'
+                | 'tertiary'
+                | 'destructive'
+                | 'active'
+                | 'primary-overlay'
+                | 'secondary-overlay'
+            loading?: boolean
+            grow?: boolean
+            scaleAmountInPx?: number
+        }
+
+        export interface ButtonProps extends BaseButtonProps {
+            icon?: number
+            loading?: boolean
+            iconPosition?: 'start' | 'end'
+            renderIcon?(): ReactNode
+            renderRightIcon?(): ReactNode
+            renderShine?(): ReactNode
+            renderLinearGradient?(): ReactNode
+            cornerRadius?: number
+            textStyle?: TextStyle
+            loadingColorLight?: string
+            loadingColorDark?: string
+            text: string
+        }
+
+        // Buttons
+        export type ButtonSize = 'sm' | 'md' | 'lg'
+        export type Button = FC<ButtonProps>
+
+        export interface IconButtonProps extends BaseButtonProps {
+            icon: number
+            label?: string
+        }
+
+        export type IconButton = FC<IconButtonProps>
+
+        export interface ImageButtonProps extends BaseButtonProps {
+            image: ImageSourcePropType
+        }
+
+        export type ImageButton = FC<ImageButtonProps>
+
+        export interface StackProps extends ViewProps {
+            spacing?: number
+            direction?: 'vertical' | 'horizontal'
+        }
+
+        export type Stack = FC<StackProps>
+
+        export interface CardProps extends ViewProps {
+            start?: boolean
+            end?: boolean
+            variant?: 'primary' | 'secondary'
+            border?: 'faint' | 'normal' | 'strong' | 'subtle'
+            // TODO
+            shadow?: 'none'
+            children: ReactNode
+        }
+
+        export type Card = FC<CardProps>
+
+        // Inputs
+        export interface TextFieldProps {
+            onChange?: (value: string) => void
+            onBlur?: () => void
+            onFocus?: () => void
+
+            leadingIcon?: () => JSX.Element
+            trailingIcon?: () => JSX.Element
+            leadingText?: string
+            trailingText?: string
+            description?: string
+            errorMessage?: string
+
+            isDisabled?: boolean
+            focusable?: boolean
+            editable?: boolean
+            status?: TextFieldStatus
+
+            defaultValue?: string
+            value?: string
+
+            placeholder?: string
+            placeholderTextColor?: string
+
+            maxLength?: number
+            multiline?: boolean
+
+            autoFocus?: boolean
+            secureTextEntry?: boolean
+            returnKeyType?: RNTextInputProps['returnKeyType']
+            isClearable?: boolean
+
+            size?: TextFieldSize
+            style?: ViewStyle | ViewStyle[]
+        }
+
+        export type TextFieldSize = 'sm' | 'md' | 'lg'
+
+        export type TextFieldStatus = 'default' | 'error'
+
+        export interface TextInputProps extends TextFieldProps {
+            isRound?: boolean
+            label?: string
+        }
+
+        export interface TextAreaProps extends Omit<TextInputProps, 'multiline'> {}
+
+        export type TextInput = FC<TextInputProps>
+        export type TextField = FC<TextFieldProps>
+        export type TextArea = FC<TextAreaProps>
+
+        export interface FormSwitchProps extends ViewProps {
+            value: boolean
+            onValueChange(value: boolean): void
+            disabled?: boolean
+        }
+
+        export type FormSwitch = FC<FormSwitchProps>
+        // TODO
+        // export type FormRadio = FC
+        // export type FormCheckbox = FC
+
+        export interface ActionSheetProps {
+            children: ReactNode
+        }
+
+        export type ActionSheet = FC<ActionSheetProps>
+
+        export interface ActionSheetCloseButtonProps extends Pick<ComponentProps<IconButton>, 'variant' | 'onPress'> {}
+
+        export type ActionSheetCloseButton = FC<ActionSheetCloseButtonProps>
+
+        export type ActionSheetRow = TableRow
+        export type ActionSheetRowIcon = TableRowIcon
+        export type ActionSheetRowGroup = TableRowGroup
+        export type ActionSheetSwitchRow = TableSwitchRow
+        // TODO
+        // export type ActionSheetIconHeader = FC
+        // export type ActionSheetHeaderBar = FC
+        // export type BottomSheetTitleHeader = FC
+
+        export type IconSize =
+            | 'extraSmall10'
+            | 'extraSmall'
+            | 'small'
+            | 'small20'
+            | 'medium'
+            | 'large'
+            | 'custom'
+            | 'refreshSmall16'
+            | 'small14'
+
+        export type TableRowVariant = 'default' | 'danger'
+
+        export interface TableRowProps {
+            label: string
+            subLabel?: string
+            icon?: ReactNode
+            trailing?: ReactNode
+            arrow?: boolean
+            onPress?: PressableProps['onPress']
+            disabled?: boolean
+            draggable?: boolean
+            dragHandlePressableProps?: PressableProps
+            labelLineClamp?: number
+            subLabelLineClamp?: number
+            // TODO
+            start?: unknown
+            end?: unknown
+            variant?: TableRowVariant
+        }
+
+        export type TableRow = FC<TableRowProps> & {
+            Arrow: FC
+            Icon: TableRowIcon
+        }
+
+        export interface TableSwitchRowProps extends Omit<TableRowProps, 'trailing'> {
+            accessibilityHint?: string
+            value: boolean
+            onValueChange(value: boolean): void
+        }
+
+        export type TableSwitchRow = FC<TableSwitchRowProps>
+
+        export interface TableRowGroupProps {
+            title?: string
+            description?: string
+            hasIcons?: boolean
+            accessibilityLabel?: string
+            accessibilityRole?: string
+            children: ReactNode
+        }
+
+        export type TableRowGroup = FC<TableRowGroupProps>
+
+        export interface TableRowGroupTitleProps {
+            title: string
+        }
+
+        export type TableRowGroupTitle = FC<TableRowGroupTitleProps>
+
+        export type TableRowIconVariant =
+            | 'default'
+            | 'blurple'
+            | 'boosting-pink'
+            | 'status-online'
+            | 'status-idle'
+            | 'status-dnd'
+            | 'status-offline'
+            | 'xbox'
+            | 'playstation'
+            | 'danger'
+            | 'secondary'
+            | 'translucent'
+
+        export interface TableRowIconProps {
+            source: ImageSourcePropType
+            variant?: TableRowIconVariant
+        }
+
+        export type TableRowIcon = FC<TableRowIconProps>
+
+        export interface TableRowTrailingTextProps {
+            text: string
+        }
+
+        export type TableRowTrailingText = FC<TableRowTrailingTextProps>
+
+        export interface AlertModalProps {
+            title: string
+            content?: ReactNode
+            extraContent?: ReactNode
+            actions?: ReactNode
+        }
+
+        export type AlertModal = FC<AlertModalProps>
+
+        export type AlertActionButton = Button
+
+        export interface ContextMenuProps {
+            title: ReactNode
+            triggerOnLongPress?: boolean
+            items: Array<ContextMenuItem | ContextMenuItem[]>
+            align?: 'left' | 'right' | 'above' | 'below'
+            children: (props: Partial<BaseButtonProps>) => ReactNode
+        }
+
+        export type ContextMenu = FC<ContextMenuProps>
+
+        export interface ContextMenuItem {
+            label: string
+            IconComponent?: FC
+            variant?: 'default' | 'destructive'
+            action(): void
+        }
+
+        export interface TextProps extends RNTextProps {
+            variant?: DiscordModules.Styles.TextVariant
+            color?: string
+            style?: TextStyle
+            lineClamp?: number
+            ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip'
+            tabularNumbers?: boolean
+            children?: ReactNode
+        }
+
+        export type Text = FC<TextProps>
+
+        export interface IntlLinkProps {
+            target: string
+            children?: ReactNode
+        }
+
+        export type IntlLink = FC<IntlLinkProps>
     }
 }
