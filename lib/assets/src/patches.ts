@@ -24,7 +24,7 @@ const unsubForAssetRegistry = waitForModules(byProps('registerAsset'), (arId, ex
             const reg = _assets.get(name)!
             reg[1][type] = asset
 
-            return orig(asset)
+            return (asset.id = orig(asset))
         }
 
         return

@@ -15,6 +15,7 @@ onModuleFirstRequired(0, function onceIndexRequired() {
         // Initialize preinit libraries
         require('@revenge-mod/modules/preinit')
         require('@revenge-mod/react/preinit')
+        require('@revenge-mod/assets/preinit')
         require('@revenge-mod/discord/preinit')
 
         onModuleInitialized(0, function onceIndexInitialized() {
@@ -23,7 +24,6 @@ onModuleFirstRequired(0, function onceIndexRequired() {
                 require('~plugins/all')
 
                 // Initialize init libraries
-                require('@revenge-mod/assets/init')
                 require('@revenge-mod/plugins/init')
 
                 logger.log('Revenge loaded!')
