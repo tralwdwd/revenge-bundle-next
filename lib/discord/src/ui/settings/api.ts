@@ -21,6 +21,7 @@ export function addSettingsRowToSection(sectionKey: string, rowKey: string, row:
 export interface SettingsSection {
     label: string
     settings: Record<string, SettingsRowConfig>
+    index?: number
 }
 
 interface BaseSettingsRowConfig {
@@ -41,7 +42,7 @@ export interface PressableSettingsRowConfig extends BaseSettingsRowConfig {
 
 export interface ToggleSettingsRowConfig extends BaseSettingsRowConfig {
     type: 'toggle'
-    useValue?: () => boolean
+    useValue: () => boolean
     onValueChange?: (value: boolean) => void
 }
 
