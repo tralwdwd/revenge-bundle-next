@@ -11,13 +11,13 @@ export let Components: Components = proxify(
         // [3237, 1366, 3238, 3239, 2, ...];
         const module = lookupModule(
             moduleStateAware(
-                byProps('TableRow', 'Button'),
+                byProps<Components>('TableRow', 'Button'),
                 byDependencies(looseDeps([relativeDep(1), undefined, relativeDep(2), relativeDep(3), 2])),
             ),
             {
                 includeUninitialized: true,
             },
-        ) as Components | undefined
+        )
 
         if (module) {
             // This allows the Proxy instance to be garbage collected
@@ -46,7 +46,9 @@ export interface Components {
     IconButton: DiscordModules.Components.IconButton
     ImageButton: DiscordModules.Components.ImageButton
     Stack: DiscordModules.Components.Stack
+    Slider: DiscordModules.Components.Slider
     TableRow: DiscordModules.Components.TableRow
+    TableRowGroup: DiscordModules.Components.TableRowGroup
     TableRowTrailingText: DiscordModules.Components.TableRowTrailingText
     TableSwitchRow: DiscordModules.Components.TableSwitchRow
     Text: DiscordModules.Components.Text

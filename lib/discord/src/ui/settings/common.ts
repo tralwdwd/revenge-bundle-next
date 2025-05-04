@@ -11,7 +11,7 @@ export let SettingListRenderer: SettingListRenderer = proxify(
     () => {
         const module = lookupModule(
             moduleStateAware(
-                byProps('SettingsList'),
+                byProps<SettingListRenderer>('SettingsList'),
                 byDependencies(
                     looseDeps([
                         ReactModuleId,
@@ -26,7 +26,7 @@ export let SettingListRenderer: SettingListRenderer = proxify(
             {
                 includeUninitialized: true,
             },
-        ) as SettingListRenderer | undefined
+        )
 
         if (module) {
             // This allows the Proxy instance to be garbage collected
