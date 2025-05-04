@@ -8,12 +8,12 @@ export function registerSettingsSection(key: string, section: SettingsSection) {
     return () => delete _suiData.sections[key]
 }
 
-export function registerSetting(key: string, row: SettingsRowConfig) {
+export function registerSettingsItem(key: string, row: SettingsItem) {
     _suiData.config[key] = row
     return () => delete _suiData.config[key]
 }
 
-export function addSettingToSection(section: string, row: string) {
+export function addSettingsItemToSection(section: string, row: string) {
     if (!_suiData.sections[section]) throw new Error(`Section "${section}" does not exist`)
     const newLength = _suiData.sections[section].settings.push(row)
 
@@ -26,7 +26,7 @@ export interface SettingsSection {
     index?: number
 }
 
-interface BaseSettingsRowConfig {
+interface BaseSettingsItem {
     title: () => string
     parent: string | null
     unsearchable?: boolean
@@ -38,20 +38,20 @@ interface BaseSettingsRowConfig {
     useIsDisabled?: () => boolean
 }
 
-export interface PressableSettingsRowConfig extends BaseSettingsRowConfig {
+export interface PressableSettingsItem extends BaseSettingsItem {
     type: 'pressable'
     onPress?: () => void
 }
 
-export interface ToggleSettingsRowConfig extends BaseSettingsRowConfig {
+export interface ToggleSettingsItem extends BaseSettingsItem {
     type: 'toggle'
     useValue: () => boolean
     onValueChange?: (value: boolean) => void
 }
 
-export interface RouteSettingsRowConfig extends BaseSettingsRowConfig {
+export interface RouteSettingsItem extends BaseSettingsItem {
     type: 'route'
     screen: { route: string; getComponent(): ComponentType }
 }
 
-export type SettingsRowConfig = PressableSettingsRowConfig | ToggleSettingsRowConfig | RouteSettingsRowConfig
+export type SettingsItem = PressableSettingsItem | ToggleSettingsItem | RouteSettingsItem

@@ -1,4 +1,4 @@
-import type { SettingsRowConfig, SettingsSection } from './api'
+import type { SettingsItem, SettingsSection } from './api'
 
 export const _suiData = {
     // Sections to splice in the SettingsOverviewScreen
@@ -7,5 +7,5 @@ export const _suiData = {
     config: {},
 } as {
     sections: Record<string, SettingsSection>
-    config: Record<string, SettingsRowConfig>
+    config: Record<string, SettingsItem>
 }
