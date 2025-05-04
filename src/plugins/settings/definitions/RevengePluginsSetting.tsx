@@ -3,9 +3,9 @@ import { getEnabledPluginsCount } from '@revenge-mod/plugins/_'
 import { AlwaysHidden, MobileSetting, UserSettingsSections } from '../SettingsConstants'
 import AssetIcon from '../components/icons/AssetIcon'
 
-import type { SettingsRowConfig } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
 
-const RevengePluginsSetting: SettingsRowConfig = {
+const RevengePluginsSetting: SettingsItem = {
     parent: null,
     type: 'route',
     IconComponent: () => <AssetIcon name="PuzzlePieceIcon" />,

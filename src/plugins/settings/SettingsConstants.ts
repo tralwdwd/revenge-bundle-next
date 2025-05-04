@@ -15,7 +15,9 @@ export const MobileSetting = {
     HERMES_VERSION: 'HERMES_VERSION',
 
     CALL_GARBAGE_COLLECTOR: 'CALL_GARBAGE_COLLECTOR',
-    TRIGGER_ERROR_BOUNDARY: 'TRIGGER_ERROR_BOUNDARY',
+    EVALUATE_JAVASCRIPT: 'EVALUATE_JAVASCRIPT',
+    EVALUATE_JAVASCRIPT_INSPECT_DEPTH: 'EVALUATE_JAVASCRIPT_INSPECT_DEPTH',
+    EVALUATE_JAVASCRIPT_AWAIT_RESULT: 'EVALUATE_JAVASCRIPT_AWAIT_RESULT',
 
     REVENGE_NOT_IMPLEMENTED: 'REVENGE_NOT_IMPLEMENTED',
 } as const
@@ -26,7 +28,6 @@ export const UserSettingsSections = {
     [MobileSetting.REVENGE_THEMES]: 'Revenge Themes',
     [MobileSetting.REVENGE_FONTS]: 'Revenge Fonts',
     [MobileSetting.REVENGE_DEVELOPER]: 'Revenge Developer',
-    [MobileSetting.TRIGGER_ERROR_BOUNDARY]: 'Trigger Error Boundary',
 } as const
 
 export const AlwaysHidden = () => false

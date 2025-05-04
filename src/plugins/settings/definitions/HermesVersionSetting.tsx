@@ -3,12 +3,12 @@ import { React } from '@revenge-mod/react'
 import AssetIcon from '../components/icons/AssetIcon'
 import { MobileSetting } from '../SettingsConstants'
 
-import type { SettingsRowConfig } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
 
 // @ts-expect-error
 const props = HermesInternal.getRuntimeProperties()
 
-const HermesVersionSetting: SettingsRowConfig = {
+const HermesVersionSetting: SettingsItem = {
     parent: MobileSetting.REVENGE,
     IconComponent: () => <AssetIcon name="TranscriptOutlineIcon" />,
     title: () => 'Hermes',

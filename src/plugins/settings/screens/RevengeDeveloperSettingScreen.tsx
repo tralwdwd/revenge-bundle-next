@@ -7,11 +7,12 @@ export default function RevengeDeveloperSettingScreen() {
         <SettingListRenderer.SettingsList
             sections={[
                 {
-                    settings: [MobileSetting.CALL_GARBAGE_COLLECTOR],
+                    label: 'React DevTools',
+                    settings: [MobileSetting.REVENGE_NOT_IMPLEMENTED],
                 },
                 {
-                    label: 'Tests',
-                    settings: [MobileSetting.TRIGGER_ERROR_BOUNDARY],
+                    label: 'Tools',
+                    settings: [MobileSetting.EVALUATE_JAVASCRIPT, MobileSetting.CALL_GARBAGE_COLLECTOR],
                 },
             ]}
         />

@@ -1,9 +1,9 @@
 import RevengeIcon from '../components/icons/RevengeIcon'
 import { MobileSetting, UserSettingsSections } from '../SettingsConstants'
 
-import type { SettingsRowConfig } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
 
-const RevengeSetting: SettingsRowConfig = {
+const RevengeSetting: SettingsItem = {
     parent: null,
     type: 'route',
     IconComponent: RevengeIcon,

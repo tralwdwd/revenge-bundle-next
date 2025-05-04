@@ -4,7 +4,7 @@ import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { waitForModules } from '@revenge-mod/modules/finders'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 
-import { registerSetting, registerSettingsSection, type SettingsRowConfig } from '@revenge-mod/discord/ui/settings'
+import { registerSettingsItem, registerSettingsSection, type SettingsItem } from '@revenge-mod/discord/ui/settings'
 import { _suiData } from '@revenge-mod/discord/_/ui/settings'
 
 import { after } from '@revenge-mod/patcher'
@@ -21,8 +21,8 @@ import ReactNativeVersionSetting from './definitions/ReactNativeVersionSetting'
 import RevengeVersionSetting from './definitions/RevengeVersionSetting'
 import HermesVersionSetting from './definitions/HermesVersionSetting'
 import CallGarbageCollectorSetting from './definitions/CallGarbageCollectorSetting'
-import TriggerErrorBoundarySetting from './definitions/TriggerErrorBoundarySetting'
 import RevengeNotImplementedSetting from './definitions/RevengeNotImplementedSetting'
+import EvaluateJavaScriptSetting from './definitions/EvaluateJavaScriptSetting'
 
 import type { FC } from 'react'
 
@@ -47,10 +47,10 @@ registerPlugin(
                 [MobileSetting.REACT_NATIVE_VERSION, ReactNativeVersionSetting],
                 [MobileSetting.HERMES_VERSION, HermesVersionSetting],
                 [MobileSetting.CALL_GARBAGE_COLLECTOR, CallGarbageCollectorSetting],
-                [MobileSetting.TRIGGER_ERROR_BOUNDARY, TriggerErrorBoundarySetting],
+                [MobileSetting.EVALUATE_JAVASCRIPT, EvaluateJavaScriptSetting],
                 [MobileSetting.REVENGE_NOT_IMPLEMENTED, RevengeNotImplementedSetting],
-            ] as Array<[string, SettingsRowConfig]>)
-                registerSetting(key, setting)
+            ] as Array<[string, SettingsItem]>)
+                registerSettingsItem(key, setting)
 
             registerSettingsSection('REVENGE', {
                 label: 'Revenge',
@@ -67,7 +67,7 @@ registerPlugin(
                 unsubForRendererConfig()
 
                 const SettingRendererConfig = exports as {
-                    SETTING_RENDERER_CONFIG: Record<string, SettingsRowConfig>
+                    SETTING_RENDERER_CONFIG: Record<string, SettingsItem>
                 }
 
                 let ORIGINAL_RENDERER_CONFIG = SettingRendererConfig.SETTING_RENDERER_CONFIG
@@ -77,7 +77,7 @@ registerPlugin(
                         ({
                             ...ORIGINAL_RENDERER_CONFIG,
                             ..._suiData.config,
-                        }) as Record<string, SettingsRowConfig>,
+                        }) as Record<string, SettingsItem>,
                     set: v => (ORIGINAL_RENDERER_CONFIG = v),
                 })
             })

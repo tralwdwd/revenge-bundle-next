@@ -4,9 +4,9 @@ import { React } from '@revenge-mod/react'
 
 import { MobileSetting } from '../SettingsConstants'
 
-import type { SettingsRowConfig } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
 
-const ReactVersionSetting: SettingsRowConfig = {
+const ReactVersionSetting: SettingsItem = {
     parent: MobileSetting.REVENGE,
     IconComponent: () => <Components.TableRow.Icon source={getAssetByName('ScienceIcon')!.id} />,
     title: () => 'React',

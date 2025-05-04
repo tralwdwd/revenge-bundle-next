@@ -2,9 +2,9 @@ import { React } from '@revenge-mod/react'
 
 import AssetIcon from '../components/icons/AssetIcon'
 
-import type { SettingsRowConfig } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
 
-const CallGarbageCollectorSetting: SettingsRowConfig = {
+const CallGarbageCollectorSetting: SettingsItem = {
     parent: null,
     IconComponent: () => <AssetIcon name="FireIcon" />,
     title: () => 'Call Garbage Collector',
