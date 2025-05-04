@@ -1,18 +1,17 @@
 import { getAssetByName } from '@revenge-mod/assets'
-
 import { Components } from '@revenge-mod/discord/ui'
-import { addSettingsRow } from '@revenge-mod/discord/ui/settings'
-
 import { React } from '@revenge-mod/react'
 
-import { REVENGE } from './Revenge'
+import { MobileSetting } from '../SettingsConstants'
 
-export const REACT_VERSION = 'REACT_VERSION'
+import type { SettingsRowConfig } from '@revenge-mod/discord/ui/settings'
 
-addSettingsRow(REACT_VERSION, {
-    parent: REVENGE,
+const ReactVersionSetting: SettingsRowConfig = {
+    parent: MobileSetting.REVENGE,
     IconComponent: () => <Components.TableRow.Icon source={getAssetByName('ScienceIcon')!.id} />,
     title: () => 'React',
     useDescription: () => React.version,
     type: 'pressable',
-})
+}
+
+export default ReactVersionSetting

@@ -4,11 +4,26 @@ import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { waitForModules } from '@revenge-mod/modules/finders'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 
+import { registerSetting, registerSettingsSection, type SettingsRowConfig } from '@revenge-mod/discord/ui/settings'
 import { _suiData } from '@revenge-mod/discord/_/ui/settings'
 
 import { after } from '@revenge-mod/patcher'
 
-import type { SettingsRowConfig } from '@revenge-mod/discord/ui/settings'
+import { MobileSetting } from './SettingsConstants'
+
+import RevengeSetting from './definitions/RevengeSetting'
+import RevengePluginsSetting from './definitions/RevengePluginsSetting'
+import RevengeThemesSetting from './definitions/RevengeThemesSetting'
+import RevengeFontsSetting from './definitions/RevengeFontsSetting'
+import RevengeDeveloperSetting from './definitions/RevengeDeveloperSetting'
+import ReactVersionSetting from './definitions/ReactVersionSetting'
+import ReactNativeVersionSetting from './definitions/ReactNativeVersionSetting'
+import RevengeVersionSetting from './definitions/RevengeVersionSetting'
+import HermesVersionSetting from './definitions/HermesVersionSetting'
+import CallGarbageCollectorSetting from './definitions/CallGarbageCollectorSetting'
+import TriggerErrorBoundarySetting from './definitions/TriggerErrorBoundarySetting'
+import RevengeNotImplementedSetting from './definitions/RevengeNotImplementedSetting'
+
 import type { FC } from 'react'
 
 registerPlugin(
@@ -21,7 +36,32 @@ registerPlugin(
     },
     {
         start() {
-            require('./definitions/Revenge')
+            for (const [key, setting] of [
+                [MobileSetting.REVENGE, RevengeSetting],
+                [MobileSetting.REVENGE_PLUGINS, RevengePluginsSetting],
+                [MobileSetting.REVENGE_THEMES, RevengeThemesSetting],
+                [MobileSetting.REVENGE_FONTS, RevengeFontsSetting],
+                [MobileSetting.REVENGE_DEVELOPER, RevengeDeveloperSetting],
+                [MobileSetting.REVENGE_VERSION, RevengeVersionSetting],
+                [MobileSetting.REACT_VERSION, ReactVersionSetting],
+                [MobileSetting.REACT_NATIVE_VERSION, ReactNativeVersionSetting],
+                [MobileSetting.HERMES_VERSION, HermesVersionSetting],
+                [MobileSetting.CALL_GARBAGE_COLLECTOR, CallGarbageCollectorSetting],
+                [MobileSetting.TRIGGER_ERROR_BOUNDARY, TriggerErrorBoundarySetting],
+                [MobileSetting.REVENGE_NOT_IMPLEMENTED, RevengeNotImplementedSetting],
+            ] as Array<[string, SettingsRowConfig]>)
+                registerSetting(key, setting)
+
+            registerSettingsSection('REVENGE', {
+                label: 'Revenge',
+                settings: [
+                    MobileSetting.REVENGE,
+                    MobileSetting.REVENGE_PLUGINS,
+                    MobileSetting.REVENGE_THEMES,
+                    MobileSetting.REVENGE_FONTS,
+                    MobileSetting.REVENGE_DEVELOPER,
+                ],
+            })
 
             const unsubForRendererConfig = waitForModules(byProps('SETTING_RENDERER_CONFIG'), (_, exports) => {
                 unsubForRendererConfig()
@@ -36,7 +76,7 @@ registerPlugin(
                     get: () =>
                         ({
                             ...ORIGINAL_RENDERER_CONFIG,
-                            ...getCustomConfig(),
+                            ..._suiData.config,
                         }) as Record<string, SettingsRowConfig>,
                     set: v => (ORIGINAL_RENDERER_CONFIG = v),
                 })
@@ -67,15 +107,9 @@ registerPlugin(
                         )
                             return tree
 
-                        for (const section of Object.values(_suiData.sections)) {
-                            const data = {
-                                label: section.label,
-                                settings: Object.keys(section.settings),
-                            }
-
-                            if (!section.index) sections.unshift(data)
-                            else sections.splice(section.index, 0, data)
-                        }
+                        for (const section of Object.values(_suiData.sections))
+                            if (!section.index) sections.unshift(section)
+                            else sections.splice(section.index, 0, section)
 
                         return tree
                     })
@@ -89,9 +123,3 @@ registerPlugin(
     PluginFlags.Enabled,
     InternalPluginFlags.Internal | InternalPluginFlags.Essential,
 )
-
-function getCustomConfig(): Record<string, SettingsRowConfig> {
-    return [...Object.values(_suiData.sections), { label: '', settings: _suiData.settings }]
-        .map(section => section.settings)
-        .reduce((acc, settings) => Object.assign(acc, settings), {})
-}
