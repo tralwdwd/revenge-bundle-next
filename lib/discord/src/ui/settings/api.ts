@@ -3,19 +3,53 @@ import { _suiData } from './_internal'
 import type { DiscordModules } from '../../../types'
 import type { ComponentType, ReactNode } from 'react'
 
+/**
+ * Registers a settings section with a given key.
+ *
+ * @param key The key to register the settings section with.
+ * @param section The settings section to register.
+ * @returns A function to unregister the settings section.
+ */
 export function registerSettingsSection(key: string, section: SettingsSection) {
     _suiData.sections[key] = section
     return () => delete _suiData.sections[key]
 }
 
-export function registerSettingsItem(key: string, row: SettingsItem) {
-    _suiData.config[key] = row
+/**
+ * Registers a settings item with a given key.
+ *
+ * @param key The key to register the settings item with.
+ * @param item The settings item to register.
+ * @returns A function to unregister the settings item.
+ */
+export function registerSettingsItem(key: string, item: SettingsItem) {
+    _suiData.config[key] = item
     return () => delete _suiData.config[key]
 }
 
-export function addSettingsItemToSection(section: string, row: string) {
+/**
+ * Registers multiple settings items at once.
+ *
+ * @param record The settings items to register.
+ * @returns A function to unregister the settings items.
+ */
+export function registerSettingsItems(record: Record<string, SettingsItem>) {
+    Object.assign(_suiData.config, record)
+    return () => {
+        for (const key in record) delete _suiData.config[key]
+    }
+}
+
+/**
+ * Adds a settings item to an existing section.
+ *
+ * @param section The section to add the settings item to.
+ * @param item The settings item to add.
+ * @returns A function to remove the settings item from the section.
+ */
+export function addSettingsItemToSection(section: string, item: string) {
     if (!_suiData.sections[section]) throw new Error(`Section "${section}" does not exist`)
-    const newLength = _suiData.sections[section].settings.push(row)
+    const newLength = _suiData.sections[section].settings.push(item)
 
     return () => delete _suiData.sections[section].settings[newLength - 1]
 }
