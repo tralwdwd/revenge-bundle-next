@@ -154,6 +154,12 @@ export function registerPlugin(
     _plugins.set(manifest.id, plugin)
 }
 
+export function getEnabledPluginsCount() {
+    let count = 0
+    for (const plugin of _plugins.values()) if (plugin.flags & PluginFlags.Enabled) count++
+    return count
+}
+
 export async function initPlugins() {
     const promises: Promise<void>[] = []
     for (const plugin of _plugins.values()) if (plugin.flags & PluginFlags.Enabled) promises.push(plugin.init())
