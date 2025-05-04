@@ -134,6 +134,16 @@ export namespace DiscordModules {
         ) => () => S
     }
 
+    export namespace Actions {
+        export interface AlertActionCreators {
+            openAlert(key: string, alert: JSX.Element): void
+            dismissAlert(key: string): void
+            dismissAlerts(): void
+            // TODO
+            useAlertStore(): unknown
+        }
+    }
+
     export namespace Components {
         export interface BaseButtonProps extends PressableProps {
             disabled?: boolean
@@ -193,10 +203,10 @@ export namespace DiscordModules {
         export interface CardProps extends ViewProps {
             start?: boolean
             end?: boolean
-            variant?: 'primary' | 'secondary'
-            border?: 'faint' | 'normal' | 'strong' | 'subtle'
+            variant?: 'primary' | 'secondary' | 'transparent'
+            border?: 'faint' | 'normal' | 'strong' | 'subtle' | 'none'
             // TODO
-            shadow?: 'none'
+            shadow?: 'none' | 'low' | 'medium' | 'high' | 'border' | 'ledge'
             children: ReactNode
         }
 
@@ -417,5 +427,19 @@ export namespace DiscordModules {
         }
 
         export type IntlLink = FC<IntlLinkProps>
+
+        export interface SliderProps {
+            step: number
+            value: number
+            minimumValue: number
+            maximumValue: number
+            onValueChange: (value: number) => void
+            onSlidingStart?: () => void
+            onSlidingComplete?: (value: number) => void
+            startIcon?: React.ReactNode
+            endIcon?: React.ReactNode
+        }
+
+        export type Slider = FC<SliderProps>
     }
 }
