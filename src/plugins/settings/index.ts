@@ -4,29 +4,12 @@ import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { waitForModules } from '@revenge-mod/modules/finders'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 
-import { registerSettingsItem, registerSettingsSection, type SettingsItem } from '@revenge-mod/discord/ui/settings'
 import { _suiData } from '@revenge-mod/discord/_/ui/settings'
 
 import { after } from '@revenge-mod/patcher'
 
-import { MobileSetting } from './SettingsConstants'
-
-import RevengeSetting from './definitions/RevengeSetting'
-import RevengePluginsSetting from './definitions/RevengePluginsSetting'
-import RevengeThemesSetting from './definitions/RevengeThemesSetting'
-import RevengeFontsSetting from './definitions/RevengeFontsSetting'
-import RevengeDeveloperSetting from './definitions/RevengeDeveloperSetting'
-import ReactVersionSetting from './definitions/ReactVersionSetting'
-import ReactNativeVersionSetting from './definitions/ReactNativeVersionSetting'
-import RevengeVersionSetting from './definitions/RevengeVersionSetting'
-import HermesVersionSetting from './definitions/HermesVersionSetting'
-import CallGarbageCollectorSetting from './definitions/CallGarbageCollectorSetting'
-import RevengeNotImplementedSetting from './definitions/RevengeNotImplementedSetting'
-import EvaluateJavaScriptSetting from './definitions/EvaluateJavaScriptSetting'
-
+import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
 import type { FC } from 'react'
-
-export let pluginApi: PluginApi
 
 registerPlugin(
     {
@@ -40,35 +23,10 @@ registerPlugin(
         start(api) {
             pluginApi = api
 
-            for (const [key, setting] of [
-                [MobileSetting.REVENGE, RevengeSetting],
-                [MobileSetting.REVENGE_PLUGINS, RevengePluginsSetting],
-                [MobileSetting.REVENGE_THEMES, RevengeThemesSetting],
-                [MobileSetting.REVENGE_FONTS, RevengeFontsSetting],
-                [MobileSetting.REVENGE_DEVELOPER, RevengeDeveloperSetting],
-                [MobileSetting.REVENGE_VERSION, RevengeVersionSetting],
-                [MobileSetting.REACT_VERSION, ReactVersionSetting],
-                [MobileSetting.REACT_NATIVE_VERSION, ReactNativeVersionSetting],
-                [MobileSetting.HERMES_VERSION, HermesVersionSetting],
-                [MobileSetting.CALL_GARBAGE_COLLECTOR, CallGarbageCollectorSetting],
-                [MobileSetting.EVALUATE_JAVASCRIPT, EvaluateJavaScriptSetting],
-                [MobileSetting.REVENGE_NOT_IMPLEMENTED, RevengeNotImplementedSetting],
-            ] as Array<[string, SettingsItem]>)
-                registerSettingsItem(key, setting)
-
-            registerSettingsSection('REVENGE', {
-                label: 'Revenge',
-                settings: [
-                    MobileSetting.REVENGE,
-                    MobileSetting.REVENGE_PLUGINS,
-                    MobileSetting.REVENGE_THEMES,
-                    MobileSetting.REVENGE_FONTS,
-                    MobileSetting.REVENGE_DEVELOPER,
-                ],
-            })
-
             const unsubForRendererConfig = waitForModules(byProps('SETTING_RENDERER_CONFIG'), (_, exports) => {
                 unsubForRendererConfig()
+
+                require('./register')
 
                 const SettingRendererConfig = exports as {
                     SETTING_RENDERER_CONFIG: Record<string, SettingsItem>
@@ -86,10 +44,10 @@ registerPlugin(
                 })
             })
 
-            const unsub = waitForModules(
+            const unsubForSettingsOverviewScreen = waitForModules(
                 byName('SettingsOverviewScreen'),
                 (_, exports) => {
-                    unsub()
+                    unsubForSettingsOverviewScreen()
 
                     after(exports as { default: FC }, 'default', tree => {
                         const sections = (tree as Extract<typeof tree, { props: unknown }>).props.sections as Array<{
@@ -127,3 +85,6 @@ registerPlugin(
     PluginFlags.Enabled,
     InternalPluginFlags.Internal | InternalPluginFlags.Essential,
 )
+
+// Expose to EvaluateJavaScriptSetting
+export let pluginApi: PluginApi

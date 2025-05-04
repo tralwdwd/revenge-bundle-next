@@ -12,7 +12,7 @@ export default function RevengeDeveloperSettingScreen() {
                 },
                 {
                     label: 'Tools',
-                    settings: [MobileSetting.EVALUATE_JAVASCRIPT, MobileSetting.CALL_GARBAGE_COLLECTOR],
+                    settings: [MobileSetting.EVALUATE_JAVASCRIPT],
                 },
             ]}
         />
