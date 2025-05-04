@@ -128,8 +128,8 @@ function swcPlugin() {
 function hermesCPlugin({ afterComplete, flags }: { flags?: string[]; afterComplete?: () => void } = {}) {
     const paths = {
         win32: 'hermesc.exe',
-        darwin: 'darwin/hermesc',
-        linux: 'linux/hermesc',
+        darwin: 'hermesc',
+        linux: 'hermesc',
     }
 
     if (!(process.platform in paths)) throw new Error(`Unsupported platform: ${process.platform}`)
