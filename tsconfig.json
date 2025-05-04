@@ -1,7 +1,7 @@
 {
   "extends": "@revenge-mod/types/tsconfig",
   "compilerOptions": {
-    "types": ["@revenge-mod/types", "./types", "./types.modules"],
+    "types": ["@revenge-mod/types", "./types", "./types.modules", "node/util"],
     "paths": {
       "~plugins/*": ["./src/plugins/*"],
       "~assets/*": ["./src/assets/*"]

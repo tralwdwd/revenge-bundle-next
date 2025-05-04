@@ -6,11 +6,17 @@
     ".": {
       "default": "./src/index.ts"
     },
+    "./actions": {
+      "default": "./src/actions.ts"
+    },
     "./flux": {
       "default": "./src/flux.ts"
     },
     "./native": {
       "default": "./src/native.ts"
+    },
+    "./polyfills": {
+      "default": "./src/polyfills.ts"
     },
     "./preinit": {
       "default": "./src/preinit.ts"
