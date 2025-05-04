@@ -6,6 +6,7 @@ import os from 'os'
 import build from './build'
 import pkg from '../package.json'
 
+const prod = process.argv.includes('--prod')
 const lanHost = process.argv.includes('--lan')
 
 console.info(chalk.redBright(`\nRevenge ${chalk.white(`v${pkg.version}`)}\n`))
@@ -41,6 +42,9 @@ const server = Bun.serve({
 
 if (lanHost) console.info(chalk.gray('\u24D8 Listening on all interfaces...'))
 else console.info(chalk.gray('\u24D8 Listening locally... Use --lan to listen on all interfaces'))
+
+if (!prod) console.info(chalk.gray('\u24D8 Use --prod to build for production'))
+else console.info(chalk.gray('\u24D8 Building for production...'))
 
 console.info(chalk.cyanBright(`\u24D8 Serving on port ${server.port}`))
 console.info(chalk.gray('\u24D8 Accessible on:'))
