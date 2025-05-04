@@ -6,6 +6,7 @@ import { Components } from '@revenge-mod/discord/ui'
 
 import { getErrorStack } from '@revenge-mod/utils/errors'
 
+import { pluginApi } from '..'
 import AssetIcon from '../components/icons/AssetIcon'
 
 import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
@@ -94,15 +95,30 @@ function EvaluateJavaScriptAlert() {
                             setLoading(true)
 
                             try {
+                                if (!pluginApi) {
+                                    alert('Unable to provide plugin API. Running snippet in a second...')
+                                    await new Promise(rs => setTimeout(rs, 1000))
+                                } else {
+                                    // @ts-expect-error
+                                    globalThis.revenge = pluginApi.unscoped
+                                    // @ts-expect-error
+                                    globalThis.api = pluginApi
+                                }
+
                                 // Do a no-local-scope-access eval
                                 // biome-ignore lint/security/noGlobalEval: This is intentional
                                 const res = globalThis.eval?.(code.current)
+
                                 alert(
                                     nodeUtils.inspect(awaitResult && res instanceof Promise ? await res : res, {
                                         depth: inspectDepth,
                                         showHidden,
                                     }),
                                 )
+
+                                // @ts-expect-error
+                                // biome-ignore lint/performance/noDelete: This is fine.
+                                delete globalThis.revenge, delete globalThis.api
                             } catch (e) {
                                 alert(getErrorStack(e))
                             }

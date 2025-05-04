@@ -1,4 +1,4 @@
-import { PluginFlags } from '@revenge-mod/plugins'
+import { PluginFlags, type PluginApi } from '@revenge-mod/plugins'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
 import { waitForModules } from '@revenge-mod/modules/finders'
@@ -26,6 +26,8 @@ import EvaluateJavaScriptSetting from './definitions/EvaluateJavaScriptSetting'
 
 import type { FC } from 'react'
 
+export let pluginApi: PluginApi
+
 registerPlugin(
     {
         id: 'revenge.settings',
@@ -35,7 +37,9 @@ registerPlugin(
         icon: 'SettingsIcon',
     },
     {
-        start() {
+        start(api) {
+            pluginApi = api
+
             for (const [key, setting] of [
                 [MobileSetting.REVENGE, RevengeSetting],
                 [MobileSetting.REVENGE_PLUGINS, RevengePluginsSetting],
