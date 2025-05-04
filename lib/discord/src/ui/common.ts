@@ -28,7 +28,6 @@ export let Components: Components = proxify(
         }
     },
     {
-        cache: true,
         hint: 'object',
     },
 )!

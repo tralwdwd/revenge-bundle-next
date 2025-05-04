@@ -37,7 +37,6 @@ export let SettingListRenderer: SettingListRenderer = proxify(
         }
     },
     {
-        cache: true,
         hint: 'object',
     },
 )!
