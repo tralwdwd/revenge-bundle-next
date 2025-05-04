@@ -1,11 +1,11 @@
 import type { SettingsRowConfig, SettingsSection } from './api'
 
 export const _suiData = {
-    // Settings that are in the Overview screen
+    // Sections to splice in the SettingsOverviewScreen
     sections: {},
-    // Settings that are not in the Overview screen (submenus, hidden, etc.)
-    settings: {},
+    // SETTING_RENDERER_CONFIG settings
+    config: {},
 } as {
     sections: Record<string, SettingsSection>
-    settings: Record<string, SettingsRowConfig>
+    config: Record<string, SettingsRowConfig>
 }
