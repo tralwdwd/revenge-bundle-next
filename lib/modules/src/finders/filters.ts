@@ -81,6 +81,23 @@ export const byProps = createFilterGenerator<Parameters<ByProps>>(
     props => `revenge.props(${props.join(',')})`,
 ) as ByProps
 
+export type WithoutProps = <T extends Record<string, any>, K extends string>(
+    prop: K,
+    ...props: K[]
+) => Filter<Omit<T, K>, true>
+
+/**
+ * Filter modules by their exports having none of the specified properties.
+ *
+ * @param prop The property to check for.
+ * @param props More properties to check for (optional).
+ */
+export const withoutProps = createFilterGenerator<Parameters<WithoutProps>>(
+    (props, _, exports) =>
+        (typeof exports === 'object' || typeof exports === 'function') && !props.some(prop => prop in exports),
+    props => `revenge.withoutProps(${props.join(',')})`,
+) as WithoutProps
+
 export type ByName = <T extends string | object>(
     name: T extends string ? T : T extends { name: string } ? T['name'] : string,
 ) => Filter<T extends string ? { name: T } : T & { name: typeof name }, true>
