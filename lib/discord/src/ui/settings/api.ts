@@ -1,7 +1,31 @@
-import { _suiData } from './_internal'
+import { _subs, _data } from './_internal'
 
-import type { DiscordModules } from '../../../types'
 import type { ComponentType, ReactNode } from 'react'
+import type { DiscordModules } from '../../../types'
+
+export type SettingsModulesLoadedSubscription = () => void
+
+/**
+ * Checks if the settings modules are loaded.
+ */
+export function isSettingsModulesLoaded() {
+    return _data[2]
+}
+
+/**
+ * Subscribes to when settings modules are loaded.
+ * Plugins should ideally register their settings in the given callback to ensure fast startup time.
+ *
+ * @param subcription The subscription function to call when the settings modules are loaded.
+ * @returns A function to unsubscribe from the event.
+ * @throws Throws an error if the settings modules are already loaded. Check with {@link isSettingsModulesLoaded} first.
+ */
+export function onceSettingsModulesLoaded(subcription: SettingsModulesLoadedSubscription) {
+    if (_data[2]) throw new Error('Settings modules already loaded')
+
+    _subs.add(subcription)
+    return () => _subs.delete(subcription)
+}
 
 /**
  * Registers a settings section with a given key.
@@ -11,8 +35,8 @@ import type { ComponentType, ReactNode } from 'react'
  * @returns A function to unregister the settings section.
  */
 export function registerSettingsSection(key: string, section: SettingsSection) {
-    _suiData.sections[key] = section
-    return () => delete _suiData.sections[key]
+    _data[0][key] = section
+    return () => delete _data[0][key]
 }
 
 /**
@@ -23,8 +47,8 @@ export function registerSettingsSection(key: string, section: SettingsSection) {
  * @returns A function to unregister the settings item.
  */
 export function registerSettingsItem(key: string, item: SettingsItem) {
-    _suiData.config[key] = item
-    return () => delete _suiData.config[key]
+    _data[1][key] = item
+    return () => delete _data[1][key]
 }
 
 /**
@@ -34,24 +58,25 @@ export function registerSettingsItem(key: string, item: SettingsItem) {
  * @returns A function to unregister the settings items.
  */
 export function registerSettingsItems(record: Record<string, SettingsItem>) {
-    Object.assign(_suiData.config, record)
+    Object.assign(_data[1], record)
     return () => {
-        for (const key in record) delete _suiData.config[key]
+        for (const key in record) delete _data[1][key]
     }
 }
 
 /**
  * Adds a settings item to an existing section.
  *
- * @param section The section to add the settings item to.
+ * @param key The section to add the settings item to.
  * @param item The settings item to add.
  * @returns A function to remove the settings item from the section.
  */
-export function addSettingsItemToSection(section: string, item: string) {
-    if (!_suiData.sections[section]) throw new Error(`Section "${section}" does not exist`)
-    const newLength = _suiData.sections[section].settings.push(item)
+export function addSettingsItemToSection(key: string, item: string) {
+    const section = _data[0][key]
+    if (!section) throw new Error(`Section "${key}" does not exist`)
 
-    return () => delete _suiData.sections[section].settings[newLength - 1]
+    const newLength = section.settings.push(item)
+    return () => delete section.settings[newLength - 1]
 }
 
 export interface SettingsSection {
