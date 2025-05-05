@@ -13,6 +13,9 @@ import RevengeVersionSetting from './definitions/RevengeVersionSetting'
 import HermesVersionSetting from './definitions/HermesVersionSetting'
 import RevengeNotImplementedSetting from './definitions/RevengeNotImplementedSetting'
 import EvaluateJavaScriptSetting from './definitions/EvaluateJavaScriptSetting'
+import ReactDevToolsVersionSetting from './definitions/ReactDevToolsVersionSetting'
+import ReactDevToolsConnectSetting from './definitions/ReactDevToolsConnectSetting'
+import ReactDevToolsDisconnectSetting from './definitions/ReactDevToolsDisconnectSetting'
 import ReloadAppSetting from './definitions/ReloadAppSetting'
 import RevengeDiscordServerSetting from './definitions/RevengeDiscordServerSetting'
 import RevengeGitHubOrganizationSetting from './definitions/RevengeGitHubOrganizationSetting'
@@ -30,6 +33,9 @@ registerSettingsItems({
     [MobileSetting.REACT_VERSION]: ReactVersionSetting,
     [MobileSetting.REACT_NATIVE_VERSION]: ReactNativeVersionSetting,
     [MobileSetting.HERMES_VERSION]: HermesVersionSetting,
+    [MobileSetting.REACT_DEVTOOLS_VERSION]: ReactDevToolsVersionSetting,
+    [MobileSetting.REACT_DEVTOOLS_CONNECT]: ReactDevToolsConnectSetting,
+    [MobileSetting.REACT_DEVTOOLS_DISCONNECT]: ReactDevToolsDisconnectSetting,
     [MobileSetting.EVALUATE_JAVASCRIPT]: EvaluateJavaScriptSetting,
     [MobileSetting.REVENGE_NOT_IMPLEMENTED]: RevengeNotImplementedSetting,
 })
