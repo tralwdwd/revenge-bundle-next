@@ -8,7 +8,7 @@ const RevengeVersionSetting: SettingsItem = {
     IconComponent: RevengeIcon,
     title: () => 'Revenge',
     useDescription: () => `${__BUILD_VERSION__}-${__BUILD_COMMIT__}-${__BUILD_BRANCH__} (${__BUILD_ENV__})`,
-    type: 'pressable',
+    type: 'static',
 }
 
 export default RevengeVersionSetting

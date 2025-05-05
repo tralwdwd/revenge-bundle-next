@@ -11,7 +11,7 @@ const ReactVersionSetting: SettingsItem = {
     IconComponent: () => <Components.TableRow.Icon source={getAssetByName('ScienceIcon')!.id} />,
     title: () => 'React',
     useDescription: () => React.version,
-    type: 'pressable',
+    type: 'static',
 }
 
 export default ReactVersionSetting

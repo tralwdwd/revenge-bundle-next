@@ -13,7 +13,7 @@ const HermesVersionSetting: SettingsItem = {
     IconComponent: () => <AssetIcon name="TranscriptOutlineIcon" />,
     title: () => 'Hermes',
     useDescription: () => `${props['Bytecode Version']} (${props.Build})`,
-    type: 'pressable',
+    type: 'static',
 }
 
 export default HermesVersionSetting

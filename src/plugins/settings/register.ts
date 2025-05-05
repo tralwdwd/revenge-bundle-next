@@ -13,6 +13,9 @@ import RevengeVersionSetting from './definitions/RevengeVersionSetting'
 import HermesVersionSetting from './definitions/HermesVersionSetting'
 import RevengeNotImplementedSetting from './definitions/RevengeNotImplementedSetting'
 import EvaluateJavaScriptSetting from './definitions/EvaluateJavaScriptSetting'
+import ReloadAppSetting from './definitions/ReloadAppSetting'
+import RevengeDiscordServerSetting from './definitions/RevengeDiscordServerSetting'
+import RevengeGitHubOrganizationSetting from './definitions/RevengeGitHubOrganizationSetting'
 
 registerSettingsItems({
     [MobileSetting.REVENGE]: RevengeSetting,
@@ -20,6 +23,9 @@ registerSettingsItems({
     // [MobileSetting.REVENGE_THEMES]: RevengeThemesSetting,
     // [MobileSetting.REVENGE_FONTS]: RevengeFontsSetting,
     [MobileSetting.REVENGE_DEVELOPER]: RevengeDeveloperSetting,
+    [MobileSetting.REVENGE_GITHUB_ORGANIZATION]: RevengeGitHubOrganizationSetting,
+    [MobileSetting.REVENGE_DISCORD_SERVER]: RevengeDiscordServerSetting,
+    [MobileSetting.RELOAD_APP]: ReloadAppSetting,
     [MobileSetting.REVENGE_VERSION]: RevengeVersionSetting,
     [MobileSetting.REACT_VERSION]: ReactVersionSetting,
     [MobileSetting.REACT_NATIVE_VERSION]: ReactNativeVersionSetting,

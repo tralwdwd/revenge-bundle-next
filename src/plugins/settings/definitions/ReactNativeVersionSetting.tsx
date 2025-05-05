@@ -13,7 +13,7 @@ const ReactNativeVersionSetting: SettingsItem = {
     IconComponent: () => <AssetIcon name="ScienceIcon" />,
     title: () => 'React Native',
     useDescription: () => version,
-    type: 'pressable',
+    type: 'static',
 }
 
 export default ReactNativeVersionSetting
