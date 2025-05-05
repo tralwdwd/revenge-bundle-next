@@ -1,4 +1,4 @@
-import { type PluginApi, PluginFlags } from '@revenge-mod/plugins'
+import { PluginFlags } from '@revenge-mod/plugins'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
 import { waitForModules } from '@revenge-mod/modules/finders'
@@ -20,12 +20,8 @@ registerPlugin(
         icon: 'SettingsIcon',
     },
     {
-        start(api) {
-            pluginApi = api
-
-            onceSettingsModulesLoaded(() => {
-                require('./register')
-            })
+        start({ logger }) {
+            onceSettingsModulesLoaded(() => require('./register'))
 
             const unsubForRendererConfig = waitForModules(
                 byProps<{
@@ -33,6 +29,8 @@ registerPlugin(
                 }>('SETTING_RENDERER_CONFIG'),
                 (_, SettingRendererConfig) => {
                     unsubForRendererConfig()
+
+                    logger.info('Settings modules loaded, running subscriptions and patching...')
 
                     for (const sub of _subs) sub()
                     // We don't ever need to call this again
@@ -94,6 +92,3 @@ registerPlugin(
     PluginFlags.Enabled,
     InternalPluginFlags.Internal | InternalPluginFlags.Essential,
 )
-
-// Expose to EvaluateJavaScriptSetting
-export let pluginApi: PluginApi

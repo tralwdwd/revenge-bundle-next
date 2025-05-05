@@ -15,10 +15,7 @@ registerPlugin(
     {
         start(api) {
             pluginApi = api
-
-            onceSettingsModulesLoaded(() => {
-                require('./register')
-            })
+            onceSettingsModulesLoaded(() => require('./register'))
         },
     },
     PluginFlags.Enabled,
