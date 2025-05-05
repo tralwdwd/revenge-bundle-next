@@ -14,6 +14,14 @@ export function useIsFirstRender() {
     return firstRender
 }
 
+export function useReRender() {
+    const [_, forceUpdate] = React.useReducer(x => ~x, 0)
+
+    return React.useCallback(() => {
+        forceUpdate()
+    }, [])
+}
+
 const ReactFiberWalkable = new Set(['props', 'children', 'child', 'sibling'])
 
 export function findInReactFiber(tree: Extract<ReactNode, { props: unknown }>, filter: SearchFilter): any {
