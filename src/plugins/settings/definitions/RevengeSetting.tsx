@@ -1,5 +1,6 @@
-import RevengeIcon from '../components/icons/RevengeIcon'
-import { MobileSetting, UserSettingsSections } from '../SettingsConstants'
+import RevengeIcon from '~components/icons/RevengeIcon'
+
+import { MobileSetting, UserSettingsSections } from '../constants'
 
 import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
 

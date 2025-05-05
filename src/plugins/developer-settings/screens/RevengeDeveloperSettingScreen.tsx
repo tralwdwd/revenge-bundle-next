@@ -1,8 +1,8 @@
-import { React, ReactNative } from '@revenge-mod/react'
 import { Components } from '@revenge-mod/discord/ui'
 import { SettingListRenderer } from '@revenge-mod/discord/ui/settings'
+import { React, ReactNative } from '@revenge-mod/react'
 
-import { MobileSetting } from '../SettingsConstants'
+import { MobileSetting } from '../constants'
 import { DevToolsContext } from '../devtools'
 
 // TODO(plugins/settings): debug bridge

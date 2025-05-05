@@ -2,7 +2,7 @@ import { getAssetByName } from '@revenge-mod/assets'
 import { Components } from '@revenge-mod/discord/ui'
 import { React } from '@revenge-mod/react'
 
-import { MobileSetting } from '../SettingsConstants'
+import { MobileSetting } from '../constants'
 
 import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
 

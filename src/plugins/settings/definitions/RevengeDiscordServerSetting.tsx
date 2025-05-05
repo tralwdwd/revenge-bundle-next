@@ -1,10 +1,11 @@
 import { React, ReactNative } from '@revenge-mod/react'
 
-import AssetIcon from '../components/icons/AssetIcon'
-import { MobileSetting } from '../SettingsConstants'
+import { DiscordServerURL } from '~/constants'
+import AssetIcon from '~components/icons/AssetIcon'
+
+import { MobileSetting } from '../constants'
 
 import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
-import { DiscordServerURL } from '../../../constants'
 
 const RevengeDiscordServerSetting: SettingsItem = {
     parent: MobileSetting.REVENGE,

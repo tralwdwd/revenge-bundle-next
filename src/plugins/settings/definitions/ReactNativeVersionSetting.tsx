@@ -1,7 +1,8 @@
 import { React, ReactNative } from '@revenge-mod/react'
 
-import AssetIcon from '../components/icons/AssetIcon'
-import { MobileSetting } from '../SettingsConstants'
+import AssetIcon from '~components/icons/AssetIcon'
+
+import { MobileSetting } from '../constants'
 
 import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
 

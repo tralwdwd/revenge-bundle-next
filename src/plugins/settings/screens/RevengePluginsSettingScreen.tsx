@@ -1,6 +1,6 @@
 import { SettingListRenderer } from '@revenge-mod/discord/ui/settings'
 
-import { MobileSetting } from '../SettingsConstants'
+import { MobileSetting } from '../constants'
 
 export default function RevengePluginsSettingScreen() {
     return (

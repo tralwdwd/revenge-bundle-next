@@ -1,14 +1,14 @@
-import { PluginFlags, type PluginApi } from '@revenge-mod/plugins'
+import { type PluginApi, PluginFlags } from '@revenge-mod/plugins'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
 import { waitForModules } from '@revenge-mod/modules/finders'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 
-import { _suiData } from '@revenge-mod/discord/_/ui/settings'
+import { _subs, _data } from '@revenge-mod/discord/_/ui/settings'
 
 import { after } from '@revenge-mod/patcher'
 
-import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
+import { onceSettingsModulesLoaded, type SettingsItem } from '@revenge-mod/discord/ui/settings'
 import type { FC } from 'react'
 
 registerPlugin(
@@ -23,26 +23,33 @@ registerPlugin(
         start(api) {
             pluginApi = api
 
-            const unsubForRendererConfig = waitForModules(byProps('SETTING_RENDERER_CONFIG'), (_, exports) => {
-                unsubForRendererConfig()
-
+            onceSettingsModulesLoaded(() => {
                 require('./register')
-
-                const SettingRendererConfig = exports as {
-                    SETTING_RENDERER_CONFIG: Record<string, SettingsItem>
-                }
-
-                let ORIGINAL_RENDERER_CONFIG = SettingRendererConfig.SETTING_RENDERER_CONFIG
-
-                Object.defineProperty(SettingRendererConfig, 'SETTING_RENDERER_CONFIG', {
-                    get: () =>
-                        ({
-                            ...ORIGINAL_RENDERER_CONFIG,
-                            ..._suiData.config,
-                        }) as Record<string, SettingsItem>,
-                    set: v => (ORIGINAL_RENDERER_CONFIG = v),
-                })
             })
+
+            const unsubForRendererConfig = waitForModules(
+                byProps<{
+                    SETTING_RENDERER_CONFIG: Record<string, SettingsItem>
+                }>('SETTING_RENDERER_CONFIG'),
+                (_, SettingRendererConfig) => {
+                    unsubForRendererConfig()
+
+                    for (const sub of _subs) sub()
+                    // We don't ever need to call this again
+                    _subs.clear()
+
+                    let ORIGINAL_RENDERER_CONFIG = SettingRendererConfig.SETTING_RENDERER_CONFIG
+
+                    Object.defineProperty(SettingRendererConfig, 'SETTING_RENDERER_CONFIG', {
+                        get: () =>
+                            ({
+                                ...ORIGINAL_RENDERER_CONFIG,
+                                ..._data[1],
+                            }) as Record<string, SettingsItem>,
+                        set: v => (ORIGINAL_RENDERER_CONFIG = v),
+                    })
+                },
+            )
 
             const unsubForSettingsOverviewScreen = waitForModules(
                 byName('SettingsOverviewScreen'),
@@ -55,21 +62,22 @@ registerPlugin(
                             settings: string[]
                         }>
 
-                        const FirstCustomRow = Object.keys(
-                            _suiData.sections[Object.keys(_suiData.sections)[0]].settings,
-                        )[0]
+                        const customSections = _data[0]
 
+                        // Check if we even have custom sections
+                        const firstCustomSection = customSections[Object.keys(customSections)[0]]
+                        if (!firstCustomSection) return tree
+
+                        // Check if sections are already spliced
+                        const firstCustomItem = firstCustomSection.settings[0]
                         if (
-                            // No custom rows
-                            !FirstCustomRow ||
-                            // Section already added
                             sections.findIndex(section =>
-                                section.settings.some(setting => setting === FirstCustomRow),
+                                section.settings.some(setting => setting === firstCustomItem),
                             ) !== -1
                         )
                             return tree
 
-                        for (const section of Object.values(_suiData.sections))
+                        for (const section of Object.values(customSections))
                             if (!section.index) sections.unshift(section)
                             else sections.splice(section.index, 0, section)
 

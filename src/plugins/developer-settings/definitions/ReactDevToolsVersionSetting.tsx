@@ -1,10 +1,11 @@
 import { React } from '@revenge-mod/react'
 
-import AssetIcon from '../components/icons/AssetIcon'
-import { MobileSetting } from '../SettingsConstants'
+import AssetIcon from '~components/icons/AssetIcon'
+
+import { MobileSetting } from '../constants'
+import { DevToolsContext } from '../devtools'
 
 import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
-import { DevToolsContext } from '../devtools'
 
 const ReactDevToolsVersionSetting: SettingsItem = {
     parent: MobileSetting.REVENGE_DEVELOPER,

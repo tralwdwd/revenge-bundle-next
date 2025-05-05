@@ -3,8 +3,10 @@
   "compilerOptions": {
     "types": ["@revenge-mod/types", "./types", "./types.modules", "node/util"],
     "paths": {
-      "~plugins/*": ["./src/plugins/*"],
-      "~assets/*": ["./src/assets/*"]
+      "~/*": ["./src/*"],
+      "~assets/*": ["./src/assets/*"],
+      "~components/*": ["./src/components/*"],
+      "~plugins/*": ["./src/plugins/*"]
     }
   },
   "include": ["lib", "src", "shims"]
