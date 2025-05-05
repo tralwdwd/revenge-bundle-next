@@ -142,6 +142,21 @@ export namespace DiscordModules {
             // TODO
             useAlertStore(): unknown
         }
+
+        export interface ToastActionCreators {
+            open(options: {
+                key: string
+                content?: string
+                icon?: number | FC
+                IconComponent?: FC
+                /**
+                 * The icon's color, same string format as `<Text>`'s color prop
+                 */
+                iconColor?: string
+                containerStyle?: ViewStyle
+            }): void
+            close(): void
+        }
     }
 
     export namespace Components {
