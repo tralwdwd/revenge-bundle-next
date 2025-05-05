@@ -6,7 +6,7 @@ declare global {
     const __BUILD_BRANCH__: string
     const __BUILD_VERSION__: string
 
-    const __BUILD_FLAG_INIT_DISABLE_PATCH_LOG_PROMISE_REJECTIONS__: boolean
+    const __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: boolean
 }
 
 export {}

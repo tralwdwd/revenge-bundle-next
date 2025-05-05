@@ -1,5 +1,6 @@
 import { ReactJsxRuntime } from '@revenge-mod/react'
 import { getProxyTarget, isProxy } from '@revenge-mod/utils/proxy'
+
 import type { ElementType } from 'react'
 
 const { jsx: _jsx, jsxs: _jsxs, Fragment } = ReactJsxRuntime

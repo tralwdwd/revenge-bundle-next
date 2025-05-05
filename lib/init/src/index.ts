@@ -10,7 +10,7 @@ import { logger } from './shared'
 
 onModuleFirstRequired(0, function onceIndexRequired() {
     runCatching(() => {
-        if (!__BUILD_FLAG_INIT_DISABLE_PATCH_LOG_PROMISE_REJECTIONS__) require('./patches/log-promise-rejections')
+        if (__BUILD_FLAG_LOG_PROMISE_REJECTIONS__) require('./patches/log-promise-rejections')
 
         // Initialize preinit libraries
         require('@revenge-mod/modules/preinit')

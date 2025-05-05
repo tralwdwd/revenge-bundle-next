@@ -31,7 +31,7 @@ export default async function build(dev = false, log = true) {
             __BUILD_COMMIT__: JSON.stringify((await $`git rev-parse HEAD`.text()).trim().substring(0, 7)),
             __BUILD_BRANCH__: JSON.stringify((await $`git rev-parse --abbrev-ref HEAD`.text()).trim()),
             __BUILD_ENV__: JSON.stringify(dev ? 'development' : 'production'),
-            __BUILD_FLAG_INIT_DISABLE_PATCH_LOG_PROMISE_REJECTIONS__: String(!dev),
+            __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: String(dev),
         },
         plugins: [
             swcPlugin(),
