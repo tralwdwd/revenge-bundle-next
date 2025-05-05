@@ -88,4 +88,8 @@ export interface RouteSettingsItem extends BaseSettingsItem {
     screen: { route: string; getComponent(): ComponentType }
 }
 
-export type SettingsItem = PressableSettingsItem | ToggleSettingsItem | RouteSettingsItem
+export interface StaticSettingsItem extends BaseSettingsItem {
+    type: 'static'
+}
+
+export type SettingsItem = PressableSettingsItem | ToggleSettingsItem | RouteSettingsItem | StaticSettingsItem
