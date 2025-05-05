@@ -1,10 +1,10 @@
+import os from 'os'
+import { join } from 'path'
 import watcher from '@parcel/watcher'
 import { debounce } from '@revenge-mod/utils/callbacks'
 import chalk from 'chalk'
-import { join } from 'path'
-import os from 'os'
-import build from './build'
 import pkg from '../package.json'
+import build from './build'
 
 const prod = process.argv.includes('--prod')
 const lanHost = process.argv.includes('--lan')

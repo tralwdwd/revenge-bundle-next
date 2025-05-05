@@ -1,6 +1,6 @@
-import { yielded } from '@revenge-mod/utils/generators'
 import { lookupModuleId, lookupModuleIds } from '@revenge-mod/modules/finders'
 import { byProps } from '@revenge-mod/modules/finders/filters'
+import { yielded } from '@revenge-mod/utils/generators'
 
 export * as jsxRuntime from './jsx-runtime'
 

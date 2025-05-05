@@ -2,16 +2,16 @@ import { _mInited, _mMd, _mPaths, _mUninited } from '../metro/_internal'
 import {
     type RunFilterOptions,
     type RunFilterReturnExportsOptions,
-    runFilter,
     exportsFromFilterResultFlag,
+    runFilter,
 } from './_internal'
 
 import { getInitializedModuleExports } from '../metro'
 
+import type { If } from '@revenge-mod/utils/types'
 import type { MaybeDefaultExportMatched } from '.'
 import type { Metro } from '../../types'
 import type { Filter, FilterResult } from './filters'
-import type { If } from '@revenge-mod/utils/types'
 
 export type BaseLookupModulesOptions<IncludeUninitialized extends boolean = boolean> = RunFilterOptions & {
     /**

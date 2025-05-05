@@ -1,10 +1,10 @@
-import { exportsFromFilterResultFlag, runFilter, type RunFilterReturnExportsOptions } from './_internal'
 import {
     getInitializedModuleExports,
     initializedModuleHasBadExports,
     onAnyModuleInitialized,
     onModuleFinishedImporting,
 } from '../metro'
+import { type RunFilterReturnExportsOptions, exportsFromFilterResultFlag, runFilter } from './_internal'
 
 import type { MaybeDefaultExportMatched } from '.'
 import type { Metro } from '../../types'
@@ -85,6 +85,7 @@ export function waitForModules(
  *
  * @param path The path to wait for.
  * @param callback The callback to call once the module is initialized.
+ * @param options The options to use for the wait.
  * @returns A function to unsubscribe.
  *
  * @example
