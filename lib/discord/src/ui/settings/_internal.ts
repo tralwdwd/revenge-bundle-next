@@ -5,7 +5,7 @@ export const _data = [
     {},
     // SETTING_RENDERER_CONFIG settings
     {},
-    true,
+    false,
 ] as [sections: Record<string, SettingsSection>, config: Record<string, SettingsItem>, loaded: boolean]
 
 export const _subs = new Set<SettingsModulesLoadedSubscription>()

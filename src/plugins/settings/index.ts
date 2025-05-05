@@ -37,6 +37,7 @@ registerPlugin(
                     for (const sub of _subs) sub()
                     // We don't ever need to call this again
                     _subs.clear()
+                    _data[2] = true
 
                     let ORIGINAL_RENDERER_CONFIG = SettingRendererConfig.SETTING_RENDERER_CONFIG
 
