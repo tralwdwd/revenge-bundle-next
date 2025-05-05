@@ -152,8 +152,8 @@ function unproxifyFromHint(hint: object) {
  *   { hint: 'object' }
  * )
  *
- * // Non-nullish primitives can be proxified, but you'll need to access their values with valueOf()
- * x.valueOf() === x.valueOf() // false
+ * // Non-nullish primitives are not proxifiable
+ * x // TypeError: Cannot destructure and proxify a primitive (reading 'x')
  *
  * y // [0.123]
  * y // [0.456]
@@ -170,8 +170,7 @@ export function destructure<T extends object>(proxified: T, options?: ProxifyOpt
 
                 if (v == null) throw new TypeError(`Cannot destructure and proxify ${v} (reading '${String(p)}')`)
                 if (typeof v === 'function' || typeof v === 'object') return v
-                // Forcefully proxify primitives
-                return Object(v)
+                throw new TypeError(`Cannot destructure and proxify a primitive (reading '${String(p)}')`)
             }, options),
     })
 }
