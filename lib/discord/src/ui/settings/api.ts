@@ -1,4 +1,4 @@
-import { _subs, _data } from './_internal'
+import { _data, _subs } from './_internal'
 
 import type { ComponentType, ReactNode } from 'react'
 import type { DiscordModules } from '../../../types'

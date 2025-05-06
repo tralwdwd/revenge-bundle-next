@@ -1,6 +1,6 @@
 import { React, ReactNative } from '@revenge-mod/react'
 
-import AssetIcon from '~components/icons/AssetIcon'
+import AssetIcon from '~/components/AssetIcon'
 
 import { MobileSetting } from '../constants'
 

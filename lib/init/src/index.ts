@@ -21,7 +21,7 @@ onModuleFirstRequired(0, function onceIndexRequired() {
         onModuleInitialized(0, function onceIndexInitialized() {
             runCatching(() => {
                 // Register all plugins
-                require('~plugins/all')
+                require('~/plugins/all')
 
                 // Initialize init libraries
                 require('@revenge-mod/plugins/init')

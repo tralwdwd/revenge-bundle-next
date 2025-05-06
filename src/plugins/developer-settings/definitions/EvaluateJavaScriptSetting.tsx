@@ -6,7 +6,7 @@ import { Components } from '@revenge-mod/discord/ui'
 
 import { getErrorStack } from '@revenge-mod/utils/errors'
 
-import AssetIcon from '~components/icons/AssetIcon'
+import AssetIcon from '~/components/AssetIcon'
 
 import { pluginApi } from '..'
 

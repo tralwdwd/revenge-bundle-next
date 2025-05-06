@@ -1,4 +1,4 @@
-import AssetIcon from '~components/icons/AssetIcon'
+import AssetIcon from '~/components/AssetIcon'
 
 import { MobileSetting, UserSettingsSections } from '../constants'
 

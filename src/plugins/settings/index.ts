@@ -4,11 +4,11 @@ import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { waitForModules } from '@revenge-mod/modules/finders'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 
-import { _subs, _data } from '@revenge-mod/discord/_/ui/settings'
+import { _data, _subs } from '@revenge-mod/discord/_/ui/settings'
 
 import { after } from '@revenge-mod/patcher'
 
-import { onceSettingsModulesLoaded, type SettingsItem } from '@revenge-mod/discord/ui/settings'
+import { type SettingsItem, onceSettingsModulesLoaded } from '@revenge-mod/discord/ui/settings'
 import type { FC } from 'react'
 
 registerPlugin(

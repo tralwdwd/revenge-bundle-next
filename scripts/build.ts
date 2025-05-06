@@ -1,6 +1,8 @@
+import { parse } from 'path'
 import { transform } from '@swc/core'
 import { $, main } from 'bun'
 import chalk from 'chalk'
+import { exists, mkdir, readdir, writeFile } from 'fs/promises'
 import { type OutputChunk, type RolldownPlugin, rolldown } from 'rolldown'
 import { aliasPlugin } from 'rolldown/experimental'
 
@@ -11,6 +13,8 @@ if (main === import.meta.filename) build()
 
 export default async function build(dev = false, log = true) {
     const start = performance.now()
+
+    await generateAssets()
 
     const bundle = await rolldown({
         input: 'src/index.ts',
@@ -166,4 +170,23 @@ function hermesCPlugin({ afterComplete, flags }: { flags?: string[]; afterComple
             if (afterComplete) afterComplete()
         },
     } satisfies RolldownPlugin
+}
+
+async function generateAssets() {
+    const AssetsDir = 'src/assets'
+    const GeneratedAssetsDir = 'dist/assets/generated'
+    if (!(await exists(GeneratedAssetsDir))) await mkdir(GeneratedAssetsDir, { recursive: true })
+
+    for (const file of await readdir(AssetsDir)) {
+        const { name, ext } = parse(file)
+        const path = `${AssetsDir}/${file}`
+        const path2 = `${GeneratedAssetsDir}/${name}.js`
+
+        if (await exists(path2)) continue
+
+        writeFile(
+            path2,
+            `const ${name}=require('@revenge-mod/assets').registerAsset({name:'${name}',type:'${ext}',uri:require('~/../${path}')})/**@type {ReturnType<import('@revenge-mod/assets').registerAsset>}*/\nexport default ${name}`,
+        )
+    }
 }

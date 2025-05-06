@@ -2,11 +2,10 @@
   "extends": "@revenge-mod/types/tsconfig",
   "compilerOptions": {
     "types": ["@revenge-mod/types", "./types", "./types.modules", "node/util"],
+    "allowJs": true,
     "paths": {
       "~/*": ["./src/*"],
-      "~assets/*": ["./src/assets/*"],
-      "~components/*": ["./src/components/*"],
-      "~plugins/*": ["./src/plugins/*"]
+      "~assets/*": ["./dist/assets/generated/*"]
     }
   },
   "include": ["lib", "src", "shims"]
