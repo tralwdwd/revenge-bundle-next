@@ -5,7 +5,7 @@ import AssetIcon from '~/components/AssetIcon'
 import { MobileSetting } from '../constants'
 import { disconnectFromDevTools, useIsDevToolsOpen } from '../devtools'
 
-import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/settings'
 
 const ReactDevToolsDisconnectSetting: SettingsItem = {
     parent: MobileSetting.REVENGE_DEVELOPER,

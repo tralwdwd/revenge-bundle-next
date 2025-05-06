@@ -1,11 +1,11 @@
 import { React, ReactNative } from '@revenge-mod/react'
 
-import { GitHubOrganizationURL } from '~/constants'
 import AssetIcon from '~/components/AssetIcon'
+import { GitHubOrganizationURL } from '~/constants'
 
 import { MobileSetting } from '../constants'
 
-import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/settings'
 
 const RevengeGitHubOrganizationSetting: SettingsItem = {
     parent: MobileSetting.REVENGE,

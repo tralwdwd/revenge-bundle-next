@@ -4,7 +4,7 @@ import AssetIcon from '~/components/AssetIcon'
 
 import { MobileSetting } from '../constants'
 
-import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/settings'
 
 // @ts-expect-error
 const props = HermesInternal.getRuntimeProperties()

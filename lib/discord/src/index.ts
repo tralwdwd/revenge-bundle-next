@@ -7,6 +7,7 @@ export * from './preinit'
 
 export * as flux from './flux'
 export * as native from './native'
+export * as settings from './settings'
 export * as ui from './ui'
 
 // ../discord_common/js/shared/Logger.tsx

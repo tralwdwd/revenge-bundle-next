@@ -10,7 +10,7 @@ import AssetIcon from '~/components/AssetIcon'
 
 import { pluginApi } from '..'
 
-import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/settings'
 
 const ALERT_KEY = 'evaluate-javascript'
 

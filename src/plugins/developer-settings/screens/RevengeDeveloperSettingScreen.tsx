@@ -1,5 +1,5 @@
+import { SettingListRenderer } from '@revenge-mod/discord/settings'
 import { Components } from '@revenge-mod/discord/ui'
-import { SettingListRenderer } from '@revenge-mod/discord/ui/settings'
 import { React, ReactNative } from '@revenge-mod/react'
 
 import { MobileSetting } from '../constants'

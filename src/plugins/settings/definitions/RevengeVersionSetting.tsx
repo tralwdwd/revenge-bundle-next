@@ -3,7 +3,7 @@ import RevengeIcon from '~assets/RevengeIcon'
 
 import { MobileSetting } from '../constants'
 
-import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/settings'
 
 const RevengeVersionSetting: SettingsItem = {
     parent: MobileSetting.REVENGE,

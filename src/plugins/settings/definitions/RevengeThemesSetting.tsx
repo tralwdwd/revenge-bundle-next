@@ -2,7 +2,7 @@ import AssetIcon from '~/components/AssetIcon'
 
 import { MobileSetting, UserSettingsSections } from '../constants'
 
-import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/settings'
 
 const RevengeThemesSetting: SettingsItem = {
     parent: null,

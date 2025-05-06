@@ -2,7 +2,7 @@ import { React } from '@revenge-mod/react'
 
 import AssetIcon from '~/components/AssetIcon'
 
-import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/settings'
 
 const RevengeNotImplementedSetting: SettingsItem = {
     parent: null,

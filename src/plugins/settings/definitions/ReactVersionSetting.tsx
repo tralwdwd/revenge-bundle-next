@@ -4,7 +4,7 @@ import { MobileSetting } from '../constants'
 
 import AssetIcon from '~/components/AssetIcon'
 
-import type { SettingsItem } from '@revenge-mod/discord/ui/settings'
+import type { SettingsItem } from '@revenge-mod/discord/settings'
 
 const ReactVersionSetting: SettingsItem = {
     parent: MobileSetting.REVENGE,
