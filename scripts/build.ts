@@ -14,7 +14,10 @@ if (main === import.meta.filename) build()
 export default async function build(dev = false, log = true) {
     const start = performance.now()
 
+    if (log) console.info(chalk.gray('\u{1F5BB} Generating assets...'))
     await generateAssets()
+    if (log) console.info(chalk.cyanBright('\u{1F5BB} Assets generated'))
+    if (log) console.info(chalk.gray('\u{1F5CE} Compiling JS...'))
 
     const bundle = await rolldown({
         input: 'src/index.ts',
@@ -56,8 +59,12 @@ export default async function build(dev = false, log = true) {
                     '-Wno-direct-eval',
                     '-Wno-undefined-variable',
                 ],
-                afterComplete() {
-                    if (log) console.debug(chalk.gray('\u{1F5CE} Bytecode compilation finished'))
+                before() {
+                    if (log) console.debug(chalk.cyanBright('\u{1F5CE} JS compilation finished...'))
+                    if (log) console.debug(chalk.gray('\u{1F5CE} Compiling bytecode...'))
+                },
+                after() {
+                    if (log) console.debug(chalk.cyanBright('\u{1F5CE} Bytecode compilation finished'))
                 },
             }),
         ],
@@ -73,7 +80,7 @@ export default async function build(dev = false, log = true) {
     if (log)
         console.info(
             chalk.greenBright(
-                `\u{1F5CE} Compiled successfully! ${chalk.gray(`(took ${(performance.now() - start).toFixed(2)}ms)`)}`,
+                `\u{2714} Compiled successfully! ${chalk.gray(`(took ${(performance.now() - start).toFixed(2)}ms)`)}`,
             ),
         )
 }
@@ -129,7 +136,7 @@ function swcPlugin() {
     } satisfies RolldownPlugin
 }
 
-function hermesCPlugin({ afterComplete, flags }: { flags?: string[]; afterComplete?: () => void } = {}) {
+function hermesCPlugin({ after, before, flags }: { flags?: string[]; before?: () => void; after?: () => void } = {}) {
     const paths = {
         win32: 'hermesc.exe',
         darwin: 'hermesc',
@@ -143,6 +150,8 @@ function hermesCPlugin({ afterComplete, flags }: { flags?: string[]; afterComple
     return {
         name: 'hermesc',
         generateBundle(_, bundle) {
+            if (before) before()
+
             const file = bundle['revenge.js'] as OutputChunk
             if (!file || !file.code) throw new Error('No code to compile')
 
@@ -167,7 +176,7 @@ function hermesCPlugin({ afterComplete, flags }: { flags?: string[]; afterComple
                 source: buf,
             })
 
-            if (afterComplete) afterComplete()
+            if (after) after()
         },
     } satisfies RolldownPlugin
 }
