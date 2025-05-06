@@ -1,15 +1,17 @@
 import { _mUninited } from '@revenge-mod/modules/_/metro'
 import { waitForModules } from '@revenge-mod/modules/finders'
-import { byProps } from '@revenge-mod/modules/finders/filters'
+import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { getModuleDependencies } from '@revenge-mod/modules/metro'
 
-import { _assets, _ids } from './_internal'
+import { _assets, _ids, _overrides } from './_internal'
 
 import type { ReactNative } from '@revenge-mod/types'
-import type { Asset } from '.'
+import type { Asset, ReactNativeAsset } from '.'
 
 export let AssetRegistry: ReactNative.AssetsRegistry
+export let AssetRegistryModuleId: number
 
+// Tracking/caching assets
 const unsubForAssetRegistry = waitForModules(byProps('registerAsset'), (arId, exports) => {
     // We want to do caching only for the re-exported asset-registry
     if (!getModuleDependencies(arId)!.length) {
@@ -33,6 +35,7 @@ const unsubForAssetRegistry = waitForModules(byProps('registerAsset'), (arId, ex
     }
 
     unsubForAssetRegistry()
+    AssetRegistryModuleId = arId
 
     // TODO(assets/patches): conditionally run this if cache does not exist
     // More fragile way, but more performant:
@@ -45,3 +48,16 @@ const unsubForAssetRegistry = waitForModules(byProps('registerAsset'), (arId, ex
         if (deps.length === 1 && deps[0] === arId) __r(id)
     }
 })
+
+// Asset overrides
+const unsubForResolveAssetSource = waitForModules(
+    byName<{
+        addCustomSourceTransformer: (transformer: (arg: { asset: Asset }) => ReactNativeAsset) => void
+    }>('resolveAssetSource'),
+    (_, resolveAssetSource) => {
+        unsubForResolveAssetSource()
+
+        // @ts-expect-error
+        resolveAssetSource.addCustomSourceTransformer(({ asset }) => _overrides.get(asset.name))
+    },
+)
