@@ -1,6 +1,6 @@
 import { ReactNative } from '@revenge-mod/react'
 
-import { _assets } from './_internal'
+import { _assets, _ids, _overrides } from './_internal'
 import { AssetRegistry } from './patches'
 
 import type { ReactNative as RN } from '@revenge-mod/types'
@@ -21,6 +21,15 @@ export function getAssetById(id: AssetId): Asset | undefined {
 }
 
 /**
+ * Get the ID of an asset.
+ *
+ * @param asset The asset to get the ID for.
+ */
+export function getAssetId(asset: Asset) {
+    return _ids.get(asset)
+}
+
+/**
  * Get an asset by its name.
  * If more than one asset is registered with the same name, this will return the one with the preferred type, or the first registered one.
  *
@@ -30,7 +39,7 @@ export function getAssetByName(name: string): Asset | undefined {
     const reg = _assets.get(name)
     if (!reg) return
 
-    return reg[1][_preferredType] ?? reg[0]
+    return _overrides.get(name) ?? reg[1][_preferredType] ?? reg[0]
 }
 
 /**

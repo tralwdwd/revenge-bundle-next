@@ -108,11 +108,6 @@ export namespace ReactNative {
             type: string
             resolver?: AssetDestPathResolver
         }
-
-        // Revenge-added
-        export interface PackagerAsset {
-            id: number
-        }
     }
 
     export interface AssetsRegistry {

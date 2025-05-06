@@ -3,7 +3,7 @@ import { waitForModules } from '@revenge-mod/modules/finders'
 import { byProps } from '@revenge-mod/modules/finders/filters'
 import { getModuleDependencies } from '@revenge-mod/modules/metro'
 
-import { _assets } from './_internal'
+import { _assets, _ids } from './_internal'
 
 import type { ReactNative } from '@revenge-mod/types'
 import type { Asset } from '.'
@@ -24,7 +24,9 @@ const unsubForAssetRegistry = waitForModules(byProps('registerAsset'), (arId, ex
             const reg = _assets.get(name)!
             reg[1][type] = asset
 
-            return (asset.id = orig(asset))
+            const result = orig(asset)
+            _ids.set(asset, result)
+            return result
         }
 
         return
@@ -33,15 +35,13 @@ const unsubForAssetRegistry = waitForModules(byProps('registerAsset'), (arId, ex
     unsubForAssetRegistry()
 
     // TODO(assets/patches): conditionally run this if cache does not exist
-    if (true) {
-        // More fragile way, but more performant:
-        // There is exactly one asset before the reexported asset registry, thanks Discord!
-        const firstAssetModuleId = arId - 1
-        for (const id of _mUninited) {
-            if (id < firstAssetModuleId) continue
+    // More fragile way, but more performant:
+    // There is exactly one asset before the reexported asset registry, thanks Discord!
+    const firstAssetModuleId = arId - 1
+    for (const id of _mUninited) {
+        if (id < firstAssetModuleId) continue
 
-            const deps = getModuleDependencies(id)!
-            if (deps.length === 1 && deps[0] === arId) __r(id)
-        }
+        const deps = getModuleDependencies(id)!
+        if (deps.length === 1 && deps[0] === arId) __r(id)
     }
 })

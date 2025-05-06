@@ -1,4 +1,4 @@
-import { getAssetByName } from '@revenge-mod/assets'
+import { getAssetByName, getAssetId } from '@revenge-mod/assets'
 import { ToastActionCreators } from '@revenge-mod/discord/actions'
 import { React } from '@revenge-mod/react'
 import { getErrorStack } from '@revenge-mod/utils/errors'
@@ -28,7 +28,7 @@ subscriptions.add((e, err) => {
 
         ToastActionCreators.open({
             key: 'DEVTOOLS_ERROR',
-            icon: getAssetByName('CircleXIcon-primary')!.id,
+            icon: getAssetId(getAssetByName('CircleXIcon-primary')!)!,
             content: actualError,
         })
     }

@@ -1,9 +1,10 @@
-import { getAssetByName } from '@revenge-mod/assets'
-import type { DiscordModules } from '@revenge-mod/discord/types'
+import { getAssetByName, getAssetId } from '@revenge-mod/assets'
 import { Components } from '@revenge-mod/discord/ui'
 
+import type { DiscordModules } from '@revenge-mod/discord/types'
+
 export default function AssetIcon(props: AssetIconProps) {
-    return <Components.TableRow.Icon source={getAssetByName(props.name)?.id!} {...props} />
+    return <Components.TableRow.Icon source={getAssetId(getAssetByName(props.name)!)!} {...props} />
 }
 
 export interface AssetIconProps extends Omit<DiscordModules.Components.TableRowIconProps, 'source'> {
