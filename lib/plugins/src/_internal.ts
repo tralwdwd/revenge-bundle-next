@@ -3,16 +3,17 @@ import * as ModulesLibrary from '@revenge-mod/modules'
 import * as PatcherLibrary from '@revenge-mod/patcher'
 import * as PluginsLibrary from '@revenge-mod/plugins'
 import * as ReactLibrary from '@revenge-mod/react'
+import * as UtilsLibrary from '@revenge-mod/utils'
 
 const { PluginFlags, PluginStatus } = PluginsLibrary
 
 export const _uapi: PluginsLibrary.UnscopedInitPluginApi | PluginsLibrary.UnscopedPluginApi = {
     discord: DiscordLibrary,
     modules: ModulesLibrary,
+    patcher: PatcherLibrary,
     plugins: PluginsLibrary,
     react: ReactLibrary,
-    patcher: PatcherLibrary,
-    // utils: UtilsLibrary,
+    utils: UtilsLibrary,
 }
 
 const _plugins = new Map<PluginsLibrary.PluginManifest['id'], InternalPlugin>()

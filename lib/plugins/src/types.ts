@@ -12,6 +12,7 @@ export interface UnscopedInitPluginApi {
     modules: typeof import('@revenge-mod/modules')
     patcher: typeof import('@revenge-mod/patcher')
     react: typeof import('@revenge-mod/react')
+    utils: typeof import('@revenge-mod/utils')
 }
 
 /**
