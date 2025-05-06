@@ -57,6 +57,16 @@ const unsubForResolveAssetSource = waitForModules(
     (_, resolveAssetSource) => {
         unsubForResolveAssetSource()
 
+        // Custom assets
+        // Why do we need to do this? Because RN will attempt to resolve the asset via its path, which we don't provide via custom assets.
+        // This will result in a crash, because it tries to read the path and run checks on it, but the path is undefined.
+        // @ts-expect-error
+        resolveAssetSource.addCustomSourceTransformer(({ asset }) => {
+            // @ts-expect-error
+            if (!asset.__packager_asset) return asset
+        })
+
+        // Asset overrides
         // @ts-expect-error
         resolveAssetSource.addCustomSourceTransformer(({ asset }) => _overrides.get(asset.name))
     },

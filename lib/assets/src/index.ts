@@ -77,12 +77,11 @@ export function setPreferredAssetType(type: Asset['type']) {
  * @throws An error if an asset with the same name and type already exists and `override` is not set to true.
  */
 export function registerAsset(asset: RegisterableAsset, override?: boolean) {
-    const { name } = asset
+    const { name, type } = asset
 
     if (override) _overrides.set(name, asset)
     // Make sure to not override the asset if it already exists, unless explicitly set to override
-    else if (_assets.get(name)?.[1]?.[asset.type])
-        throw new Error(`Asset "${name}" with type "${asset.type}" already exists`)
+    else if (_assets.get(name)?.[1]?.[type]) throw new Error(`Asset "${name}" with type "${type}" already exists`)
 
     // @ts-expect-error
     return AssetRegistry.registerAsset(asset)
