@@ -177,6 +177,8 @@ async function generateAssets() {
     const GeneratedAssetsDir = 'dist/assets/generated'
     if (!(await exists(GeneratedAssetsDir))) await mkdir(GeneratedAssetsDir, { recursive: true })
 
+    const promises: Promise<void>[] = []
+
     for (const file of await readdir(AssetsDir)) {
         const { name, ext } = parse(file)
         const path = `${AssetsDir}/${file}`
@@ -184,9 +186,13 @@ async function generateAssets() {
 
         if (await exists(path2)) continue
 
-        writeFile(
-            path2,
-            `const ${name}=require('@revenge-mod/assets').registerAsset({name:'${name}',type:'${ext}',uri:require('~/../${path}')})/**@type {ReturnType<import('@revenge-mod/assets').registerAsset>}*/\nexport default ${name}`,
+        promises.push(
+            writeFile(
+                path2,
+                `const ${name}=require('@revenge-mod/assets').registerAsset({name:'${name}',type:'${ext}',uri:require('~/../${path}')})/**@type {ReturnType<import('@revenge-mod/assets').registerAsset>}*/\nexport default ${name}`,
+            ),
         )
     }
+
+    await Promise.all(promises)
 }
