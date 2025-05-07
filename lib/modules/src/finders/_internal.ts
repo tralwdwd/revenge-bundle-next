@@ -4,7 +4,7 @@ import type { If } from '@revenge-mod/utils/types'
 import type { Metro } from '../../types'
 import type { Filter } from './filters'
 
-export type RunFilterOptions = {
+export interface RunFilterOptions {
     /**
      * Whether to skip checking the default export.
      *

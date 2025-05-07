@@ -53,7 +53,7 @@ const _proxifyHandler = {
     },
 } as ProxyHandler<object>
 
-export type ProxifyOptions = {
+export interface ProxifyOptions {
     /**
      * The hint for the proxified value.
      *

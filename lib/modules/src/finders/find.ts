@@ -8,7 +8,7 @@ import type { Metro } from '../../types'
 import type { RunFilterReturnExportsOptions } from './_internal'
 import type { Filter, FilterResult } from './filters'
 
-export type BaseFindModuleOptions = {
+export interface BaseFindModuleOptions {
     /**
      * Abort signal for the find.
      */
@@ -191,7 +191,7 @@ export function findModuleByImportedPath<T>(path: string, options?: BaseFindModu
     })
 }
 
-export type BaseFindModuleSyncOptions = BaseFindModuleOptions & ProxifyOptions
+export interface BaseFindModuleSyncOptions extends BaseFindModuleOptions, ProxifyOptions {}
 export type FindModuleSyncOptions<
     ReturnNamespace extends boolean = boolean,
     IncludeUninitialized extends boolean = boolean,

@@ -10,7 +10,7 @@ import type { MaybeDefaultExportMatched } from '.'
 import type { Metro } from '../../types'
 import type { Filter, FilterResult } from './filters'
 
-export type BaseWaitForModulesOptions<IncludeAll extends boolean = boolean> = {
+export interface BaseWaitForModulesOptions<IncludeAll extends boolean = boolean> {
     /**
      * Whether to include all modules, including ones with bad exports.
      *

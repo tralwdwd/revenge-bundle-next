@@ -339,7 +339,7 @@ export namespace DiscordModules {
             variant?: TableRowVariant
         }
 
-        export type TableRow = FC<TableRowProps> & {
+        export interface TableRow extends FC<TableRowProps> {
             Arrow: FC
             Icon: TableRowIcon
         }

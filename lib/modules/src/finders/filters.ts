@@ -9,11 +9,14 @@ export type FilterResult<F> = F extends Filter<infer R, boolean> ? R : never
 
 export type IsFilterWithExports<F> = F extends Filter<any, infer WE> ? WE : never
 
-export type Filter<_Inferable = any, WithExports extends boolean = boolean> = If<
-    WithExports,
-    (id: Metro.ModuleID, exports: Metro.ModuleExports) => boolean,
-    (id: Metro.ModuleID, exports?: undefined) => boolean
-> & {
+export interface Filter<_Inferable = any, WithExports extends boolean = boolean> {
+    (
+        ...args: If<
+            WithExports,
+            [id: Metro.ModuleID, exports: Metro.ModuleExports],
+            [id: Metro.ModuleID, exports?: never]
+        >
+    ): boolean
     key: string
 }
 
@@ -67,7 +70,7 @@ export type ByProps = <T extends Record<string, any> = Record<string, any>>(
  * Filter modules by their exports having all of the specified properties.
  *
  * @param prop The property to check for.
- * @param props The rest of the properties to check for (optional).
+ * @param props More properties to check for (optional).
  *
  * @example
  * ```ts
@@ -81,10 +84,7 @@ export const byProps = createFilterGenerator<Parameters<ByProps>>(
     props => `revenge.props(${props.join(',')})`,
 ) as ByProps
 
-export type WithoutProps = <T extends Record<string, any>, K extends string>(
-    prop: K,
-    ...props: K[]
-) => Filter<Omit<T, K>, true>
+export type WithoutProps = <T extends Record<string, any>>(prop: string, ...props: string[]) => Filter<T, true>
 
 /**
  * Filter modules by their exports having none of the specified properties.
@@ -98,9 +98,7 @@ export const withoutProps = createFilterGenerator<Parameters<WithoutProps>>(
     props => `revenge.withoutProps(${props.join(',')})`,
 ) as WithoutProps
 
-export type ByName = <T extends string | object>(
-    name: T extends string ? T : T extends { name: string } ? T['name'] : string,
-) => Filter<T extends string ? { name: T } : T & { name: typeof name }, true>
+export type ByName = <T extends object = object>(name: string) => Filter<T, true>
 
 /**
  * Filter modules by their exports having the specified name.
@@ -112,7 +110,7 @@ export type ByName = <T extends string | object>(
  * @example Auto-typing as object
  * ```ts
  * const SomeComponent = await findModule(byName('SomeComponent'))
- * // const SomeComponent: { name: 'SomeComponent' }
+ * // const SomeComponent: object
  * ```
  *
  * @example Typing as function component
@@ -137,14 +135,13 @@ export const byName = createFilterGenerator<Parameters<ByName>>(
     ([name]) => `revenge.name(${name})`,
 ) as ByName
 
-export type RelativeDependency = object & {
+export interface RelativeDependency {
     valueOf(): Metro.ModuleID
     r?: boolean
 }
 
-export type ComparableDependencyMap = Array<
-    Metro.ModuleID | RelativeDependency | undefined | ComparableDependencyMap
-> & {
+export interface ComparableDependencyMap
+    extends Array<Metro.ModuleID | RelativeDependency | undefined | ComparableDependencyMap> {
     l?: boolean
 }
 

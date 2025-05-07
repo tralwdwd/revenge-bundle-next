@@ -13,7 +13,7 @@ import type { MaybeDefaultExportMatched } from '.'
 import type { Metro } from '../../types'
 import type { Filter, FilterResult } from './filters'
 
-export type BaseLookupModulesOptions<IncludeUninitialized extends boolean = boolean> = RunFilterOptions & {
+export interface BaseLookupModulesOptions<IncludeUninitialized extends boolean = boolean> extends RunFilterOptions {
     /**
      * Whether to include initialized modules in the lookup.
      *
