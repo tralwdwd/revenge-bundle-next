@@ -255,7 +255,7 @@ function depsToKey(deps: ComparableDependencyMap): string {
         else if (Array.isArray(dep)) {
             if (dep.l) key += '#'
             key += `[${depsToKey(dep)}],`
-        } else key += `${dep},`
+        } else key += `${(dep as RelativeDependency).r ? `r${dep.valueOf()}` : dep.valueOf()},`
 
     return key.substring(0, key.length - 1)
 }
