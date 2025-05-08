@@ -11,13 +11,7 @@ export let nodeUtil: typeof import('node:util') = proxify(
             },
         )
 
-        if (module) {
-            // This allows the Proxy instance to be garbage collected
-            // after the module is initialized.
-            nodeUtil = module
-            gc()
-            return module
-        }
+        if (module) return (nodeUtil = module)
     },
     {
         hint: 'object',

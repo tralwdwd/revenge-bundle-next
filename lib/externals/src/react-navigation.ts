@@ -17,13 +17,7 @@ export let ReactNavigationNative: typeof import('@react-navigation/native') = pr
             },
         )
 
-        if (module) {
-            // This allows the Proxy instance to be garbage collected
-            // after the module is initialized.
-            ReactNavigationNative = module
-            gc()
-            return module
-        }
+        if (module) return (ReactNavigationNative = module)
     },
     {
         hint: 'object',
@@ -42,13 +36,7 @@ export let ReactNavigationStack: typeof import('@react-navigation/stack') = prox
             },
         )
 
-        if (module) {
-            // This allows the Proxy instance to be garbage collected
-            // after the module is initialized.
-            ReactNavigationStack = module
-            gc()
-            return module
-        }
+        if (module) return (ReactNavigationStack = module)
     },
     {
         hint: 'object',

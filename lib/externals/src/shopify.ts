@@ -19,13 +19,7 @@ export let FlashList: typeof import('@shopify/flash-list') = proxify(
             },
         )
 
-        if (module) {
-            // This allows the Proxy instance to be garbage collected
-            // after the module is initialized.
-            FlashList = module
-            gc()
-            return module
-        }
+        if (module) return (FlashList = module)
     },
     {
         hint: 'object',
