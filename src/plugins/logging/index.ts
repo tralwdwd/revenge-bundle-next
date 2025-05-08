@@ -1,4 +1,4 @@
-import { AppStartPerformance } from '@revenge-mod/discord'
+import { AppStartPerformance } from '@revenge-mod/discord/common'
 
 import { PluginFlags } from '@revenge-mod/plugins'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
