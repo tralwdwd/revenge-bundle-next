@@ -1,4 +1,5 @@
 import * as DiscordLibrary from '@revenge-mod/discord'
+import * as ExternalsLibrary from '@revenge-mod/externals'
 import * as ModulesLibrary from '@revenge-mod/modules'
 import * as PatcherLibrary from '@revenge-mod/patcher'
 import * as PluginsLibrary from '@revenge-mod/plugins'
@@ -21,6 +22,7 @@ const { PluginFlags: Flag, PluginStatus: Status } = PluginsLibrary
 
 export const _uapi: UnscopedInitPluginApi | UnscopedPluginApi = {
     discord: DiscordLibrary,
+    externals: ExternalsLibrary,
     modules: ModulesLibrary,
     patcher: PatcherLibrary,
     plugins: PluginsLibrary,

@@ -11,9 +11,10 @@ export type PluginStatus = (typeof PS)[keyof typeof PS]
  */
 export interface UnscopedInitPluginApi {
     discord: typeof import('@revenge-mod/discord')
-    plugins: typeof import('@revenge-mod/plugins')
+    externals: typeof import('@revenge-mod/externals')
     modules: typeof import('@revenge-mod/modules')
     patcher: typeof import('@revenge-mod/patcher')
+    plugins: typeof import('@revenge-mod/plugins')
     react: typeof import('@revenge-mod/react')
     utils: typeof import('@revenge-mod/utils')
 }
@@ -25,7 +26,6 @@ export interface UnscopedInitPluginApi {
 export interface UnscopedPluginApi extends UnscopedInitPluginApi {
     assets: typeof import('@revenge-mod/assets')
     // ui: typeof import('@revenge-mod/ui')
-    // utils: typeof import('@revenge-mod/utils')
 }
 
 export type PluginCleanup = () => any
