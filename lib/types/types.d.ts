@@ -1,17 +1,17 @@
 // All of these typings are exported, be careful what you export here!
 
-import type { Buffer as _Buffer } from 'buffer'
+/// <reference path="../../node_modules/react-native/types/index.d.ts" />
+
 import type { Metro } from '@revenge-mod/modules/types'
-import type { ErrorUtils as RNErrorUtils } from 'react-native'
 
 /// HERMES
 
 declare global {
-    declare function setTimeout(cb: (...args: unknown[]) => unknown, timeout?: number): number
+    function setTimeout(cb: (...args: unknown[]) => unknown, timeout?: number): number
     /**
      * Calls the garbage collector
      */
-    declare function gc(): void
+    function gc(): void
 
     interface HermesInternalObject {
         getRuntimeProperties(): Record<string, string>
@@ -30,7 +30,7 @@ declare global {
 /// HERMES PROMISES
 
 declare global {
-    interface Promise {
+    interface Promise<T> {
         /// PROMISE POLYFILLS FROM: https://github.com/then/promise
         /// AND: https://github.com/facebook/hermes/blob/main/lib/InternalBytecode/01-Promise.js
         _h: 0 | 1 | 2
@@ -73,8 +73,8 @@ declare global {
 /// REACT NATIVE
 
 declare global {
-    declare function nativeLoggingHook(str: string, level: number): void
-    declare function alert(message: unknown): void
+    function nativeLoggingHook(str: string, level: number): void
+    function alert(message: unknown): void
 
     var nativePerformanceNow: typeof performance.now
     var performance: {
@@ -82,36 +82,4 @@ declare global {
     }
 
     var globalEvalWithSourceUrl: (code: string, sourceURL: string) => any
-
-    const ErrorUtils: RNErrorUtils
-}
-
-/// POLYFILLS
-
-declare global {
-    var Buffer: typeof _Buffer
-}
-
-export namespace ReactNative {
-    namespace AssetsRegistry {
-        export type AssetDestPathResolver = 'android' | 'generic'
-
-        export interface PackagerAsset {
-            __packager_asset: boolean
-            fileSystemLocation?: string
-            httpServerLocation?: string
-            width?: number
-            height?: number
-            scales: number[]
-            hash: string
-            name: string
-            type: string
-            resolver?: AssetDestPathResolver
-        }
-    }
-
-    export interface AssetsRegistry {
-        registerAsset(asset: AssetsRegistry.PackagerAsset): number
-        getAssetByID(assetId: number): AssetsRegistry.PackagerAsset
-    }
 }

@@ -1,4 +1,6 @@
-import type { ComponentProps, FC, ReactNode } from 'react'
+import type { Buffer as _Buffer } from 'buffer'
+
+import type { ComponentProps, ComponentType, FC, ReactNode } from 'react'
 import type {
     ImageSourcePropType,
     ImageStyle,
@@ -157,6 +159,35 @@ export namespace DiscordModules {
             }): void
             close(): void
         }
+
+        export interface ActionSheetActionCreators {
+            openLazy<T extends ComponentType>(
+                sheet: Promise<{ default: T }>,
+                key: string,
+                props: ComponentProps<T>,
+            ): void
+            hideActionSheet(key?: string): void
+        }
+
+        // export namespace ActionSheetActionCreators {
+        //     interface SimpleActionSheetOption {
+        //         icon?: number
+        //         label: string
+        //         isDestructive?: boolean
+        //         disabled?: boolean
+        //         onPress?(): void
+        //     }
+
+        //     function showSimpleActionSheet(options: {
+        //         key: string
+        //         header: {
+        //             title: string
+        //             icon?: ReactNode
+        //             onClose?(): void
+        //         }
+        //         options: SimpleActionSheetOption[]
+        //     }): void
+        // }
     }
 
     export namespace Components {
@@ -457,4 +488,10 @@ export namespace DiscordModules {
 
         export type Slider = FC<SliderProps>
     }
+}
+
+/// POLYFILLS
+
+declare global {
+    var Buffer: typeof _Buffer
 }

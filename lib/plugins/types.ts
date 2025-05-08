@@ -1,6 +1,9 @@
 import type { DiscordModules } from '@revenge-mod/discord/types'
 
-import type { PluginFlags, PluginStatus } from './constants'
+import type { PluginFlags as PF, PluginStatus as PS } from './src/constants'
+
+export type PluginFlags = (typeof PF)[keyof typeof PF]
+export type PluginStatus = (typeof PS)[keyof typeof PS]
 
 /**
  * The unscoped plugin API (limited). This API is available as a global for plugins.

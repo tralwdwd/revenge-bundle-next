@@ -9,6 +9,9 @@
     "./init": {
       "default": "./src/init.ts"
     },
+    "./types": {
+      "default": "./types.ts"
+    },
     "./_": {
       "default": "./src/_internal.ts"
     }

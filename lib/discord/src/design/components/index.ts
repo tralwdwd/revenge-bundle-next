@@ -3,9 +3,10 @@ import { byDependencies, byProps, looseDeps, moduleStateAware, relativeDep } fro
 
 import { proxify } from '@revenge-mod/utils/proxy'
 
-import type { DiscordModules } from '../../types'
+import type { DiscordModules } from '../../../types'
 
-export let Components: Components = proxify(
+// design/native.tsx
+let components: Components = proxify(
     () => {
         // ID: 3236
         // [3237, 1366, 3238, 3239, 2, ...];
@@ -22,7 +23,7 @@ export let Components: Components = proxify(
         if (module) {
             // This allows the Proxy instance to be garbage collected
             // after the module is initialized.
-            Components = module
+            components = module
             gc()
             return module
         }
@@ -31,6 +32,8 @@ export let Components: Components = proxify(
         hint: 'object',
     },
 )!
+
+export default components
 
 export interface Components {
     ActionSheet: DiscordModules.Components.ActionSheet

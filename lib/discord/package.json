@@ -9,29 +9,38 @@
     "./actions": {
       "default": "./src/actions.ts"
     },
-    "./flux": {
-      "default": "./src/flux.ts"
+    "./common": {
+      "default": "./src/common/index.ts"
+    },
+    "./common/flux": {
+      "default": "./src/common/flux.ts"
+    },
+    "./design": {
+      "default": "./src/design/index.ts"
+    },
+    "./design/components": {
+      "default": "./src/design/components/index.ts"
+    },
+    "./design/components/Icon": {
+      "default": "./src/design/components/Icon.ts"
     },
     "./native": {
       "default": "./src/native.ts"
     },
-    "./polyfills": {
-      "default": "./src/polyfills.ts"
-    },
     "./preinit": {
       "default": "./src/preinit.ts"
     },
-    "./settings": {
-      "default": "./src/settings/index.ts"
+    "./modules": {
+      "default": "./src/modules/index.ts"
+    },
+    "./modules/settings": {
+      "default": "./src/modules/settings/index.ts"
     },
     "./types": {
       "types": "./types/index.ts"
     },
-    "./ui": {
-      "default": "./src/ui/index.ts"
-    },
-    "./_/settings": {
-      "default": "./src/settings/_internal.ts"
+    "./_/modules/settings": {
+      "default": "./src/modules/settings/_internal.ts"
     }
   }
 }

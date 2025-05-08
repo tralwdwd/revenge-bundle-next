@@ -20,7 +20,3 @@ export const PluginStatus = {
     Started: 1 << 3,
     Stopping: 1 << 4,
 }
-
-export type PluginFlags = (typeof PluginFlags)[keyof typeof PluginFlags]
-
-export type PluginStatus = (typeof PluginStatus)[keyof typeof PluginStatus]

@@ -1,1 +1,1 @@
-import './jsx-runtime/preinit'
+import './jsx-runtime/patches'

@@ -12,12 +12,45 @@ import { ReactJsxRuntimeModuleId, ReactModuleId } from '@revenge-mod/react'
 
 import { proxify } from '@revenge-mod/utils/proxy'
 
+import { DispatcherModuleId } from './common/flux'
+
 import type { DiscordModules } from '../types'
+
+export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCreators = proxify(
+    () => {
+        const module = lookupModule(
+            moduleStateAware(
+                byProps<DiscordModules.Actions.ActionSheetActionCreators>('hideActionSheet'),
+                byDependencies([
+                    undefined,
+                    ReactModuleId,
+                    ReactJsxRuntimeModuleId,
+                    DispatcherModuleId,
+                    relativeDep(1),
+                    relativeDep(2),
+                    2,
+                ]),
+            ),
+            {
+                includeUninitialized: true,
+            },
+        )
+
+        if (module) {
+            // This allows the Proxy instance to be garbage collected
+            // after the module is initialized.
+            ActionSheetActionCreators = module
+            gc()
+            return module
+        }
+    },
+    {
+        hint: 'object',
+    },
+)!
 
 export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators = proxify(
     () => {
-        // ID: 3667
-        // [175, 180, 2553, 684, 1249, 3668, 1675, 2]
         const module = lookupModule(
             moduleStateAware(
                 byProps<DiscordModules.Actions.AlertActionCreators>('openAlert', 'dismissAlert'),
@@ -25,7 +58,7 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators = pro
                     ReactModuleId,
                     ReactJsxRuntimeModuleId,
                     undefined,
-                    undefined,
+                    DispatcherModuleId,
                     relativeDep(1),
                     undefined,
                     2,
@@ -48,15 +81,12 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators = pro
 
 export let ToastActionCreators: DiscordModules.Actions.ToastActionCreators = proxify(() => {
     // Many other modules share the same dependencies, the second yielded should be the correct module.
-    // [684, 2]
-
-    // Dispatcher.tsx (ID: 684)
-    // [685, 652, 606, 585, 806, 2]
+    // [Dispatcher, ImportTracker]
 
     const generator = lookupModules(
         moduleStateAware(
             every(byProps<DiscordModules.Actions.ToastActionCreators>('open'), withoutProps('init')),
-            byDependencies([[relativeDep(1), undefined, undefined, undefined, undefined, 2], 2]),
+            byDependencies([DispatcherModuleId, 2]),
         ),
         {
             includeUninitialized: true,

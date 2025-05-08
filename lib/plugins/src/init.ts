@@ -6,7 +6,7 @@ import { ReactNative } from '@revenge-mod/react'
 
 import { _uapi, initPlugins, startPlugins } from './_internal'
 
-import type { UnscopedPluginApi } from './types'
+import type { UnscopedPluginApi } from '../types'
 
 // Setup non-limited APIs
 const uapi = _uapi as UnscopedPluginApi

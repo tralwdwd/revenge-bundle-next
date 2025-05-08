@@ -4,7 +4,7 @@
   "type": "module",
   "exports": {
     ".": {
-      "default": "./types.d.ts"
+      "types": "./types.d.ts"
     },
     "./tsconfig": {
       "default": "./tsconfig.json"

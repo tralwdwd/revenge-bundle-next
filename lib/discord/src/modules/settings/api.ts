@@ -1,7 +1,7 @@
 import { _data, _subs } from './_internal'
 
 import type { ComponentType, ReactNode } from 'react'
-import type { DiscordModules } from '../../types'
+import type { DiscordModules } from '../../../types'
 
 export type SettingsModulesLoadedSubscription = () => void
 
