@@ -1,5 +1,5 @@
 import type { Metro } from '@revenge-mod/modules/types'
-import type { Asset, AssetId } from '.'
+import type { Asset, AssetId } from './types'
 
 export const _assets = new Map<string, [first: Asset, all: Record<Asset['type'], Asset>]>()
 export const _overrides = new Map<string, Asset>()

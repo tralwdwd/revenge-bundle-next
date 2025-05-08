@@ -8,6 +8,9 @@
     },
     "./preinit": {
       "default": "./src/preinit.ts"
+    },
+    "./types": {
+      "types": "./src/types.ts"
     }
   }
 }

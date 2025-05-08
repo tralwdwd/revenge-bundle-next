@@ -1,19 +1,11 @@
 import { ReactNative } from '@revenge-mod/react'
 
 import { _assets, _metas, _overrides } from './_internal'
-import { AssetRegistry } from './patches'
+import { AssetRegistry } from './preinit'
 
-import type { ReactNative as RN } from '@revenge-mod/react/types'
+import type { Asset, AssetId, RegisterableAsset } from './types'
 
-export type Asset = ReactNativeAsset | RevengeAsset
-export type AssetId = number
-
-export type ReactNativeAsset = RN.AssetsRegistry.PackagerAsset
-export interface RevengeAsset extends Pick<ReactNativeAsset, 'name' | 'width' | 'height' | 'type'> {
-    uri: string
-}
-
-export type RegisterableAsset = Omit<RevengeAsset, 'id'>
+export * from './preinit'
 
 // iOS cannot display SVGs
 let _preferredType: Asset['type'] = ReactNative.Platform.OS === 'ios' ? 'png' : 'svg'
