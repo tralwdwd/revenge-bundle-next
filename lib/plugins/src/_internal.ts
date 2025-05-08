@@ -1,5 +1,5 @@
-import * as DiscordLibrary from '@revenge-mod/discord'
-import * as ExternalsLibrary from '@revenge-mod/externals'
+import { Logger } from '@revenge-mod/discord/common'
+
 import * as ModulesLibrary from '@revenge-mod/modules'
 import * as PatcherLibrary from '@revenge-mod/patcher'
 import * as PluginsLibrary from '@revenge-mod/plugins'
@@ -21,8 +21,12 @@ import type {
 const { PluginFlags: Flag, PluginStatus: Status } = PluginsLibrary
 
 export const _uapi: UnscopedInitPluginApi | UnscopedPluginApi = {
-    discord: DiscordLibrary,
-    externals: ExternalsLibrary,
+    get discord() {
+        return (this.discord = require('@revenge-mod/discord'))
+    },
+    get externals() {
+        return (this.externals = require('@revenge-mod/externals'))
+    },
     modules: ModulesLibrary,
     patcher: PatcherLibrary,
     plugins: PluginsLibrary,
@@ -157,14 +161,14 @@ export function registerPlugin(
         },
     }
 
-    let logger: InstanceType<typeof DiscordLibrary.common.Logger>
+    let logger: InstanceType<typeof Logger>
 
     const api: InitPluginApi | PluginApi = {
         cleanup: (...items) => {
             plugin.cleanups.push(...items)
         },
         get logger() {
-            return (logger ??= new DiscordLibrary.common.Logger(`Revenge > ${manifest.name}`))
+            return (logger ??= new Logger(`Revenge > ${manifest.name}`))
         },
         plugin,
         unscoped: _uapi,
