@@ -1,8 +1,10 @@
-import { type PluginApi, PluginFlags } from '@revenge-mod/plugins'
+import { PluginFlags } from '@revenge-mod/plugins'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
-import { _data } from '@revenge-mod/discord/_/settings'
-import { onceSettingsModulesLoaded } from '@revenge-mod/discord/settings'
+import { _data } from '@revenge-mod/discord/_/modules/settings'
+import { onceSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
+
+import type { PluginApi } from '@revenge-mod/plugins/types'
 
 registerPlugin(
     {

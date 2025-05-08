@@ -2,13 +2,13 @@ import { React } from '@revenge-mod/react'
 
 import { MobileSetting } from '../constants'
 
-import AssetIcon from '~/components/AssetIcon'
+import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 
-import type { SettingsItem } from '@revenge-mod/discord/settings'
+import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const ReactVersionSetting: SettingsItem = {
     parent: MobileSetting.REVENGE,
-    IconComponent: () => <AssetIcon name="ScienceIcon" />,
+    IconComponent: () => <TableRowAssetIcon name="ScienceIcon" />,
     title: () => 'React',
     useDescription: () => React.version,
     type: 'static',

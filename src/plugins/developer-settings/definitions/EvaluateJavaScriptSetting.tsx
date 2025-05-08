@@ -1,22 +1,23 @@
 import { React } from '@revenge-mod/react'
 
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
-import { nodeUtils } from '@revenge-mod/discord/polyfills'
-import { Components } from '@revenge-mod/discord/ui'
+import components from '@revenge-mod/discord/design/components'
+
+import { nodeUtil } from '@revenge-mod/externals/browserify'
 
 import { getErrorStack } from '@revenge-mod/utils/errors'
 
-import AssetIcon from '~/components/AssetIcon'
+import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 
 import { pluginApi } from '..'
 
-import type { SettingsItem } from '@revenge-mod/discord/settings'
+import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const ALERT_KEY = 'evaluate-javascript'
 
 const EvaluateJavaScriptSetting: SettingsItem = {
     parent: null,
-    IconComponent: () => <AssetIcon name="FileIcon" />,
+    IconComponent: () => <TableRowAssetIcon name="FileIcon" />,
     title: () => 'Evaluate JavaScript',
     useDescription: () => 'Runs a JavaScript code snippet.',
     onPress: () => AlertActionCreators.openAlert(ALERT_KEY, <EvaluateJavaScriptAlert />),
@@ -34,7 +35,7 @@ const {
     TableSwitchRow,
     Text,
     TextArea,
-} = Components
+} = components
 
 function EvaluateJavaScriptAlert() {
     const code = React.useRef('')
@@ -111,7 +112,7 @@ function EvaluateJavaScriptAlert() {
                                 const res = globalThis.eval?.(code.current)
 
                                 alert(
-                                    nodeUtils.inspect(awaitResult && res instanceof Promise ? await res : res, {
+                                    nodeUtil.inspect(awaitResult && res instanceof Promise ? await res : res, {
                                         depth: inspectDepth,
                                         showHidden,
                                     }),

@@ -1,15 +1,15 @@
 import { getEnabledPluginsCount } from '@revenge-mod/plugins/_'
 
-import AssetIcon from '~/components/AssetIcon'
+import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 
 import { MobileSetting, UserSettingsSections } from '../constants'
 
-import type { SettingsItem } from '@revenge-mod/discord/settings'
+import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const RevengePluginsSetting: SettingsItem = {
     parent: null,
     type: 'route',
-    IconComponent: () => <AssetIcon name="PuzzlePieceIcon" />,
+    IconComponent: () => <TableRowAssetIcon name="PuzzlePieceIcon" />,
     title: () => 'Plugins',
     useTrailing: () => `${getEnabledPluginsCount()} enabled`,
     screen: {

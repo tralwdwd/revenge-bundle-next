@@ -1,5 +1,5 @@
-import { SettingListRenderer } from '@revenge-mod/discord/settings'
-import { Components } from '@revenge-mod/discord/ui'
+import { SettingListRenderer } from '@revenge-mod/discord/modules/settings'
+import components from '@revenge-mod/discord/design/components'
 import { React, ReactNative } from '@revenge-mod/react'
 
 import { MobileSetting } from '../constants'
@@ -8,7 +8,7 @@ import { DevToolsContext } from '../devtools'
 // TODO(plugins/settings): debug bridge
 export default function RevengeDeveloperSettingScreen() {
     return (
-        <Components.Stack spacing={0} style={{ flexGrow: 1 }}>
+        <components.Stack spacing={0} style={{ flexGrow: 1 }}>
             {globalThis.__REACT_DEVTOOLS__ && <ReactDevToolsAddressSetting />}
             <SettingListRenderer.SettingsList
                 sections={[
@@ -28,14 +28,14 @@ export default function RevengeDeveloperSettingScreen() {
                     },
                 ]}
             />
-        </Components.Stack>
+        </components.Stack>
     )
 }
 
 export function ReactDevToolsAddressSetting() {
     return (
         <ReactNative.View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-            <Components.TextInput
+            <components.TextInput
                 editable={!DevToolsContext.open}
                 isDisabled={DevToolsContext.open}
                 leadingText="ws://"

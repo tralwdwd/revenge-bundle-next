@@ -1,4 +1,4 @@
-import { registerSettingsItems, registerSettingsSection } from '@revenge-mod/discord/settings'
+import { registerSettingsItems, registerSettingsSection } from '@revenge-mod/discord/modules/settings'
 
 import { MobileSetting } from './constants'
 

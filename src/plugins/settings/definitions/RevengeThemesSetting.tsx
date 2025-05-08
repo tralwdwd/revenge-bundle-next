@@ -1,13 +1,13 @@
-import AssetIcon from '~/components/AssetIcon'
+import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 
 import { MobileSetting, UserSettingsSections } from '../constants'
 
-import type { SettingsItem } from '@revenge-mod/discord/settings'
+import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const RevengeThemesSetting: SettingsItem = {
     parent: null,
     type: 'route',
-    IconComponent: () => <AssetIcon name="PaintPaletteIcon" />,
+    IconComponent: () => <TableRowAssetIcon name="PaintPaletteIcon" />,
     title: () => 'Themes',
     screen: {
         route: UserSettingsSections[MobileSetting.REVENGE_THEMES],
