@@ -11,3 +11,5 @@ export const Logger = lookupModule(byName<DiscordModules.Logger>('Logger'))!
 // ../discord_common/js/packages/tokens/native.tsx
 export const tokensModuleId = lookupModuleId(byProps('RawColor'))!
 export const tokens = __r(tokensModuleId)
+
+export { AppStartPerformance } from '../preinit'
