@@ -1,11 +1,11 @@
-import { _mUninited } from '@revenge-mod/modules/_/metro'
+import { _mInitingId, _mUninited } from '@revenge-mod/modules/_/metro'
 import { waitForModules } from '@revenge-mod/modules/finders'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { getModuleDependencies } from '@revenge-mod/modules/metro'
 
-import { _assets, _ids, _overrides } from './_internal'
+import { _assets, _metas, _overrides } from './_internal'
 
-import type { ReactNative } from '@revenge-mod/types'
+import type { ReactNative } from '@revenge-mod/react/types'
 import type { Asset, ReactNativeAsset } from '.'
 
 export let AssetRegistry: ReactNative.AssetsRegistry
@@ -27,7 +27,7 @@ const unsubForAssetRegistry = waitForModules(byProps('registerAsset'), (arId, ex
             reg[1][type] = asset
 
             const result = orig(asset)
-            _ids.set(asset, result)
+            _metas.set(asset, [result, _mInitingId])
             return result
         }
 
@@ -58,7 +58,7 @@ const unsubForResolveAssetSource = waitForModules(
         unsubForResolveAssetSource()
 
         // Custom assets
-        // Why do we need to do this? Because RN will attempt to resolve the asset via its path, which we don't provide via custom assets.
+        // Why do we need to do this? Because RN/Dicord (unsure which) will attempt to resolve the asset via its path, which we don't provide via custom assets.
         // This will result in a crash, because it tries to read the path and run checks on it, but the path is undefined.
         // @ts-expect-error
         resolveAssetSource.addCustomSourceTransformer(({ asset }) => {

@@ -1,9 +1,9 @@
 import { ReactNative } from '@revenge-mod/react'
 
-import { _assets, _ids, _overrides } from './_internal'
+import { _assets, _metas, _overrides } from './_internal'
 import { AssetRegistry } from './patches'
 
-import type { ReactNative as RN } from '@revenge-mod/types'
+import type { ReactNative as RN } from '@revenge-mod/react/types'
 
 export type Asset = ReactNativeAsset | RevengeAsset
 export type AssetId = number
@@ -33,7 +33,16 @@ export function getAssetById(id: AssetId): Asset | undefined {
  * @param asset The asset to get the ID for.
  */
 export function getAssetId(asset: Asset) {
-    return _ids.get(asset)
+    return _metas.get(asset)?.[0]
+}
+
+/**
+ * Get the module ID that registered the asset. Returns `-1` if the asset is a custom asset.
+ *
+ * @param asset The asset to get the module ID for.
+ */
+export function getAssetModuleId(asset: Asset) {
+    return _metas.get(asset)?.[1]
 }
 
 /**
