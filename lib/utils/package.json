@@ -12,9 +12,6 @@
     "./errors": {
       "default": "./src/errors.ts"
     },
-    "./functions": {
-      "default": "./src/functions.ts"
-    },
     "./generators": {
       "default": "./src/generators.ts"
     },

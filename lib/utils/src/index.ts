@@ -1,6 +1,5 @@
 export * from './callbacks'
 export * from './errors'
-export * from './functions'
 export * from './generators'
 export * from './logger'
 export * from './objects'

@@ -15,11 +15,8 @@ export function useIsFirstRender() {
 }
 
 export function useReRender() {
-    const [_, forceUpdate] = React.useReducer(x => ~x, 0)
-
-    return React.useCallback(() => {
-        forceUpdate()
-    }, [])
+    const [, forceUpdate] = React.useReducer(x => ~x, 0)
+    return forceUpdate
 }
 
 const ReactFiberWalkable = new Set(['props', 'children', 'child', 'sibling'])

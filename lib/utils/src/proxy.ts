@@ -1,4 +1,18 @@
-import { _targets } from '../../init/src/patches/proxy'
+/**
+ * This patch allows us to store instances of Proxy, so we can check whether a value is created using Proxy or not.
+ * This is especially useful for blacklisting exports that cannot be patched.
+ */
+
+const _targets = new WeakMap<object, object>()
+
+const OriginalProxy = globalThis.Proxy
+globalThis.Proxy = new Proxy(OriginalProxy, {
+    construct(_target, args) {
+        const prox = new OriginalProxy(args[0], args[1])
+        _targets.set(prox, args[0])
+        return prox
+    },
+})
 
 /**
  * Returns whether the object is a proxy
@@ -20,9 +34,9 @@ export function getProxyTarget(obj: object) {
 // Heavily inspired by Wintry's lazy utils, but more optimized and stripped down, with a few fixes.
 // https://github.com/pylixonly/wintry/blob/main/src/utils/lazy.ts
 
-const _proxifyMetadatas = new WeakMap<object, [() => unknown, cacheable: boolean, cache?: unknown]>()
+const _metas = new WeakMap<object, [factory: () => unknown, cacheable: boolean, cache?: unknown]>()
 
-const _proxifyHandler = {
+const _handler = {
     ...Object.fromEntries(
         Object.getOwnPropertyNames(Reflect).map(k => [
             k,
@@ -31,7 +45,7 @@ const _proxifyHandler = {
                 Reflect[k](unproxifyFromHint(hint), ...args),
         ]),
     ),
-    // Workaround to fix functions that the correct `this`
+    // Workaround to fix functions that need the correct `this`
     get: (hint, p, recv) => {
         const target = unproxifyFromHint(hint)
         const val = Reflect.get(target!, p, recv)
@@ -91,8 +105,8 @@ export interface ProxifyOptions {
 export function proxify<T>(signal: () => T, options?: ProxifyOptions): T {
     // biome-ignore lint/complexity/useArrowFunction: We need a function with a constructor
     const hint = (options?.hint === 'object' ? {} : function () {}) as any
-    _proxifyMetadatas.set(hint, [signal, options?.cache ?? false])
-    return new Proxy(hint, _proxifyHandler)
+    _metas.set(hint, [signal, options?.cache ?? false])
+    return new Proxy(hint, _handler)
 }
 
 /**
@@ -130,7 +144,7 @@ export function unproxify<T extends object>(proxified: T): T {
 }
 
 function unproxifyFromHint(hint: object) {
-    const meta = _proxifyMetadatas.get(hint)!
+    const meta = _metas.get(hint)!
     if (meta[1]) return meta[2] ?? ((meta[2] = meta[0]()) as any)
     return meta[0]() as any
 }

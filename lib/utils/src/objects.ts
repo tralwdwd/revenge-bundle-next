@@ -1,10 +1,13 @@
 // Retain reference to original functions
-import './functions'
+export const objectFreeze = Object.freeze
+export const objectDefineProperty = Object.defineProperty
+
+// Patch to prevent the use of Object.freeze
+Object.freeze = (o: any) => o
 
 // Heavily inspired by uwu/shelter
 // https://github.com/uwu/shelter/blob/main/packages/shelter/src/exfiltrate.ts
 
-const defineProperty = Object.defineProperty
 // Patch to fix intercepting properties on Object.prototype
 Object.defineProperty = (target, p, d) => {
     if (target === Object.prototype && _intercepting.has(p)) {
@@ -12,7 +15,7 @@ Object.defineProperty = (target, p, d) => {
         return target
     }
 
-    return defineProperty(target, p, d)
+    return objectDefineProperty(target, p, d)
 }
 
 const _intercepting = new Map<PropertyKey, PropertyDescriptor | undefined>()
@@ -32,7 +35,7 @@ export function interceptProperty(prop: PropertyKey, callback: (target: object, 
     const proto = Object.prototype
     _intercepting.set(prop, Object.getOwnPropertyDescriptor(proto, prop))
 
-    defineProperty(proto, prop, {
+    objectDefineProperty(proto, prop, {
         configurable: true,
         set(value) {
             if (this === proto) {
@@ -40,7 +43,7 @@ export function interceptProperty(prop: PropertyKey, callback: (target: object, 
                 return
             }
 
-            defineProperty(this, prop, {
+            objectDefineProperty(this, prop, {
                 configurable: true,
                 writable: true,
                 enumerable: true,
@@ -57,7 +60,7 @@ export function interceptProperty(prop: PropertyKey, callback: (target: object, 
         // @ts-expect-error
         delete proto[prop]
         const desc = _intercepting.get(prop)
-        if (desc) defineProperty(proto, prop, desc)
+        if (desc) objectDefineProperty(proto, prop, desc)
         _intercepting.delete(prop)
     }
 }
