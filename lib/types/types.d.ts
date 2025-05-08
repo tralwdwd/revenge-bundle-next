@@ -1,7 +1,5 @@
 // All of these typings are exported, be careful what you export here!
 
-/// <reference path="../../node_modules/react-native/types/index.d.ts" />
-
 import type { Metro } from '@revenge-mod/modules/types'
 
 /// HERMES

@@ -16,6 +16,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noPropertyAccessFromIndexSignature": false,
-    "types": ["@revenge-mod/types"]
+    "types": ["@revenge-mod/types", "react-native/types/index"]
   }
 }
