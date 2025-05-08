@@ -5,6 +5,7 @@ export const MobileSetting = {
     REVENGE_PLUGINS: 'REVENGE_PLUGINS',
     REVENGE_THEMES: 'REVENGE_THEMES',
     REVENGE_FONTS: 'REVENGE_FONTS',
+    REVENGE_CUSTOM_PAGE: 'REVENGE_CUSTOM_PAGE',
 
     // SUBSETTINGS
 
@@ -25,4 +26,5 @@ export const UserSettingsSections = {
     [MobileSetting.REVENGE_PLUGINS]: 'Revenge Plugins',
     [MobileSetting.REVENGE_THEMES]: 'Revenge Themes',
     [MobileSetting.REVENGE_FONTS]: 'Revenge Fonts',
+    [MobileSetting.REVENGE_CUSTOM_PAGE]: 'Revenge Custom Page',
 } as const
