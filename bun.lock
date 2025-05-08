@@ -31,6 +31,9 @@
     "lib/discord": {
       "name": "@revenge-mod/discord",
     },
+    "lib/externals": {
+      "name": "@revenge-mod/externals",
+    },
     "lib/init": {
       "name": "@revenge-mod/init",
     },
@@ -430,6 +433,8 @@
     "@revenge-mod/assets": ["@revenge-mod/assets@workspace:lib/assets"],
 
     "@revenge-mod/discord": ["@revenge-mod/discord@workspace:lib/discord"],
+
+    "@revenge-mod/externals": ["@revenge-mod/externals@workspace:lib/externals"],
 
     "@revenge-mod/init": ["@revenge-mod/init@workspace:lib/init"],
 

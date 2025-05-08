@@ -1,0 +1,19 @@
+{
+  "name": "@revenge-mod/externals",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./browserify": {
+      "default": "./src/browserify.ts"
+    },
+    "./react-navigation": {
+      "default": "./src/react-navigation.ts"
+    },
+    "./shopify": {
+      "default": "./src/shopify.ts"
+    }
+  }
+}
