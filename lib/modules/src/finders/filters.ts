@@ -147,6 +147,8 @@ export interface ComparableDependencyMap
 
 type ComputedComparableDependencyMap = Exclude<ComparableDependencyMap, Array<RelativeDependency>>
 
+type ByDependencies = <T>(deps: ComparableDependencyMap) => Filter<T, false>
+
 /**
  * Filter modules by their dependency map.
  *
@@ -169,10 +171,10 @@ type ComputedComparableDependencyMap = Exclude<ComparableDependencyMap, Array<Re
  * const SomeOtherModule = await findModule(byDependencies(looseDeps([4, ,])))
  * ```
  */
-export const byDependencies = createFilterGenerator<[deps: ComparableDependencyMap]>(
+export const byDependencies = createFilterGenerator<Parameters<ByDependencies>>(
     ([deps], id) => compareDeps(id, deps, deps.l),
     deps => `revenge.deps(${depsToKey(deps)})`,
-)
+) as ByDependencies
 
 /**
  * Make this set of comparable dependencies as loose, to be used with {@link byDependencies}.
