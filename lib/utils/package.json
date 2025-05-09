@@ -6,6 +6,9 @@
     "./callbacks": {
       "default": "./src/callbacks.ts"
     },
+    "./discord": {
+      "default": "./src/discord.ts"
+    },
     "./errors": {
       "default": "./src/errors.ts"
     },

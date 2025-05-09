@@ -1,4 +1,4 @@
-import type { SettingsItem, SettingsModulesLoadedSubscription, SettingsSection } from './api'
+import type { SettingsItem, SettingsModulesLoadedSubscription, SettingsSection } from '.'
 
 export const _data = [
     // Sections to splice in the SettingsOverviewScreen

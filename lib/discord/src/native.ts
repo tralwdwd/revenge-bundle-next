@@ -1,4 +1,4 @@
-import type { DiscordNativeModules } from '../types/native'
+import type { DiscordNativeModules } from './types/native'
 
 /**
  * Naming conventions:

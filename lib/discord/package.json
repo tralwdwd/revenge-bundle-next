@@ -16,13 +16,7 @@
       "default": "./src/common/flux.ts"
     },
     "./design": {
-      "default": "./src/design/index.ts"
-    },
-    "./design/components": {
-      "default": "./src/design/components/index.ts"
-    },
-    "./design/components/Icon": {
-      "default": "./src/design/components/Icon.ts"
+      "default": "./src/design.ts"
     },
     "./native": {
       "default": "./src/native.ts"
@@ -30,14 +24,14 @@
     "./preinit": {
       "default": "./src/preinit.ts"
     },
-    "./modules": {
-      "default": "./src/modules/index.ts"
-    },
     "./modules/settings": {
       "default": "./src/modules/settings/index.ts"
     },
+    "./modules/settings/renderer": {
+      "default": "./src/modules/settings/renderer.ts"
+    },
     "./types": {
-      "types": "./types/index.ts"
+      "types": "./src/types/index.ts"
     },
     "./_/modules/settings": {
       "default": "./src/modules/settings/_internal.ts"

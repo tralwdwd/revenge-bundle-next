@@ -1,17 +1,17 @@
-import { lookupModule } from '@revenge-mod/modules/finders'
-import { byDependencies, byProps, looseDeps, moduleStateAware, relativeDep } from '@revenge-mod/modules/finders/filters'
+import { byDependencies, byProps, looseDeps, preferExports, relativeDep } from '@revenge-mod/modules/finders/filters'
+import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 
 import { proxify } from '@revenge-mod/utils/proxy'
 
-import type { DiscordModules } from '../../../types'
+import type { DiscordModules } from './types'
 
 // design/native.tsx
-let components: Components = proxify(
+export let Components: Components = proxify(
     () => {
         // ID: 3236
         // [3237, 1366, 3238, 3239, 2, ...];
         const module = lookupModule(
-            moduleStateAware(
+            preferExports(
                 byProps<Components>('TableRow', 'Button'),
                 byDependencies(looseDeps([relativeDep(1), undefined, relativeDep(2), relativeDep(3), 2])),
             ),
@@ -20,20 +20,12 @@ let components: Components = proxify(
             },
         )
 
-        if (module) {
-            // This allows the Proxy instance to be garbage collected
-            // after the module is initialized.
-            components = module
-            gc()
-            return module
-        }
+        if (module) return (Components = module)
     },
     {
         hint: 'object',
     },
 )!
-
-export default components
 
 export interface Components {
     ActionSheet: DiscordModules.Components.ActionSheet

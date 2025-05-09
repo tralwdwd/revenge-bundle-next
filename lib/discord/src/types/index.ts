@@ -1,5 +1,3 @@
-import type { Buffer as _Buffer } from 'buffer'
-
 import type { ComponentProps, ComponentType, FC, ReactNode } from 'react'
 import type {
     ImageSourcePropType,
@@ -13,6 +11,7 @@ import type {
 } from 'react-native'
 
 export * from './native'
+export * from './polyfills'
 
 export namespace DiscordModules {
     export namespace Flux {
@@ -251,7 +250,6 @@ export namespace DiscordModules {
             end?: boolean
             variant?: 'primary' | 'secondary' | 'transparent'
             border?: 'faint' | 'normal' | 'strong' | 'subtle' | 'none'
-            // TODO
             shadow?: 'none' | 'low' | 'medium' | 'high' | 'border' | 'ledge'
             children: ReactNode
         }
@@ -488,10 +486,63 @@ export namespace DiscordModules {
 
         export type Slider = FC<SliderProps>
     }
-}
 
-/// POLYFILLS
+    export namespace Modules {
+        export namespace Settings {
+            export interface SettingListRenderer {
+                SettingsList: SettingsList
+            }
 
-declare global {
-    var Buffer: typeof _Buffer
+            export interface SettingsListProps {
+                ListHeaderComponent?: ComponentType
+                sections: Array<{ label?: string | ReactNode; settings: string[]; subLabel?: string | ReactNode }>
+            }
+
+            export type SettingsList = FC<SettingsListProps>
+
+            export interface SettingsSection {
+                label: string
+                settings: string[]
+                index?: number
+            }
+
+            interface BaseSettingsItem {
+                title: () => string
+                parent: string | null
+                unsearchable?: boolean
+                variant?: DiscordModules.Components.TableRowProps['variant']
+                IconComponent?: () => ReactNode
+                usePredicate?: () => boolean
+                useTrailing?: () => ReactNode
+                useDescription?: () => string
+                useIsDisabled?: () => boolean
+            }
+
+            export interface PressableSettingsItem extends BaseSettingsItem {
+                type: 'pressable'
+                onPress?: () => void
+            }
+
+            export interface ToggleSettingsItem extends BaseSettingsItem {
+                type: 'toggle'
+                useValue: () => boolean
+                onValueChange?: (value: boolean) => void
+            }
+
+            export interface RouteSettingsItem extends BaseSettingsItem {
+                type: 'route'
+                screen: { route: string; getComponent(): ComponentType }
+            }
+
+            export interface StaticSettingsItem extends BaseSettingsItem {
+                type: 'static'
+            }
+
+            export type SettingsItem =
+                | PressableSettingsItem
+                | ToggleSettingsItem
+                | RouteSettingsItem
+                | StaticSettingsItem
+        }
+    }
 }

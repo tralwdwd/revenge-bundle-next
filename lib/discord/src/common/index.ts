@@ -1,15 +1,15 @@
-import { lookupModule, lookupModuleId } from '@revenge-mod/modules/finders'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
+import { lookupModule, lookupModuleId } from '@revenge-mod/modules/finders/lookup'
 
-import type { DiscordModules } from '../../types'
+import type { DiscordModules } from '../types'
 
-// ../discord_common/js/packages/flux
-export * as flux from './flux'
+export { AppStartPerformance } from '../preinit'
+
+export * as Flux from './flux'
 
 // ../discord_common/js/shared/Logger.tsx
 export const Logger = lookupModule(byName<DiscordModules.Logger>('Logger'))!
-// ../discord_common/js/packages/tokens/native.tsx
-export const tokensModuleId = lookupModuleId(byProps('RawColor'))!
-export const tokens = __r(tokensModuleId)
 
-export { AppStartPerformance } from '../preinit'
+// ../discord_common/js/packages/tokens/native.tsx
+export const TokensModuleId = lookupModuleId(byProps('RawColor'))!
+export const Tokens = __r(TokensModuleId)

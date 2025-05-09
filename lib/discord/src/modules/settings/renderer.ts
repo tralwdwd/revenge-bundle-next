@@ -1,16 +1,18 @@
-import { lookupModule } from '@revenge-mod/modules/finders'
-import { byDependencies, byProps, looseDeps, moduleStateAware, relativeDep } from '@revenge-mod/modules/finders/filters'
+import { byDependencies, byProps, looseDeps, preferExports, relativeDep } from '@revenge-mod/modules/finders/filters'
+import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 
 import { ReactJsxRuntimeModuleId, ReactModuleId, ReactNativeModuleId } from '@revenge-mod/react'
 
 import { proxify } from '@revenge-mod/utils/proxy'
 
-import type { ComponentType, ReactNode } from 'react'
+import type { DiscordModules } from '../../types'
+
+export type SettingListRenderer = DiscordModules.Modules.Settings.SettingListRenderer
 
 export let SettingListRenderer: SettingListRenderer = proxify(
     () => {
         const module = lookupModule(
-            moduleStateAware(
+            preferExports(
                 byProps<SettingListRenderer>('SettingsList'),
                 byDependencies(
                     looseDeps([
@@ -28,22 +30,9 @@ export let SettingListRenderer: SettingListRenderer = proxify(
             },
         )
 
-        if (module) {
-            // This allows the Proxy instance to be garbage collected
-            // after the module is initialized.
-            SettingListRenderer = module
-            gc()
-            return module
-        }
+        if (module) return (SettingListRenderer = module)
     },
     {
         hint: 'object',
     },
 )!
-
-export interface SettingListRenderer {
-    SettingsList: ComponentType<{
-        ListHeaderComponent?: ComponentType
-        sections: Array<{ label?: string | ReactNode; settings: string[]; subLabel?: string | ReactNode }>
-    }>
-}

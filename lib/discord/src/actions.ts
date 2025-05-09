@@ -1,12 +1,12 @@
-import { lookupModule, lookupModules } from '@revenge-mod/modules/finders'
 import {
     byDependencies,
     byProps,
     every,
-    moduleStateAware,
+    preferExports,
     relativeDep,
     withoutProps,
 } from '@revenge-mod/modules/finders/filters'
+import { lookupModule, lookupModules } from '@revenge-mod/modules/finders/lookup'
 
 import { ReactJsxRuntimeModuleId, ReactModuleId } from '@revenge-mod/react'
 
@@ -14,12 +14,12 @@ import { proxify } from '@revenge-mod/utils/proxy'
 
 import { DispatcherModuleId } from './common/flux'
 
-import type { DiscordModules } from '../types'
+import type { DiscordModules } from './types'
 
 export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCreators = proxify(
     () => {
         const module = lookupModule(
-            moduleStateAware(
+            preferExports(
                 byProps<DiscordModules.Actions.ActionSheetActionCreators>('hideActionSheet'),
                 byDependencies([
                     undefined,
@@ -36,13 +36,7 @@ export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCr
             },
         )
 
-        if (module) {
-            // This allows the Proxy instance to be garbage collected
-            // after the module is initialized.
-            ActionSheetActionCreators = module
-            gc()
-            return module
-        }
+        if (module) return (ActionSheetActionCreators = module)
     },
     {
         hint: 'object',
@@ -52,7 +46,7 @@ export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCr
 export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators = proxify(
     () => {
         const module = lookupModule(
-            moduleStateAware(
+            preferExports(
                 byProps<DiscordModules.Actions.AlertActionCreators>('openAlert', 'dismissAlert'),
                 byDependencies([
                     ReactModuleId,
@@ -66,13 +60,7 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators = pro
             ),
         )
 
-        if (module) {
-            // This allows the Proxy instance to be garbage collected
-            // after the module is initialized.
-            AlertActionCreators = module
-            gc()
-            return module
-        }
+        if (module) return (AlertActionCreators = module)
     },
     {
         hint: 'object',
@@ -84,7 +72,7 @@ export let ToastActionCreators: DiscordModules.Actions.ToastActionCreators = pro
     // [Dispatcher, ImportTracker]
 
     const generator = lookupModules(
-        moduleStateAware(
+        preferExports(
             every(byProps<DiscordModules.Actions.ToastActionCreators>('open'), withoutProps('init')),
             byDependencies([DispatcherModuleId, 2]),
         ),
@@ -93,12 +81,5 @@ export let ToastActionCreators: DiscordModules.Actions.ToastActionCreators = pro
         },
     )
 
-    for (const module of generator)
-        if (module.open.length === 1) {
-            // This allows the Proxy instance to be garbage collected
-            // after the module is initialized.
-            ToastActionCreators = module
-            gc()
-            return module
-        }
+    for (const module of generator) if (module.open.length === 1) return (ToastActionCreators = module)
 })!
