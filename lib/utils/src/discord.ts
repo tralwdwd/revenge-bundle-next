@@ -4,25 +4,52 @@ import { TokensModuleId } from '@revenge-mod/discord/common'
 import { byDependencies, byProps } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 
-import { ReactJsxRuntimeModuleId, ReactModuleId } from '@revenge-mod/react'
+import { ReactJsxRuntimeModuleId, ReactModuleId, ReactNativeModuleId } from '@revenge-mod/react'
 
 import type { FC } from 'react'
 
-// [React, ReactJsxRuntime, (BaseIconImage), (Tokens), (...), (Asset), 2]
+// [React, ReactJsxRuntime, (Tokens), (BaseIconImage), (Asset), 2]
 // Asset = relativeDep(1)
 const IconComponentFilter = [ReactModuleId, ReactJsxRuntimeModuleId, TokensModuleId, undefined, undefined, 2]
 
-export function lookupGeneratedIconComponent<N extends string>(name: N) {
-    const icon = lookupModule(byProps(name))?.[name]
+// Generated IconComponents that have multiple assets, there is no specific length, so the filter has to be generated on-the-fly.
+// [React, ReactNative, ReactJsxRuntime, (Tokens), (BaseIconImage), (...Assets), 2]
+// ...Assets = relativeDep(1..n)
+const MultiIconComponentFilterBase = [
+    ReactModuleId,
+    ReactNativeModuleId,
+    ReactJsxRuntimeModuleId,
+    TokensModuleId,
+    undefined,
+]
+
+// TODO(utils/discord/lookupGeneratedIconComponent): Make this into a filter?
+export function lookupGeneratedIconComponent<N extends string>(compName: N, ...assetNames: string[]) {
+    const icon = lookupModule(byProps(compName))?.[compName]
     if (icon) return icon
 
-    const mid = getAssetModuleId(getAssetByName(name)!)!
-    if (!mid) return
+    let filter = IconComponentFilter
 
-    IconComponentFilter[4] = mid
+    if (assetNames.length) {
+        const mids = []
 
-    return lookupModule(byDependencies<{ [K in N]: FC }>(IconComponentFilter), {
+        for (const name of assetNames) {
+            const mid = getAssetModuleId(getAssetByName(name)!)
+            if (!mid) return
+
+            mids.push(mid)
+        }
+
+        filter = [...MultiIconComponentFilterBase, ...mids, 2]
+    } else {
+        const mid = getAssetModuleId(getAssetByName(compName)!)
+        if (!mid) return
+
+        IconComponentFilter[4] = mid
+    }
+
+    return lookupModule(byDependencies<{ [K in N]: FC }>(filter), {
         includeInitialized: false,
         includeUninitialized: true,
-    })?.[name]
+    })?.[compName]
 }
