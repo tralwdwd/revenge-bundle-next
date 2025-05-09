@@ -24,7 +24,7 @@ export default function RevengeDeveloperSettingScreen() {
                     },
                     {
                         label: 'Tools',
-                        settings: [MobileSetting.EVALUATE_JAVASCRIPT],
+                        settings: [MobileSetting.EVALUATE_JAVASCRIPT, MobileSetting.ASSET_BROWSER],
                     },
                 ]}
             />

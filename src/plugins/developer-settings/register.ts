@@ -7,6 +7,7 @@ import ReactDevToolsConnectSetting from './definitions/ReactDevToolsConnectSetti
 import ReactDevToolsDisconnectSetting from './definitions/ReactDevToolsDisconnectSetting'
 import ReactDevToolsVersionSetting from './definitions/ReactDevToolsVersionSetting'
 import RevengeDeveloperSetting from './definitions/RevengeDeveloperSetting'
+import AssetBrowserSetting from './definitions/AssetBrowserSetting'
 
 registerSettingsItems({
     [MobileSetting.REVENGE_DEVELOPER]: RevengeDeveloperSetting,
@@ -14,6 +15,7 @@ registerSettingsItems({
     [MobileSetting.REACT_DEVTOOLS_CONNECT]: ReactDevToolsConnectSetting,
     [MobileSetting.REACT_DEVTOOLS_DISCONNECT]: ReactDevToolsDisconnectSetting,
     [MobileSetting.EVALUATE_JAVASCRIPT]: EvaluateJavaScriptSetting,
+    [MobileSetting.ASSET_BROWSER]: AssetBrowserSetting,
 })
 
 addSettingsItemToSection('REVENGE', MobileSetting.REVENGE_DEVELOPER)
