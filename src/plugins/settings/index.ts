@@ -1,8 +1,8 @@
 import { PluginFlags } from '@revenge-mod/plugins'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
-import { waitForModules } from '@revenge-mod/modules/finders'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
+import { waitForModules } from '@revenge-mod/modules/finders/wait'
 
 import { _data, _subs } from '@revenge-mod/discord/_/modules/settings'
 import { type SettingsItem, onceSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'

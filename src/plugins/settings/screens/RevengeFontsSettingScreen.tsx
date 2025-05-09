@@ -1,4 +1,4 @@
-import { SettingListRenderer } from '@revenge-mod/discord/modules/settings'
+import { SettingListRenderer } from '@revenge-mod/discord/modules/settings/renderer'
 
 import { MobileSetting } from '../constants'
 

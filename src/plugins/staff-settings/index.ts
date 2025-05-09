@@ -1,5 +1,5 @@
-import { waitForModules } from '@revenge-mod/modules/finders'
 import { byProps } from '@revenge-mod/modules/finders/filters'
+import { waitForModules } from '@revenge-mod/modules/finders/wait'
 
 import { after } from '@revenge-mod/patcher'
 
