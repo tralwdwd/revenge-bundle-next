@@ -1,6 +1,11 @@
 import type { DiscordModules } from '@revenge-mod/discord/types'
 
-import type { PluginFlags as PF, PluginStatus as PS } from './src/constants'
+import type { PluginFlags as PF, PluginStatus as PS } from './constants'
+
+import type { PluginApiDiscord } from './apis/discord'
+import type { PluginApiExternals } from './apis/externals'
+import type { PluginApiModules } from './apis/modules'
+import type { PluginApiReact } from './apis/react'
 
 export type PluginFlags = (typeof PF)[keyof typeof PF]
 export type PluginStatus = (typeof PS)[keyof typeof PS]
@@ -10,13 +15,13 @@ export type PluginStatus = (typeof PS)[keyof typeof PS]
  * Available in the `init` phase.
  */
 export interface UnscopedInitPluginApi {
-    discord: typeof import('@revenge-mod/discord')
-    externals: typeof import('@revenge-mod/externals')
-    modules: typeof import('@revenge-mod/modules')
+    discord: PluginApiDiscord
+    externals: PluginApiExternals
+    modules: PluginApiModules
     patcher: typeof import('@revenge-mod/patcher')
     plugins: typeof import('@revenge-mod/plugins')
-    react: typeof import('@revenge-mod/react')
-    utils: typeof import('@revenge-mod/utils')
+    react: PluginApiReact
+    // utils: PluginApiUtils
 }
 
 /**
@@ -146,9 +151,4 @@ export interface Plugin {
      * Disable the plugin. This will also stop the plugin if it is running.
      */
     disable(): Promise<void>
-    /**
-     * Enable the plugin.
-     * @internal
-     */
-    enable(): Promise<void>
 }
