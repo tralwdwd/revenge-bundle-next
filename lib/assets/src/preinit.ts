@@ -1,7 +1,7 @@
-import { _mInitingId, _mUninited } from '@revenge-mod/modules/_/metro'
-import { waitForModules } from '@revenge-mod/modules/finders'
+import { _initing, _uninits } from '@revenge-mod/modules/_/metro'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
-import { getModuleDependencies } from '@revenge-mod/modules/metro'
+import { waitForModules } from '@revenge-mod/modules/finders/wait'
+import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
 
 import { _assets, _metas, _overrides } from './_internal'
 
@@ -28,7 +28,7 @@ const unsubAR = waitForModules(byProps<ReactNative.AssetsRegistry>('registerAsse
         // More fragile way, but also more performant:
         // There is exactly one asset before the reexported asset registry :/
         const firstAssetModuleId = id - 1
-        for (const mId of _mUninited) {
+        for (const mId of _uninits) {
             if (mId < firstAssetModuleId) continue
 
             const deps = getModuleDependencies(mId)!
@@ -53,7 +53,7 @@ const unsubAR = waitForModules(byProps<ReactNative.AssetsRegistry>('registerAsse
 
         // In-memory cache
         reg[1][type] = asset
-        _metas.set(asset, [result, _mInitingId])
+        _metas.set(asset, [result, _initing])
 
         return result
     }

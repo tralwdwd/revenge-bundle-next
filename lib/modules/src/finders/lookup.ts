@@ -1,4 +1,4 @@
-import { _mInited, _mMd, _mPaths, _mUninited } from '../metro/_internal'
+import { _inits, _metas, _paths, _uninits } from '../metro/_internal'
 import {
     type RunFilterOptions,
     type RunFilterReturnExportsOptions,
@@ -6,11 +6,11 @@ import {
     runFilter,
 } from './_internal'
 
-import { getInitializedModuleExports } from '../metro'
+import { getInitializedModuleExports } from '../metro/utils'
 
 import type { If } from '@revenge-mod/utils/types'
-import type { MaybeDefaultExportMatched } from '.'
-import type { Metro } from '../../types'
+import type { MaybeDefaultExportMatched } from '../types'
+import type { Metro } from '../types'
 import type { Filter, FilterResult } from './filters'
 
 export interface BaseLookupModulesOptions<IncludeUninitialized extends boolean = boolean> extends RunFilterOptions {
@@ -53,6 +53,9 @@ export type LookupModuleIdsOptions<
         | ({
               /**
                * Whether to include all modules, including ones with bad exports.
+               * This option overrides `includeInitialized` and `includeUninitialized`.
+               *
+               * This will filter modules in order of how they're defined.
                *
                * @default false
                */
@@ -92,12 +95,12 @@ export function* lookupModuleIds<O extends LookupModuleIdsOptions>(
     options?: O,
 ): Generator<Metro.ModuleID, undefined> {
     if (options?.includeAll) {
-        for (const id of _mMd.keys()) if (runFilter(filter, id, getInitializedModuleExports(id), options)) yield id
+        for (const id of _metas.keys()) if (runFilter(filter, id, getInitializedModuleExports(id), options)) yield id
     } else {
         if (options?.includeInitialized ?? true)
-            for (const id of _mInited) if (runFilter(filter, id, getInitializedModuleExports(id), options)) yield id
+            for (const id of _inits) if (runFilter(filter, id, getInitializedModuleExports(id), options)) yield id
 
-        if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) yield id
+        if (options?.includeUninitialized) for (const id of _uninits) if (runFilter(filter, id)) yield id
     }
 }
 
@@ -127,14 +130,14 @@ export function lookupModules<
 
 export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     if (options?.includeInitialized ?? true)
-        for (const id of _mInited) {
+        for (const id of _inits) {
             const exports = getInitializedModuleExports(id)
             const flag = runFilter(filter, id, exports, options)
             if (flag) yield exportsFromFilterResultFlag(flag, exports, options)
         }
 
     if (options?.includeUninitialized)
-        for (const id of _mUninited)
+        for (const id of _uninits)
             if (runFilter(filter, id)) {
                 // Run the filter again to ensure we have the correct exports
                 const exports = __r(id)
@@ -171,12 +174,12 @@ export function lookupModuleId<O extends LookupModuleIdsOptions>(
     options?: O,
 ): Metro.ModuleID | undefined {
     if (options?.includeAll) {
-        for (const id of _mMd.keys()) if (runFilter(filter, id, getInitializedModuleExports(id), options)) return id
+        for (const id of _metas.keys()) if (runFilter(filter, id, getInitializedModuleExports(id), options)) return id
     } else {
         if (options?.includeInitialized ?? true)
-            for (const id of _mInited) if (runFilter(filter, id, getInitializedModuleExports(id), options)) return id
+            for (const id of _inits) if (runFilter(filter, id, getInitializedModuleExports(id), options)) return id
 
-        if (options?.includeUninitialized) for (const id of _mUninited) if (runFilter(filter, id)) return id
+        if (options?.includeUninitialized) for (const id of _uninits) if (runFilter(filter, id)) return id
     }
 }
 
@@ -203,20 +206,20 @@ export function lookupModule<F extends Filter, O extends LookupModulesOptions>(
 
 export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
     if (options?.includeInitialized ?? true)
-        for (const id of _mInited) {
+        for (const id of _inits) {
             const exports = getInitializedModuleExports(id)
             const flag = runFilter(filter, id, exports, options)
             if (flag) return exportsFromFilterResultFlag(flag, exports, options)
         }
 
     if (options?.includeUninitialized)
-        for (const id of _mUninited) {
+        for (const id of _uninits)
             if (runFilter(filter, id)) {
                 const exports = __r(id)
+                // Run the filter again to ensure we have the correct exports
                 const flag = runFilter(filter, id, exports, options)
                 if (flag) return exportsFromFilterResultFlag(flag, exports, options)
             }
-        }
 }
 
 /**
@@ -231,7 +234,7 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
  * ```
  */
 export function lookupModuleIdByImportedPath(path: string): Metro.ModuleID | undefined {
-    return _mPaths.get(path)
+    return _paths.get(path)
 }
 
 /**
@@ -248,6 +251,6 @@ export function lookupModuleIdByImportedPath(path: string): Metro.ModuleID | und
  * ```
  */
 export function lookupModuleByImportedPath<T = any>(path: string): T | undefined {
-    const id = lookupModuleIdByImportedPath(path)
-    return getInitializedModuleExports(id!)
+    // undefined will also return undefined either way, so we can just non-nullish assert it
+    return getInitializedModuleExports(lookupModuleIdByImportedPath(path)!)
 }

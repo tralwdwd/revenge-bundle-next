@@ -1,9 +1,9 @@
-import { _mInited } from '../metro/_internal'
+import { _inits } from '../metro/_internal'
 
-import { getModuleDependencies, initializedModuleHasBadExports, isModuleInitialized } from '../metro'
+import { getModuleDependencies, initializedModuleHasBadExports, isModuleInitialized } from '../metro/utils'
 
 import type { If, LogicalOr } from '@revenge-mod/utils/types'
-import type { Metro } from '../../types'
+import type { Metro } from '../types'
 
 export type FilterResult<F> = F extends Filter<infer R, boolean> ? R : never
 
@@ -79,8 +79,18 @@ export type ByProps = <T extends Record<string, any> = Record<string, any>>(
  * ```
  */
 export const byProps = createFilterGenerator<Parameters<ByProps>>(
-    (props, _, exports) =>
-        (typeof exports === 'object' || typeof exports === 'function') && props.every(prop => prop in exports),
+    (props, _, exports) => {
+        if (typeof exports === 'object' || typeof exports === 'function') {
+            for (const prop of props) {
+                if (prop in exports) continue
+                return false
+            }
+
+            return true
+        }
+
+        return false
+    },
     props => `revenge.props(${props.join(',')})`,
 ) as ByProps
 
@@ -93,8 +103,12 @@ export type WithoutProps = <T extends Record<string, any>>(prop: string, ...prop
  * @param props More properties to check for (optional).
  */
 export const withoutProps = createFilterGenerator<Parameters<WithoutProps>>(
-    (props, _, exports) =>
-        (typeof exports === 'object' || typeof exports === 'function') && !props.some(prop => prop in exports),
+    (props, _, exports) => {
+        if (typeof exports === 'object' || typeof exports === 'function')
+            for (const prop of props) if (prop in exports) return false
+
+        return true
+    },
     props => `revenge.withoutProps(${props.join(',')})`,
 ) as WithoutProps
 
@@ -173,7 +187,7 @@ type ByDependencies = <T>(deps: ComparableDependencyMap) => Filter<T, false>
  */
 export const byDependencies = createFilterGenerator<Parameters<ByDependencies>>(
     ([deps], id) => compareDeps(id, deps, deps.l),
-    deps => `revenge.deps(${depsToKey(deps)})`,
+    deps => `revenge.deps(${genDepsKey(deps)})`,
 ) as ByDependencies
 
 /**
@@ -194,21 +208,11 @@ export function looseDeps(deps: ComparableDependencyMap) {
  * Marks this dependency to compare relatively to the module ID being compared.
  *
  * @param id The dependency ID to mark as relative.
+ * @param root Whether this dependency should be relatively to the root module ID. Useless for single-depth comparisons.
  */
-export function relativeDep(id: Metro.ModuleID): RelativeDependency {
+export function relativeDep(id: Metro.ModuleID, root?: boolean): RelativeDependency {
     const o = Object(id) as RelativeDependency
-    return o
-}
-
-/**
- * Marks this dependency to compare relatively to the module ID that the filter is given.
- * Useless for single-depth comparisons, but useful for nested comparisons.
- *
- * @param id The dependency ID to mark as root relative.
- */
-export function rootRelativeDep(id: Metro.ModuleID): RelativeDependency {
-    const o = Object(id) as RelativeDependency
-    o.r = true
+    if (root) o.r = true
     return o
 }
 
@@ -249,14 +253,14 @@ function compareDeps(rootOf: Metro.ModuleID, compare: ComparableDependencyMap, l
     return true
 }
 
-function depsToKey(deps: ComparableDependencyMap): string {
+function genDepsKey(deps: ComparableDependencyMap): string {
     let key = ''
 
     for (const dep of deps)
         if (dep === undefined) key += ','
         else if (Array.isArray(dep)) {
             if (dep.l) key += '#'
-            key += `[${depsToKey(dep)}],`
+            key += `[${genDepsKey(dep)}],`
         } else key += `${(dep as RelativeDependency).r ? `r${dep.valueOf()}` : dep.valueOf()},`
 
     return key.substring(0, key.length - 1)
@@ -408,7 +412,7 @@ export type PreferExports = <WEF extends Filter>(
  */
 export const preferExports = createFilterGenerator<Parameters<PreferExports>>(
     ([withExportsFilter, exportslessFilter], id, exports) => {
-        if (_mInited.has(id)) return withExportsFilter(id, exports)
+        if (_inits.has(id)) return withExportsFilter(id, exports)
         return exportslessFilter(id)
     },
     ([f1, f2]) => `revenge.preferExports(${f1.key},${f2.key})`,

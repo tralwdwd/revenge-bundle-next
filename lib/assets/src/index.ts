@@ -5,7 +5,7 @@ import { AssetRegistry } from './preinit'
 
 import type { Asset, AssetId, RegisterableAsset } from './types'
 
-export * from './preinit'
+export { AssetRegistry, AssetRegistryModuleId } from './preinit'
 
 // iOS cannot display SVGs
 let _preferredType: Asset['type'] = ReactNative.Platform.OS === 'ios' ? 'png' : 'svg'

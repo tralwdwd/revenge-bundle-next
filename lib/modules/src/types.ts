@@ -3,7 +3,7 @@ import type { If, Nullish } from '@revenge-mod/utils/types'
 /**
  * Metro is a bundler for React Native.
  *
- * @see {@link https://github.com/facebook/metro/blob/1361405/packages/metro-runtime/src/polyfills/require.js}
+ * @see {@link https://github.com/facebook/metro/blob/main/packages/metro-runtime/src/polyfills/require.js}
  */
 export namespace Metro {
     export type DependencyMap = Array<ModuleID>
@@ -68,3 +68,8 @@ export namespace Metro {
 
     export type ModuleExports = any
 }
+
+/**
+ * Maybe the default export matched instead of the namespace, because you're using `options.returnNamespace`.
+ */
+export type MaybeDefaultExportMatched<T> = T | { default: T }

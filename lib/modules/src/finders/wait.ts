@@ -1,13 +1,9 @@
-import {
-    getInitializedModuleExports,
-    initializedModuleHasBadExports,
-    onAnyModuleInitialized,
-    onModuleFinishedImporting,
-} from '../metro'
+import { onAnyModuleInitialized, onModuleFinishedImporting } from '../metro/subscriptions'
+import { getInitializedModuleExports, initializedModuleHasBadExports } from '../metro/utils'
 import { type RunFilterReturnExportsOptions, exportsFromFilterResultFlag, runFilter } from './_internal'
 
-import type { MaybeDefaultExportMatched } from '.'
-import type { Metro } from '../../types'
+import type { MaybeDefaultExportMatched } from '../types'
+import type { Metro } from '../types'
 import type { Filter, FilterResult } from './filters'
 
 export interface BaseWaitForModulesOptions<IncludeAll extends boolean = boolean> {
@@ -64,16 +60,18 @@ export function waitForModules(
     callback: (id: Metro.ModuleID, exports: Metro.ModuleExports) => any,
     options?: WaitForModulesOptions,
 ) {
-    return options?.includeAll
-        ? onAnyModuleInitialized((id, exports) => {
-              const flag = runFilter(filter, id, exports, options)
-              if (flag) callback(id, exportsFromFilterResultFlag(flag, exports, options))
-          })
-        : onAnyModuleInitialized((id, exports) => {
-              if (initializedModuleHasBadExports(id)) return
-              const flag = runFilter(filter, id, exports, options)
-              if (flag) callback(id, exportsFromFilterResultFlag(flag, exports, options))
-          })
+    return onAnyModuleInitialized(
+        options?.includeAll
+            ? (id, exports) => {
+                  const flag = runFilter(filter, id, exports, options)
+                  if (flag) callback(id, exportsFromFilterResultFlag(flag, exports, options))
+              }
+            : (id, exports) => {
+                  if (initializedModuleHasBadExports(id)) return
+                  const flag = runFilter(filter, id, exports, options)
+                  if (flag) callback(id, exportsFromFilterResultFlag(flag, exports, options))
+              },
+    )
 }
 
 /**
@@ -103,13 +101,22 @@ export function waitForModuleByImportedPath<T = any>(
     callback: (id: Metro.ModuleID, exports: T) => any,
     options?: BaseWaitForModulesOptions,
 ) {
-    const unsub = onModuleFinishedImporting((id, cmpPath) => {
-        if (path === cmpPath) {
-            unsub()
-            if (!options?.includeAll && initializedModuleHasBadExports(id)) return
-            callback(id, getInitializedModuleExports(id))
-        }
-    })
+    const unsub = onModuleFinishedImporting(
+        options?.includeAll
+            ? (id, cmpPath) => {
+                  if (path === cmpPath) {
+                      unsub()
+                      callback(id, getInitializedModuleExports(id))
+                  }
+              }
+            : (id, cmpPath) => {
+                  if (path === cmpPath) {
+                      unsub()
+                      if (initializedModuleHasBadExports(id)) return
+                      callback(id, getInitializedModuleExports(id))
+                  }
+              },
+    )
 
     return unsub
 }

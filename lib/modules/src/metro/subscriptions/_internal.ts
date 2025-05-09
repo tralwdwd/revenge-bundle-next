@@ -1,30 +1,32 @@
-import { _mInitingId } from '../_internal'
+import type {
+    ModuleFirstRequiredCallback,
+    ModuleInitializedCallback,
+    ModuleWithImportedPathInitializedCallback,
+} from '.'
+import type { Metro } from '../../types'
 
-import type { ModuleInitializedCallback, ModuleRequiredCallback, ModuleWithImportedPathInitializedCallback } from '.'
-import type { Metro } from '../../../types'
-
-export const _reqAll = new Set<ModuleRequiredCallback>()
-export const _reqSpecific = new Map<Metro.ModuleID, Set<ModuleRequiredCallback>>()
+export const _reqAll = new Set<ModuleFirstRequiredCallback>()
+export const _req = new Map<Metro.ModuleID, Set<ModuleFirstRequiredCallback>>()
 export const _initAll = new Set<ModuleInitializedCallback>()
-export const _initSpecific = new Map<Metro.ModuleID, Set<ModuleInitializedCallback>>()
-export const _importedPath = new Set<ModuleWithImportedPathInitializedCallback>()
+export const _init = new Map<Metro.ModuleID, Set<ModuleInitializedCallback>>()
+export const _path = new Set<ModuleWithImportedPathInitializedCallback>()
 
-export function _executeRequiredSubscription(id: Metro.ModuleID) {
+export function _execReqSubs(id: Metro.ModuleID) {
     for (const cb of _reqAll) cb(id)
-    if (_reqSpecific.has(id)) {
-        for (const cb of _reqSpecific.get(id)!) cb(id)
-        _reqSpecific.delete(id)
+    if (_req.has(id)) {
+        for (const cb of _req.get(id)!) cb(id)
+        _req.delete(id)
     }
 }
 
-export function _executeInitializedSubscription(id: Metro.ModuleID, exports: Metro.ModuleExports) {
+export function _execInitSubs(id: Metro.ModuleID, exports: Metro.ModuleExports) {
     for (const cb of _initAll) cb(id, exports)
-    if (_initSpecific.has(id)) {
-        for (const cb of _initSpecific.get(id)!) cb(id, exports)
-        _initSpecific.delete(id)
+    if (_init.has(id)) {
+        for (const cb of _init.get(id)!) cb(id, exports)
+        _init.delete(id)
     }
 }
 
-export function _executeImportedPathSubscription(id: Metro.ModuleID, path: string) {
-    for (const cb of _importedPath) cb(id, path)
+export function _execPathSubs(id: Metro.ModuleID, path: string) {
+    for (const cb of _path) cb(id, path)
 }

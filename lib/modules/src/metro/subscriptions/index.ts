@@ -1,9 +1,9 @@
-import { _importedPath, _initAll, _initSpecific, _reqAll, _reqSpecific } from './_internal'
+import { _init, _initAll, _path, _req, _reqAll } from './_internal'
 
-import type { Metro } from '../../../types'
+import type { Metro } from '../../types'
 import type { initializedModuleHasBadExports } from '../utils'
 
-export type ModuleRequiredCallback = (id: Metro.ModuleID) => void
+export type ModuleFirstRequiredCallback = (id: Metro.ModuleID) => void
 export type ModuleInitializedCallback = (id: Metro.ModuleID, exports: Metro.ModuleExports) => void
 export type ModuleWithImportedPathInitializedCallback = (id: Metro.ModuleID, path: string) => void
 
@@ -30,8 +30,12 @@ export function onAnyModuleInitialized(callback: ModuleInitializedCallback) {
  * @returns A function that unregisters the callback.
  */
 export function onModuleInitialized(id: Metro.ModuleID, callback: ModuleInitializedCallback) {
-    if (!_initSpecific.has(id)) _initSpecific.set(id, new Set())
-    const set = _initSpecific.get(id)!
+    let set = _init.get(id)
+    if (!set) {
+        set = new Set()
+        _init.set(id, set)
+    }
+
     set.add(callback)
     return () => set.delete(callback)
 }
@@ -45,8 +49,8 @@ export function onModuleInitialized(id: Metro.ModuleID, callback: ModuleInitiali
  * @returns A function that unregisters the callback.
  */
 export function onModuleFinishedImporting(callback: ModuleWithImportedPathInitializedCallback) {
-    _importedPath.add(callback)
-    return () => _importedPath.delete(callback)
+    _path.add(callback)
+    return () => _path.delete(callback)
 }
 
 /**
@@ -57,9 +61,9 @@ export function onModuleFinishedImporting(callback: ModuleWithImportedPathInitia
  * @param callback The callback to be called.
  * @returns A function that unregisters the callback.
  */
-export function onAnyModuleFirstRequired(callback: ModuleRequiredCallback) {
-    _reqAll.add(id => callback(id))
-    return () => _reqAll.delete(id => callback(id))
+export function onAnyModuleFirstRequired(callback: ModuleFirstRequiredCallback) {
+    _reqAll.add(callback)
+    return () => _reqAll.delete(callback)
 }
 
 /**
@@ -71,9 +75,13 @@ export function onAnyModuleFirstRequired(callback: ModuleRequiredCallback) {
  * @param callback The callback to be called.
  * @returns A function that unregisters the callback.
  */
-export function onModuleFirstRequired(id: Metro.ModuleID, callback: ModuleRequiredCallback) {
-    if (!_reqSpecific.has(id)) _reqSpecific.set(id, new Set())
-    const set = _reqSpecific.get(id)!
+export function onModuleFirstRequired(id: Metro.ModuleID, callback: ModuleFirstRequiredCallback) {
+    let set = _req.get(id)
+    if (!set) {
+        set = new Set()
+        _req.set(id, set)
+    }
+
     set.add(callback)
     return () => set.delete(callback)
 }

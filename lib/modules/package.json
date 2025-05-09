@@ -3,20 +3,23 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "default": "./src/index.ts"
-    },
-    "./finders": {
-      "default": "./src/finders/index.ts"
-    },
     "./finders/filters": {
       "default": "./src/finders/filters.ts"
     },
-    "./metro": {
-      "default": "./src/metro/index.ts"
+    "./finders/find": {
+      "default": "./src/finders/find.ts"
+    },
+    "./finders/lookup": {
+      "default": "./src/finders/lookup.ts"
+    },
+    "./finders/wait": {
+      "default": "./src/finders/wait.ts"
     },
     "./metro/subscriptions": {
       "default": "./src/metro/subscriptions/index.ts"
+    },
+    "./metro/utils": {
+      "default": "./src/metro/utils.ts"
     },
     "./native": {
       "default": "./src/native.ts"
@@ -25,7 +28,7 @@
       "default": "./src/preinit.ts"
     },
     "./types": {
-      "default": "./types.ts"
+      "default": "./src/types.ts"
     },
     "./_/metro": {
       "default": "./src/metro/_internal.ts"

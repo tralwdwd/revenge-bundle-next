@@ -1,19 +1,18 @@
-import { _mInitingId, _mPaths } from './_internal'
+import { _initing, _paths } from './_internal'
 
-import { _executeImportedPathSubscription } from './subscriptions/_internal'
+import { _execPathSubs } from './subscriptions/_internal'
 
-import { waitForModules } from '../finders'
 import { byProps } from '../finders/filters'
+import { waitForModules } from '../finders/wait'
 
-const unsubForImportTracker = waitForModules(byProps('fileFinishedImporting'), (_, exports) => {
+const unsubFFI = waitForModules(byProps('fileFinishedImporting'), (_, exports) => {
+    unsubFFI()
+
     const orig = exports.fileFinishedImporting
-    if (orig) {
-        unsubForImportTracker()
-        exports.fileFinishedImporting = (path: string) => {
-            orig(path)
-            const id = _mInitingId
-            _mPaths.set(path, id)
-            _executeImportedPathSubscription(id, path)
-        }
+    exports.fileFinishedImporting = (path: string) => {
+        orig(path)
+        const id = _initing
+        _paths.set(path, id)
+        _execPathSubs(id, path)
     }
 })

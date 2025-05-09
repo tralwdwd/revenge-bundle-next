@@ -1,7 +1,7 @@
 import { isProxy } from '@revenge-mod/utils/proxy'
-import { _mInited, _mMd, _mUninited } from './_internal'
+import { _inits, _metas, _uninits } from './_internal'
 
-import type { Metro } from '../../types'
+import type { Metro } from '../types'
 
 /**
  * Returns whether an uninitialized module has bad exports.
@@ -11,7 +11,7 @@ import type { Metro } from '../../types'
  * @param id The module ID.
  */
 export function uninitializedModuleHasBadExports(id: Metro.ModuleID): boolean {
-    return !_mUninited.has(id)
+    return !_uninits.has(id)
 }
 
 /**
@@ -22,7 +22,7 @@ export function uninitializedModuleHasBadExports(id: Metro.ModuleID): boolean {
  * @param id The module ID.
  */
 export function initializedModuleHasBadExports(id: Metro.ModuleID): boolean {
-    return !_mInited.has(id)
+    return !_inits.has(id)
 }
 
 /**
@@ -30,7 +30,7 @@ export function initializedModuleHasBadExports(id: Metro.ModuleID): boolean {
  * @param id The module ID.
  */
 export function getModuleDependencies(id: Metro.ModuleID): Metro.DependencyMap | undefined {
-    return _mMd.get(id)?.[0]
+    return _metas.get(id)?.[0]
 }
 
 /**
@@ -38,7 +38,7 @@ export function getModuleDependencies(id: Metro.ModuleID): Metro.DependencyMap |
  * @param id The module ID.
  */
 export function isModuleInitialized(id: Metro.ModuleID): boolean {
-    return _mMd.get(id)?.[1]!
+    return _metas.get(id)?.[1]!
 }
 
 /**
@@ -46,7 +46,7 @@ export function isModuleInitialized(id: Metro.ModuleID): boolean {
  * @param id The module ID.
  */
 export function getInitializedModuleExports(id: Metro.ModuleID): Metro.ModuleExports | undefined {
-    return _mMd.get(id)?.[2]?.exports
+    return _metas.get(id)?.[2]?.exports
 }
 
 /**
@@ -80,7 +80,7 @@ export function isModuleExportsBad(exports: Metro.ModuleExports): boolean {
         // Checking if the object is empty
         (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length) ||
         // Can't run isProxy() on this because this isn't your typical proxy:
-        // https://github.com/discord/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
+        // https://github.com/facebook/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
         exports === nativeModuleProxy
     )
 }
