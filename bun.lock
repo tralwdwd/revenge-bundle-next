@@ -6,6 +6,7 @@
       "devDependencies": {
         "@biomejs/biome": "^1.9.4",
         "@parcel/watcher": "^2.5.1",
+        "@react-native-clipboard/clipboard": "^1.16.2",
         "@swc/core": "^1.11.21",
         "@types/bun": "latest",
         "@types/node": "^22.15.3",
@@ -395,6 +396,8 @@
     "@parcel/watcher-win32-ia32": ["@parcel/watcher-win32-ia32@2.5.1", "", { "os": "win32", "cpu": "ia32" }, "sha512-c2KkcVN+NJmuA7CGlaGD1qJh1cLfDnQsHjE89E60vUEMlqduHGCdCLJCID5geFVM0dOtA3ZiIO8BoEQmzQVfpQ=="],
 
     "@parcel/watcher-win32-x64": ["@parcel/watcher-win32-x64@2.5.1", "", { "os": "win32", "cpu": "x64" }, "sha512-9lHBdJITeNR++EvSQVUcaZoWupyHfXe1jZvGZ06O/5MflPcuPLtEphScIBL+AiCWBO46tDSHzWyD0uDmmZqsgA=="],
+
+    "@react-native-clipboard/clipboard": ["@react-native-clipboard/clipboard@1.16.2", "", { "peerDependencies": { "react": ">= 16.9.0", "react-native": ">= 0.61.5", "react-native-macos": ">= 0.61.0", "react-native-windows": ">= 0.61.0" }, "optionalPeers": ["react-native-macos", "react-native-windows"] }, "sha512-VqUYwVxo7DyHMz7v2LxLMaAOSu3pKFvzpqR4jQezdH0VyaudILTTcUf7dR4TroARU/lLkTU8nZA11UniTvGVXg=="],
 
     "@react-native/assets-registry": ["@react-native/assets-registry@0.76.6", "", {}, "sha512-YI8HoReYiIwdFQs+k9Q9qpFTnsyYikZxgs/UVtVbhKixXDQF6F9LLvj2naOx4cfV+RGybNKxwmDl1vUok/dRFQ=="],
 

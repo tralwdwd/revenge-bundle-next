@@ -6,6 +6,9 @@
     "./browserify": {
       "default": "./src/browserify.ts"
     },
+    "./react-native-clipboard": {
+      "default": "./src/react-native-clipboard.ts"
+    },
     "./react-navigation": {
       "default": "./src/react-navigation.ts"
     },

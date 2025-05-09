@@ -5,6 +5,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@parcel/watcher": "^2.5.1",
+    "@react-native-clipboard/clipboard": "^1.16.2",
     "@swc/core": "^1.11.21",
     "@types/bun": "latest",
     "@types/node": "^22.15.3",
