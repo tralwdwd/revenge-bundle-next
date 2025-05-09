@@ -11,6 +11,13 @@ export { AssetRegistry, AssetRegistryModuleId } from './preinit'
 let _preferredType: Asset['type'] = ReactNative.Platform.OS === 'ios' ? 'png' : 'svg'
 
 /**
+ * Yields all registered assets, including ones with same name but different types, custom assets, and overriden assets.
+ */
+export function* getAllAssets() {
+    for (const name of _assets.keys()) for (const asset of Object.values(_assets.get(name)![1])) yield asset
+}
+
+/**
  * Get an asset by its ID. **This may throw an error if the asset-registry has not been initialized.**
  *
  * @param id The asset ID.
