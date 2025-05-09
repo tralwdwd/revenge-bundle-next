@@ -1,9 +1,9 @@
-import { getAssetByName, getAssetId } from '@revenge-mod/assets'
 import { ToastActionCreators } from '@revenge-mod/discord/actions'
 import { React } from '@revenge-mod/react'
 import { getErrorStack } from '@revenge-mod/utils/errors'
 import { useReRender } from '@revenge-mod/utils/react'
 import { pluginApi } from '.'
+import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 
 export const DevToolsContext: {
     ws: WebSocket | undefined
@@ -20,15 +20,19 @@ export const DevToolsContext: {
 type Subscription = (event: 1 | 2 | 3, err?: unknown) => void
 const subscriptions: Set<Subscription> = new Set()
 
+const CircleXIcon = lookupGeneratedIconComponent('CircleXIcon', 'CircleXIcon-secondary', 'CircleXIcon-primary')
+
 subscriptions.add((e, err) => {
     if (e === 3) {
         const actualError = (err as { message: string }).message ?? getErrorStack(err)
 
         pluginApi.logger.error('React DevTools error:', actualError)
 
+        pluginApi.logger.log(CircleXIcon)
+
         ToastActionCreators.open({
             key: 'DEVTOOLS_ERROR',
-            icon: getAssetId(getAssetByName('CircleXIcon-primary')!)!,
+            IconComponent: CircleXIcon,
             content: actualError,
         })
     }
