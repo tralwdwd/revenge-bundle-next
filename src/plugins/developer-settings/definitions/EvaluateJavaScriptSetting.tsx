@@ -10,13 +10,14 @@ import { getErrorStack } from '@revenge-mod/utils/errors'
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 
 import { pluginApi } from '..'
+import { MobileSetting } from '../constants'
 
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const ALERT_KEY = 'evaluate-javascript'
 
 const EvaluateJavaScriptSetting: SettingsItem = {
-    parent: null,
+    parent: MobileSetting.REVENGE_DEVELOPER,
     IconComponent: () => <TableRowAssetIcon name="FileIcon" />,
     title: () => 'Evaluate JavaScript',
     useDescription: () => 'Runs a JavaScript code snippet.',
