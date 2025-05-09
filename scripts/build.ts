@@ -198,7 +198,7 @@ async function generateAssets() {
         promises.push(
             writeFile(
                 path2,
-                `const ${name}=require('@revenge-mod/assets').registerAsset({name:'${name}',type:'${ext}',uri:require('~/../${path}')})/**@type {ReturnType<import('@revenge-mod/assets').registerAsset>}*/\nexport default ${name}`,
+                `const ${name}=require('@revenge-mod/assets').registerAsset({name:'${name}',type:'${ext.slice(1)}',uri:require('~/../${path}')})/**@type {ReturnType<import('@revenge-mod/assets').registerAsset>}*/\nexport default ${name}`,
             ),
         )
     }
