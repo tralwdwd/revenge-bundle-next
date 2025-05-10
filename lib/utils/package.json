@@ -21,6 +21,9 @@
     "./objects": {
       "default": "./src/objects.ts"
     },
+    "./promises": {
+      "default": "./src/promises.ts"
+    },
     "./proxy": {
       "default": "./src/proxy.ts"
     },
