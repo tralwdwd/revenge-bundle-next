@@ -130,7 +130,7 @@ export namespace DiscordModules {
             | 'eyebrow'
 
         export type TextStyleSheet = Record<TextVariant, RNTextProps>
-        export type CreateStylesFn = <const S extends Record<string, TextStyle | ViewStyle | ImageStyle>>(
+        export type CreateStylesFunction = <const S extends Record<string, TextStyle | ViewStyle | ImageStyle>>(
             styles: S,
         ) => () => S
     }

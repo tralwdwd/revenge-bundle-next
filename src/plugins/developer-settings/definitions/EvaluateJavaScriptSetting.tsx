@@ -1,7 +1,7 @@
 import { React } from '@revenge-mod/react'
 
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
-import { Components } from '@revenge-mod/discord/design'
+import { Design } from '@revenge-mod/discord/design'
 
 import { nodeUtil } from '@revenge-mod/externals/browserify'
 
@@ -36,7 +36,7 @@ const {
     TableSwitchRow,
     Text,
     TextArea,
-} = Components
+} = Design
 
 function EvaluateJavaScriptAlert() {
     const code = React.useRef('')

@@ -1,4 +1,4 @@
-import { Components } from '@revenge-mod/discord/design'
+import { Design } from '@revenge-mod/discord/design'
 import { SettingListRenderer } from '@revenge-mod/discord/modules/settings/renderer'
 import { MobileSetting } from '../constants'
 
@@ -15,12 +15,12 @@ export default function RevengeSettingScreen() {
                     ],
                     subLabel: (
                         <>
-                            <Components.Text variant="text-xs/medium">
+                            <Design.Text variant="text-xs/medium">
                                 You are using the next version of Revenge!
-                            </Components.Text>
-                            <Components.Text variant="text-xs/semibold" color="text-danger">
+                            </Design.Text>
+                            <Design.Text variant="text-xs/semibold" color="text-danger">
                                 This version is experimental and may be unstable.
-                            </Components.Text>
+                            </Design.Text>
                         </>
                     ),
                 },

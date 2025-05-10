@@ -1,5 +1,5 @@
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
-import { Components } from '@revenge-mod/discord/design'
+import { Design } from '@revenge-mod/discord/design'
 import { Clipboard } from '@revenge-mod/externals/react-native-clipboard'
 import { FlashList } from '@revenge-mod/externals/shopify'
 import { React, ReactNative } from '@revenge-mod/react'
@@ -13,7 +13,7 @@ import { getAllAssets, getAssetId } from '@revenge-mod/assets'
 import type { Asset, AssetId } from '@revenge-mod/assets/types'
 
 const { Image, StyleSheet, View } = ReactNative
-const { AlertModal, AlertActionButton, TableRow, Text, Stack } = Components
+const { AlertModal, AlertActionButton, TableRow, Text, Stack } = Design
 
 const Displayable = new Set(['png', 'jpg', 'svg', 'webp'])
 const UndisplayableFallback = {
