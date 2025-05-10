@@ -15,7 +15,8 @@ globalThis.Proxy = new Proxy(OriginalProxy, {
 })
 
 /**
- * Returns whether the object is a proxy
+ * Returns whether the object is a proxy.
+ *
  * @param obj The object to check
  */
 export function isProxy(obj: object) {
@@ -23,7 +24,17 @@ export function isProxy(obj: object) {
 }
 
 /**
- * Returns the target of the proxy
+ * Returns whether the object is a proxified value.
+ *
+ * @param obj The object to check
+ */
+export function isProxified(obj: object) {
+    return _metas.has(obj)
+}
+
+/**
+ * Returns the target of the proxy.
+ *
  * @param obj The proxy
  * @returns The target of the proxy
  */
@@ -82,6 +93,7 @@ export interface ProxifyOptions {
 
 /**
  * Proxify a value.
+ *
  * @param signal The signal to use to get the value.
  * @param options The options to use for the proxified value.
  * @returns A proxified value that will be updated when the signal is updated.
@@ -151,6 +163,7 @@ function unproxifyFromHint(hint: object) {
 
 /**
  * Destructure a proxified value.
+ *
  * @param proxified The proxified value.
  * @param options The options to use for the destructured value.
  *
