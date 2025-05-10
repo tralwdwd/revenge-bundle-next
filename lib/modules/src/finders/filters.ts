@@ -112,6 +112,25 @@ export const withoutProps = createFilterGenerator<Parameters<WithoutProps>>(
     props => `revenge.withoutProps(${props.join(',')})`,
 ) as WithoutProps
 
+export type BySingleProp = <T extends Record<string, any>>(prop: keyof T) => Filter<T, true>
+
+/**
+ * Filter modules by their exports having only the specified property.
+ *
+ * @param prop The property to check for.
+ *
+ * @example
+ * ```ts
+ * const FormSwitchModule = await findModule(bySingleProp('FormSwitch'))
+ * // const FormSwitchModule: { FormSwitch: any }
+ * ```
+ */
+export const bySingleProp = createFilterGenerator<Parameters<BySingleProp>>(
+    // We don't use Reflect.ownKeys here because __esModule is not enumerable, and we don't want to include it in the check
+    ([prop], _, exports) => typeof exports === 'object' && Object.keys(exports).length === 1 && prop in exports,
+    ([prop]) => `revenge.singleProp(${prop})`,
+) as BySingleProp
+
 export type ByName = <T extends object = object>(name: string) => Filter<T, true>
 
 /**
