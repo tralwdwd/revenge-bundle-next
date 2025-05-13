@@ -1,4 +1,4 @@
-import { PluginFlags } from '@revenge-mod/plugins'
+import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'

@@ -1,4 +1,4 @@
-import { PluginFlags } from '@revenge-mod/plugins'
+import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
 import { _data } from '@revenge-mod/discord/_/modules/settings'

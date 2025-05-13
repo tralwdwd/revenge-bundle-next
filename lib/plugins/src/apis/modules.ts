@@ -20,25 +20,15 @@ export type PluginApiModulesFinders =
     }
 
 export const modules: PluginApiModules = {
-    get finders() {
-        const api = {
-            ...require('@revenge-mod/modules/finders/lookup'),
-            ...require('@revenge-mod/modules/finders/wait'),
-            ...require('@revenge-mod/modules/finders/find'),
-            filters: require('@revenge-mod/modules/finders/filters'),
-        }
-
-        return (this.finders = api)
+    finders: {
+        ...require('@revenge-mod/modules/finders/lookup'),
+        ...require('@revenge-mod/modules/finders/wait'),
+        ...require('@revenge-mod/modules/finders/find'),
+        filters: require('@revenge-mod/modules/finders/filters'),
     },
-    get metro() {
-        const api: PluginApiModulesMetro = {
-            ...require('@revenge-mod/modules/metro/utils'),
-            ...require('@revenge-mod/modules/metro/subscriptions'),
-        }
-
-        return (this.metro = api)
+    metro: {
+        ...require('@revenge-mod/modules/metro/utils'),
+        ...require('@revenge-mod/modules/metro/subscriptions'),
     },
-    get native() {
-        return (this.native = require('@revenge-mod/modules/native'))
-    },
+    native: require('@revenge-mod/modules/native'),
 }

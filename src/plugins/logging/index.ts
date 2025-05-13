@@ -1,6 +1,6 @@
 import { AppStartPerformance } from '@revenge-mod/discord/common'
 
-import { PluginFlags } from '@revenge-mod/plugins'
+import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
 AppStartPerformance.mark('👊', 'Plugins register')

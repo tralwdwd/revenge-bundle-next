@@ -6,6 +6,7 @@ import type { PluginApiDiscord } from './apis/discord'
 import type { PluginApiExternals } from './apis/externals'
 import type { PluginApiModules } from './apis/modules'
 import type { PluginApiReact } from './apis/react'
+import type { PluginApiPlugins } from './apis/plugins'
 
 export type PluginFlags = (typeof PF)[keyof typeof PF]
 export type PluginStatus = (typeof PS)[keyof typeof PS]
@@ -19,7 +20,7 @@ export interface UnscopedInitPluginApi {
     externals: PluginApiExternals
     modules: PluginApiModules
     patcher: typeof import('@revenge-mod/patcher')
-    plugins: typeof import('@revenge-mod/plugins')
+    plugins: PluginApiPlugins
     react: PluginApiReact
     // utils: PluginApiUtils
 }

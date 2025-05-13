@@ -27,21 +27,15 @@ export const discord: PluginApiDiscord = {
     get design() {
         return (this.design = require('@revenge-mod/discord/design'))
     },
-    get native() {
-        return (this.native = require('@revenge-mod/discord/native'))
-    },
-    get modules() {
-        const api: PluginApiDiscordModules = {
-            get settings() {
-                const api = {
-                    ...require('@revenge-mod/discord/modules/settings'),
-                    renderer: require('@revenge-mod/discord/modules/settings/renderer'),
-                }
+    native: require('@revenge-mod/discord/native'),
+    modules: {
+        get settings() {
+            const api = {
+                ...require('@revenge-mod/discord/modules/settings'),
+                renderer: require('@revenge-mod/discord/modules/settings/renderer'),
+            }
 
-                return (this.settings = api)
-            },
-        }
-
-        return (this.modules = api)
+            return (this.settings = api)
+        },
     },
 }

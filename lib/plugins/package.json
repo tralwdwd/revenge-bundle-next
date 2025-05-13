@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "default": "./src/index.ts"
+    "./constants": {
+      "default": "./src/constants.ts"
     },
     "./init": {
       "default": "./src/init.ts"

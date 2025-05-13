@@ -3,7 +3,7 @@ import { waitForModules } from '@revenge-mod/modules/finders/wait'
 
 import { after } from '@revenge-mod/patcher'
 
-import { PluginFlags } from '@revenge-mod/plugins'
+import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
 registerPlugin(
