@@ -7,8 +7,7 @@ import type { DiscordModules } from './types'
 export const AppStartPerformance = lookupModule(
     preferExports(
         byProps<DiscordModules.AppStartPerformance>('markAndLog'),
-        // biome-ignore lint/suspicious/noSparseArray: Nah
-        byDependencies([relativeDep(-1), , , 2]),
+        byDependencies([relativeDep(-1), undefined, undefined, 2]),
     ),
     {
         includeUninitialized: true,
