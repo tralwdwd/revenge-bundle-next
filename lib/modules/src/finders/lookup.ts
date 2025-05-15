@@ -143,6 +143,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
                 const exports = __r(id)
                 const flag = runFilter(filter, id, exports, options)
                 if (flag) yield exportsFromFilterResultFlag(flag, exports, options)
+                warnDeveloperAboutAPartialFilterMatch(id, filter.key)
             }
 }
 
@@ -219,6 +220,7 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
                 // Run the filter again to ensure we have the correct exports
                 const flag = runFilter(filter, id, exports, options)
                 if (flag) return exportsFromFilterResultFlag(flag, exports, options)
+                warnDeveloperAboutAPartialFilterMatch(id, filter.key)
             }
 }
 
@@ -253,4 +255,15 @@ export function lookupModuleIdByImportedPath(path: string): Metro.ModuleID | und
 export function lookupModuleByImportedPath<T = any>(path: string): T | undefined {
     // undefined will also return undefined either way, so we can just non-nullish assert it
     return getInitializedModuleExports(lookupModuleIdByImportedPath(path)!)
+}
+
+/**
+ * Warns the developer that the filter matched during exportsless comparison, but not during the full comparison.
+ * This will cause modules to be initialized unnecessarily, and may cause issues.
+ * @internal
+ */
+function warnDeveloperAboutAPartialFilterMatch(id: Metro.ModuleID, key: string) {
+    console.warn(
+        `[revenge.modules.finders.lookup] Module ${id} matched ${key} during uninitialized lookup, but did not match the full filter.`,
+    )
 }
