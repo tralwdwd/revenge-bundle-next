@@ -93,7 +93,7 @@ function preparePluginStart(id: PluginManifest['id']) {
 }
 
 async function disablePlugin(plugin: InternalPlugin) {
-    const iflags = _metas.get(plugin.manifest.id)?.[2] ?? 0
+    const iflags = _metas.get(plugin.manifest.id)![2] ?? 0
     if (iflags & InternalPluginFlags.Essential)
         throw new Error(`Plugin "${plugin.manifest.id}" is essential and cannot be disabled`)
 
@@ -112,6 +112,8 @@ export function enablePlugin(plugin: InternalPlugin, late: boolean) {
 
 export async function preInitPlugin(plugin: InternalPlugin) {
     const { manifest, lifecycles } = plugin
+    if (!lifecycles.preInit) return
+
     const meta = _metas.get(manifest.id)!
     const [, promises] = meta
 
@@ -124,7 +126,7 @@ export async function preInitPlugin(plugin: InternalPlugin) {
     plugin.status |= Status.PreIniting
 
     try {
-        const prom = lifecycles.preInit?.(meta[0] as PreInitPluginApi)
+        const prom = lifecycles.preInit(meta[0] as PreInitPluginApi)
         promises.push(prom)
         await prom
 
@@ -138,6 +140,8 @@ export async function preInitPlugin(plugin: InternalPlugin) {
 
 export async function initPlugin(plugin: InternalPlugin) {
     const { manifest, lifecycles } = plugin
+    if (!lifecycles.init) return
+
     const meta = _metas.get(manifest.id)!
     const [, promises, , apiLevel] = meta
 
@@ -149,7 +153,7 @@ export async function initPlugin(plugin: InternalPlugin) {
     if (apiLevel < PluginApiLevel.Init) preparePluginInit(manifest.id)
 
     try {
-        const prom = lifecycles.init?.(meta[0] as InitPluginApi)
+        const prom = lifecycles.init(meta[0] as InitPluginApi)
         promises.push(prom)
         await prom
 
@@ -163,6 +167,8 @@ export async function initPlugin(plugin: InternalPlugin) {
 
 export async function startPlugin(plugin: InternalPlugin) {
     const { manifest, lifecycles } = plugin
+    if (!lifecycles.start) return
+
     const meta = _metas.get(manifest.id)!
     const [, promises, , apiLevel] = meta
 
@@ -177,7 +183,7 @@ export async function startPlugin(plugin: InternalPlugin) {
     if (apiLevel < PluginApiLevel.Start) preparePluginStart(manifest.id)
 
     try {
-        const prom = lifecycles.start?.(meta[0] as PluginApi)
+        const prom = lifecycles.start(meta[0] as PluginApi)
         promises.push(prom)
         await prom
 
