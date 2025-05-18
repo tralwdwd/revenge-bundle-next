@@ -1,4 +1,4 @@
-import { allSettled, sleep } from '@revenge-mod/utils/promises'
+import { allSettled, sleepReject } from '@revenge-mod/utils/promises'
 
 import { _uapi } from './apis'
 
@@ -195,7 +195,7 @@ export async function startPlugin(plugin: InternalPlugin) {
     }
 }
 
-const MaxLifecycleWaitTime = 5000
+const MaxWaitTime = 5000
 
 export async function stopPlugin(plugin: InternalPlugin) {
     const { manifest, lifecycles } = plugin
@@ -211,10 +211,15 @@ export async function stopPlugin(plugin: InternalPlugin) {
     // If the plugin is running its lifecycles, we need to wait for it to finish, then we'll stop it
     // We want to wait at max 5 seconds for the lifecycles to finish
     if (plugin.status & (Status.PreIniting | Status.Initing | Status.Starting))
-        await Promise.race([Promise.all(promises), sleep(MaxLifecycleWaitTime)]).then(finished => {
-            // If the lifecycles don't finish in 5 seconds, a reload is probably required to unapply the changes
-            if (!finished) plugin.flags |= Flag.ReloadRequired
-        })
+        await Promise.race([
+            Promise.all(promises),
+            sleepReject(MaxWaitTime, 'Plugin lifecycles timed out, force stopping'),
+        ])
+            .then(finished => {
+                // If the lifecycles don't finish in 5 seconds, a reload is probably required to unapply the changes
+                if (!finished) plugin.flags |= Flag.ReloadRequired
+            })
+            .catch(e => handlePluginError(e, plugin))
     else if (!(plugin.status & (Status.PreInited | Status.Inited | Status.Started)))
         throw new Error(`Plugin "${manifest.id}" is not running`)
 
@@ -225,7 +230,11 @@ export async function stopPlugin(plugin: InternalPlugin) {
     plugin.status |= Status.Stopping
 
     try {
-        await lifecycles.stop?.(meta[0] as PluginApi)
+        if (lifecycles.stop)
+            await Promise.race([
+                lifecycles.stop(meta[0] as PluginApi),
+                sleepReject(MaxWaitTime, 'Plugin stop lifecycle timed out, force stopping'),
+            ])
     } catch (e) {
         await handlePluginError(e, plugin)
     } finally {
