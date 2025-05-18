@@ -22,7 +22,7 @@ export function isSettingsModulesLoaded() {
  * @returns A function to unsubscribe from the event.
  * @throws Throws an error if the settings modules are already loaded. Check with {@link isSettingsModulesLoaded} first.
  */
-export function onceSettingsModulesLoaded(subcription: SettingsModulesLoadedSubscription) {
+export function onSettingsModulesLoaded(subcription: SettingsModulesLoadedSubscription) {
     if (_data[2]) throw new Error('Settings modules already loaded')
 
     _subs.add(subcription)

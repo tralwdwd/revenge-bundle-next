@@ -1,11 +1,8 @@
 import * as PatcherLibrary from '@revenge-mod/patcher'
-import type { UnscopedInitPluginApi, UnscopedPluginApi } from '../types'
+import type { UnscopedInitPluginApi, UnscopedPluginApi, UnscopedPreInitPluginApi } from '../types'
 
-export const _uapi: UnscopedInitPluginApi | UnscopedPluginApi = {
-    discord: require('./discord').discord,
-    externals: require('./externals').externals,
+export const _uapi: UnscopedPreInitPluginApi | UnscopedInitPluginApi | UnscopedPluginApi = {
     modules: require('./modules').modules,
     plugins: require('./plugins').plugins,
     patcher: PatcherLibrary,
-    react: require('./react').react,
 }

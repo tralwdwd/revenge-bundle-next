@@ -9,6 +9,9 @@
     "./init": {
       "default": "./src/init.ts"
     },
+    "./preinit": {
+      "default": "./src/preinit.ts"
+    },
     "./types": {
       "default": "./src/types.ts"
     },

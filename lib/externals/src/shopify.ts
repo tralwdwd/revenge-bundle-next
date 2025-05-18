@@ -6,7 +6,7 @@ import { ReactJsxRuntimeModuleId, ReactModuleId, ReactNativeModuleId } from '@re
 
 export let FlashList: typeof import('@shopify/flash-list') = proxify(
     () => {
-        const module = lookupModule(
+        const [module] = lookupModule(
             preferExports(
                 byProps<typeof FlashList>('FlashList'),
                 byDependencies([

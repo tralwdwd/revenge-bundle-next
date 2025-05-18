@@ -1,0 +1,6 @@
+{
+  "name": "@revenge-mod/storage",
+  "private": true,
+  "type": "module",
+  "exports": {}
+}

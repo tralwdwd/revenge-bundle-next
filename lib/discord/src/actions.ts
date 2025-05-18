@@ -18,7 +18,7 @@ import type { DiscordModules } from './types'
 
 export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCreators = proxify(
     () => {
-        const module = lookupModule(
+        const [module] = lookupModule(
             preferExports(
                 byProps<DiscordModules.Actions.ActionSheetActionCreators>('hideActionSheet'),
                 byDependencies([
@@ -45,7 +45,7 @@ export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCr
 
 export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators = proxify(
     () => {
-        const module = lookupModule(
+        const [module] = lookupModule(
             preferExports(
                 byProps<DiscordModules.Actions.AlertActionCreators>('openAlert', 'dismissAlert'),
                 byDependencies([
@@ -81,5 +81,5 @@ export let ToastActionCreators: DiscordModules.Actions.ToastActionCreators = pro
         },
     )
 
-    for (const module of generator) if (module.open.length === 1) return (ToastActionCreators = module)
+    for (const [module] of generator) if (module.open.length === 1) return (ToastActionCreators = module)
 })!

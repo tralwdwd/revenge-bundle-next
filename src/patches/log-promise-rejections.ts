@@ -8,7 +8,7 @@
 import { getErrorStack } from '@revenge-mod/utils/errors'
 import { createLogger } from '@revenge-mod/utils/logger'
 
-const logger = createLogger('revenge.init.promise-rejections')
+const logger = createLogger('revenge.promise-rejections')
 
 const ErrorTypeWhitelist = [ReferenceError, TypeError, RangeError]
 

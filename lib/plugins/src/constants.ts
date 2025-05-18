@@ -11,12 +11,19 @@ export const PluginFlags = {
      * The plugin has errors.
      */
     Errored: 1 << 2,
+    /**
+     * The plugin was enabled after the app was started.
+     * This is usually caused by a newly installed plugin, or a plugin that was re-enabled.
+     */
+    EnabledLate: 1 << 3,
 }
 
 export const PluginStatus = {
-    Initing: 1 << 0,
-    Inited: 1 << 1,
-    Starting: 1 << 2,
-    Started: 1 << 3,
-    Stopping: 1 << 4,
+    PreIniting: 1 << 0,
+    PreInited: 1 << 1,
+    Initing: 1 << 2,
+    Inited: 1 << 3,
+    Starting: 1 << 4,
+    Started: 1 << 5,
+    Stopping: 1 << 6,
 }

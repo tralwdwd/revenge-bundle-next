@@ -1,7 +1,7 @@
 import { byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 
-import { after } from '@revenge-mod/patcher'
+import { instead } from '@revenge-mod/patcher'
 
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
@@ -16,10 +16,18 @@ registerPlugin(
     },
     {
         init({ cleanup }) {
-            const unsub = waitForModules(byProps('isStaffEnv'), (_, UserStoreUtils) => {
+            const unsub = waitForModules(byProps('isStaffEnv'), UserStoreUtils => {
                 unsub()
-                cleanup(after(UserStoreUtils, 'isStaffEnv', () => true))
+                cleanup(instead(UserStoreUtils, 'isStaffEnv', () => true))
             })
+
+            cleanup(unsub)
+        },
+        start({ plugin }) {
+            if (plugin.flags & PluginFlags.EnabledLate) plugin.stop()
+        },
+        stop({ plugin }) {
+            plugin.flags |= PluginFlags.ReloadRequired
         },
     },
     PluginFlags.Enabled,

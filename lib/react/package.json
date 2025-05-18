@@ -9,6 +9,9 @@
     "./jsx-runtime": {
       "default": "./src/jsx-runtime/index.ts"
     },
+    "./native": {
+      "default": "./src/native/index.ts"
+    },
     "./preinit": {
       "default": "./src/preinit.ts"
     },

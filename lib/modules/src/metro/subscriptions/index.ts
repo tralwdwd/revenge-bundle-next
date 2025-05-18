@@ -5,11 +5,13 @@ import type { initializedModuleHasBadExports } from '../utils'
 
 export type ModuleFirstRequiredCallback = (id: Metro.ModuleID) => void
 export type ModuleInitializedCallback = (id: Metro.ModuleID, exports: Metro.ModuleExports) => void
-export type ModuleWithImportedPathInitializedCallback = (id: Metro.ModuleID, path: string) => void
+export type ModuleFinishedImportingCallback = (id: Metro.ModuleID, path: string) => void
 
 /**
  * Registers a callback to be called when any module is initialized.
- * During this time, the module factory is not yet executed.
+ *
+ * This runs after the module factory has been executed, but before the module is considered initialized by Metro.
+ * However, Revenge APIs will consider the module initialized at this point.
  *
  * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *
@@ -25,7 +27,7 @@ export function onAnyModuleInitialized(callback: ModuleInitializedCallback) {
  * Registers a callback to be called when a specific module is initialized.
  *
  * This runs after the module factory has been executed, but before the module is considered initialized by Metro.
- * However, Revenge APIs will consider the module initialized at this poi
+ * However, Revenge APIs will consider the module initialized at this point.
  *
  * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *
@@ -52,16 +54,15 @@ export function onModuleInitialized(id: Metro.ModuleID, callback: ModuleInitiali
  * @param callback The callback to be called.
  * @returns A function that unregisters the callback.
  */
-export function onModuleFinishedImporting(callback: ModuleWithImportedPathInitializedCallback) {
+export function onModuleFinishedImporting(callback: ModuleFinishedImportingCallback) {
     _path.add(callback)
     return () => _path.delete(callback)
 }
 
 /**
- * Registers a callback to be called when any module is required the first time.
+ * Registers a callback to be called when any module is being initialized.
  *
- * This runs after the module factory has been executed, but before the module is considered initialized by Metro.
- * However, Revenge APIs will consider the module initialized at this point.
+ * This runs before the module factory is executed.
  *
  * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *
@@ -74,8 +75,9 @@ export function onAnyModuleFirstRequired(callback: ModuleFirstRequiredCallback) 
 }
 
 /**
- * Registers a callback to be called when a specific module is required the first time.
- * During this time, the module factory is not yet executed.
+ * Registers a callback to be called when a specific module is being initialized.
+ *
+ * This runs before the module factory is executed.
  *
  * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *

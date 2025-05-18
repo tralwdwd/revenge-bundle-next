@@ -5,7 +5,7 @@ import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 
 import { _data, _subs } from '@revenge-mod/discord/_/modules/settings'
-import { type SettingsItem, onceSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
+import { type SettingsItem, onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
 
 import { after } from '@revenge-mod/patcher'
 
@@ -21,13 +21,13 @@ registerPlugin(
     },
     {
         start({ logger }) {
-            onceSettingsModulesLoaded(() => require('./register'))
+            onSettingsModulesLoaded(() => require('./register'))
 
             const unsubForRendererConfig = waitForModules(
                 byProps<{
                     SETTING_RENDERER_CONFIG: Record<string, SettingsItem>
                 }>('SETTING_RENDERER_CONFIG'),
-                (_, SettingRendererConfig) => {
+                SettingRendererConfig => {
                     unsubForRendererConfig()
 
                     logger.info('Settings modules loaded, running subscriptions and patching...')
@@ -52,16 +52,22 @@ registerPlugin(
 
             const unsubForSettingsOverviewScreen = waitForModules(
                 byName('SettingsOverviewScreen'),
-                (_, exports) => {
+                exports => {
                     unsubForSettingsOverviewScreen()
 
-                    after(exports as { default: FC }, 'default', tree => {
-                        const sections = (tree as Extract<typeof tree, { props: unknown }>).props.sections as Array<{
-                            label: string
-                            settings: string[]
-                        }>
+                    const customSections = _data[0]
 
-                        const customSections = _data[0]
+                    after(exports as { default: FC }, 'default', tree => {
+                        const {
+                            props: { sections },
+                        } = tree as {
+                            props: {
+                                sections: Array<{
+                                    label: string
+                                    settings: string[]
+                                }>
+                            }
+                        }
 
                         // Check if we even have custom sections
                         const firstCustomSection = customSections[Object.keys(customSections)[0]]

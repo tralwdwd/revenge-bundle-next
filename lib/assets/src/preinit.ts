@@ -12,7 +12,7 @@ export let AssetRegistry: ReactNative.AssetsRegistry
 export let AssetRegistryModuleId: number
 
 // Tracking/caching assets
-const unsubAR = waitForModules(byProps<ReactNative.AssetsRegistry>('registerAsset'), (id, exports) => {
+const unsubAR = waitForModules(byProps<ReactNative.AssetsRegistry>('registerAsset'), (exports, id) => {
     AssetRegistryModuleId = id
     AssetRegistry = exports as ReactNative.AssetsRegistry
 
@@ -64,7 +64,7 @@ const unsubRAS = waitForModules(
     byName<{
         addCustomSourceTransformer: (transformer: (arg: { asset: Asset }) => ReactNativeAsset) => void
     }>('resolveAssetSource'),
-    (_, rAS) => {
+    rAS => {
         unsubRAS()
 
         // Custom assets

@@ -2,7 +2,7 @@ import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 
 import { _data } from '@revenge-mod/discord/_/modules/settings'
-import { onceSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
+import { isSettingsModulesLoaded, onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
 
 import type { PluginApi } from '@revenge-mod/plugins/types'
 
@@ -15,9 +15,10 @@ registerPlugin(
         icon: 'WrenchIcon',
     },
     {
-        start(api) {
-            pluginApi = api
-            onceSettingsModulesLoaded(() => require('./register'))
+        start(api_) {
+            api = api_
+            if (isSettingsModulesLoaded()) require('./register').register()
+            else onSettingsModulesLoaded(() => require('./register').register())
         },
     },
     PluginFlags.Enabled,
@@ -25,4 +26,4 @@ registerPlugin(
 )
 
 // Expose to EvaluateJavaScriptSetting
-export let pluginApi: PluginApi
+export let api: PluginApi

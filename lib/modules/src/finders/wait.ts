@@ -15,6 +15,10 @@ export interface BaseWaitForModulesOptions<IncludeAll extends boolean = boolean>
     includeAll?: IncludeAll
 }
 
+export type WaitForModulesUnsubscribeFunction = () => boolean
+
+export type WaitForModulesCallback<T> = (exports: T, id: Metro.ModuleID) => any
+
 export type WaitForModulesOptions<
     ReturnNamespace extends boolean = boolean,
     IncludeBadExports extends boolean = boolean,
@@ -38,7 +42,7 @@ export type WaitForModulesResult<
  * const unsub = waitForModules(
  *   byName<typeof import('@shopify/flash-list')>('FlashList'),
  *   // (exports: typeof import('@shopify/flash-list'), id: Metro.ModuleID) => any
- *   (id, exports) => {
+ *   (exports, id) => {
  *     unsub()
  *     // Do something with the module...
  *   }
@@ -47,29 +51,29 @@ export type WaitForModulesResult<
  */
 export function waitForModules<F extends Filter>(
     filter: F,
-    callback: (id: Metro.ModuleID, exports: FilterResult<F>) => any,
-): () => void
+    callback: WaitForModulesCallback<WaitForModulesResult<F, object>>,
+): WaitForModulesUnsubscribeFunction
 
 export function waitForModules<
     F extends O extends WaitForModulesOptions<boolean, true> ? Filter<any, false> : Filter,
     O extends WaitForModulesOptions,
->(filter: F, callback: (id: Metro.ModuleID, exports: WaitForModulesResult<F, O>) => any, options: O): () => void
+>(
+    filter: F,
+    callback: WaitForModulesCallback<WaitForModulesResult<F, O>>,
+    options: O,
+): WaitForModulesUnsubscribeFunction
 
-export function waitForModules(
-    filter: Filter,
-    callback: (id: Metro.ModuleID, exports: Metro.ModuleExports) => any,
-    options?: WaitForModulesOptions,
-) {
+export function waitForModules(filter: Filter, callback: WaitForModulesCallback<any>, options?: WaitForModulesOptions) {
     return onAnyModuleInitialized(
         options?.includeAll
             ? (id, exports) => {
                   const flag = runFilter(filter, id, exports, options)
-                  if (flag) callback(id, exportsFromFilterResultFlag(flag, exports, options))
+                  if (flag) callback(exportsFromFilterResultFlag(flag, exports, options), id)
               }
             : (id, exports) => {
                   if (initializedModuleHasBadExports(id)) return
                   const flag = runFilter(filter, id, exports, options)
-                  if (flag) callback(id, exportsFromFilterResultFlag(flag, exports, options))
+                  if (flag) callback(exportsFromFilterResultFlag(flag, exports, options), id)
               },
     )
 }
@@ -90,7 +94,7 @@ export function waitForModules(
  * ```ts
  * waitForModuleByImportedPath(
  *   'utils/PlatformUtils.tsx',
- *   (id, exports) => {
+ *   (exports, id) => {
  *      // Do something with the module...
  *   }
  * )
@@ -98,7 +102,7 @@ export function waitForModules(
  */
 export function waitForModuleByImportedPath<T = any>(
     path: string,
-    callback: (id: Metro.ModuleID, exports: T) => any,
+    callback: WaitForModulesCallback<T>,
     options?: BaseWaitForModulesOptions,
 ) {
     const unsub = onModuleFinishedImporting(
@@ -106,14 +110,14 @@ export function waitForModuleByImportedPath<T = any>(
             ? (id, cmpPath) => {
                   if (path === cmpPath) {
                       unsub()
-                      callback(id, getInitializedModuleExports(id))
+                      callback(getInitializedModuleExports(id), id)
                   }
               }
             : (id, cmpPath) => {
                   if (path === cmpPath) {
                       unsub()
                       if (initializedModuleHasBadExports(id)) return
-                      callback(id, getInitializedModuleExports(id))
+                      callback(getInitializedModuleExports(id), id)
                   }
               },
     )

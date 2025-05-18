@@ -25,7 +25,7 @@ const MultiIconComponentFilterBase = [
 
 // TODO(utils/discord/lookupGeneratedIconComponent): Make this into a filter?
 export function lookupGeneratedIconComponent<N extends string>(compName: N, ...assetNames: string[]) {
-    const icon = lookupModule(byProps(compName))?.[compName]
+    const icon = lookupModule(byProps(compName))[0]?.[compName]
     if (icon) return icon
 
     let filter = IconComponentFilter
@@ -51,5 +51,5 @@ export function lookupGeneratedIconComponent<N extends string>(compName: N, ...a
     return lookupModule(byDependencies<{ [K in N]: FC }>(filter), {
         includeInitialized: false,
         includeUninitialized: true,
-    })?.[compName]
+    })[0]?.[compName]
 }

@@ -19,7 +19,7 @@ export let Design: Design = proxify(
     () => {
         // ID: 3236
         // [3237, 1366, 3238, 3239, 2, ...];
-        const module = lookupModule(
+        const [module] = lookupModule(
             preferExports(
                 byProps<Design>('TableRow', 'Button'),
                 byDependencies(looseDeps([relativeDep(1), undefined, relativeDep(2), relativeDep(3), 2])),
@@ -43,7 +43,7 @@ export let FormSwitch: DiscordModules.Components.FormSwitch = proxify(() => {
     // ID: 46
     // Deps: [47, 48, 35, 49]
 
-    const module = lookupModule(
+    const [module] = lookupModule(
         preferExports(
             bySingleProp<{ FormSwitch: DiscordModules.Components.FormSwitch }>('FormSwitch'),
             byDependencies([

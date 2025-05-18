@@ -6,6 +6,9 @@
     "./finders/filters": {
       "default": "./src/finders/filters.ts"
     },
+    "./finders/get": {
+      "default": "./src/finders/get.ts"
+    },
     "./finders/lookup": {
       "default": "./src/finders/lookup.ts"
     },

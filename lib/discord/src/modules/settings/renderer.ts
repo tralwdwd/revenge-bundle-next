@@ -11,7 +11,7 @@ export type SettingListRenderer = DiscordModules.Modules.Settings.SettingListRen
 
 export let SettingListRenderer: SettingListRenderer = proxify(
     () => {
-        const module = lookupModule(
+        const [module] = lookupModule(
             preferExports(
                 byProps<SettingListRenderer>('SettingsList'),
                 byDependencies(

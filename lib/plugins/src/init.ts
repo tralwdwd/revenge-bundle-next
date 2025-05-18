@@ -1,25 +1,32 @@
-import * as AssetsLibrary from '@revenge-mod/assets'
-// import * as UiLibrary from '@revenge-mod/ui'
+import { onRunApplication } from '@revenge-mod/react/native'
 
-import { after } from '@revenge-mod/patcher'
-import { ReactNative } from '@revenge-mod/react'
-
-import { initPlugins, startPlugins } from './_internal'
 import { _uapi } from './apis'
 
-import type { UnscopedPluginApi } from './types'
+import * as AssetsLibrary from '@revenge-mod/assets'
+import { discord } from './apis/discord'
+import { externals } from './apis/externals'
+import { react } from './apis/react'
 
-// Setup non-limited APIs
-const uapi = _uapi as UnscopedPluginApi
+import { _plugins, initPlugin, startPlugin } from './_internal'
+import { PluginFlags } from './constants'
+
+import type { UnscopedInitPluginApi } from './types'
+
+// Setup init plugin APIs
+const uapi = _uapi as UnscopedInitPluginApi
 uapi.assets = AssetsLibrary
-// uapi.ui = UiLibrary
+uapi.discord = discord
+uapi.externals = externals
+uapi.react = react
 
-initPlugins()
+for (const plugin of _plugins.values()) if (plugin.flags & PluginFlags.Enabled) initPlugin(plugin)
 
-// TODO(plugins/init): move to @revenge-mod/react/native onRunApplicationCalled
-const unpatch = after(ReactNative.AppRegistry, 'runApplication', ret => {
-    unpatch()
-    // Don't block rendering
-    setImmediate(startPlugins)
-    return ret
+const unsub = onRunApplication(() => {
+    unsub()
+
+    // TODO(plugins/start): init start APIs
+    // const UILibrary = require('@revenge-mod/ui')
+    // uapi.ui = UiLibrary
+
+    for (const plugin of _plugins.values()) if (plugin.flags & PluginFlags.Enabled) startPlugin(plugin)
 })

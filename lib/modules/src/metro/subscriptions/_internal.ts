@@ -1,15 +1,11 @@
-import type {
-    ModuleFirstRequiredCallback,
-    ModuleInitializedCallback,
-    ModuleWithImportedPathInitializedCallback,
-} from '.'
+import type { ModuleFirstRequiredCallback, ModuleInitializedCallback, ModuleFinishedImportingCallback } from '.'
 import type { Metro } from '../../types'
 
 export const _reqAll = new Set<ModuleFirstRequiredCallback>()
 export const _req = new Map<Metro.ModuleID, Set<ModuleFirstRequiredCallback>>()
 export const _initAll = new Set<ModuleInitializedCallback>()
 export const _init = new Map<Metro.ModuleID, Set<ModuleInitializedCallback>>()
-export const _path = new Set<ModuleWithImportedPathInitializedCallback>()
+export const _path = new Set<ModuleFinishedImportingCallback>()
 
 export function _execReqSubs(id: Metro.ModuleID) {
     for (const cb of _reqAll) cb(id)

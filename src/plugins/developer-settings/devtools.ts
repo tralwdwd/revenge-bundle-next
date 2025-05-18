@@ -2,7 +2,7 @@ import { ToastActionCreators } from '@revenge-mod/discord/actions'
 import { React } from '@revenge-mod/react'
 import { getErrorStack } from '@revenge-mod/utils/errors'
 import { useReRender } from '@revenge-mod/utils/react'
-import { pluginApi } from '.'
+import { api } from '.'
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 
 export const DevToolsContext: {
@@ -26,9 +26,7 @@ subscriptions.add((e, err) => {
     if (e === 3) {
         const actualError = (err as { message: string }).message ?? getErrorStack(err)
 
-        pluginApi.logger.error('React DevTools error:', actualError)
-
-        pluginApi.logger.log(CircleXIcon)
+        api.logger.error('React DevTools error:', actualError)
 
         ToastActionCreators.open({
             key: 'DEVTOOLS_ERROR',

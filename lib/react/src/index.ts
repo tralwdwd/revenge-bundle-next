@@ -1,11 +1,37 @@
 import { byProps } from '@revenge-mod/modules/finders/filters'
-import { lookupModuleId, lookupModuleIds } from '@revenge-mod/modules/finders/lookup'
-import { yielded } from '@revenge-mod/utils/generators'
+import { waitForModules } from '@revenge-mod/modules/finders/wait'
 
-export const ReactModuleId = yielded(lookupModuleIds(byProps<typeof import('react')>('useState')), 1)!
-export const ReactNativeModuleId = lookupModuleId(byProps<typeof import('react-native')>('AppRegistry'))!
-export const ReactJsxRuntimeModuleId = yielded(lookupModuleIds(byProps<typeof import('react/jsx-runtime')>('jsx'))!, 1)
+import type { Metro } from '@revenge-mod/modules/types'
 
-export const React = __r(ReactModuleId) as typeof import('react')
-export const ReactNative = __r(ReactNativeModuleId) as typeof import('react-native')
-export const ReactJsxRuntime = __r(ReactJsxRuntimeModuleId) as typeof import('react/jsx-runtime')
+export let ReactModuleId: Metro.ModuleID
+export let ReactNativeModuleId: Metro.ModuleID
+export let ReactJsxRuntimeModuleId: Metro.ModuleID
+
+export let React: typeof import('react')
+export let ReactNative: typeof import('react-native')
+export let ReactJsxRuntime: typeof import('react/jsx-runtime')
+
+let RtCount = 0
+
+const unsubRt = waitForModules(byProps<typeof React>('useState'), (exports, id) => {
+    if (RtCount++ === 2) return unsubRt()
+
+    ReactModuleId = id
+    React = exports
+})
+
+const unsubRN = waitForModules(byProps<typeof ReactNative>('AppRegistry'), (exports, id) => {
+    unsubRN()
+
+    ReactNativeModuleId = id
+    ReactNative = exports
+})
+
+let RJsxRCount = 0
+
+const unsubRJsxR = waitForModules(byProps<typeof ReactJsxRuntime>('jsxs'), (exports, id) => {
+    if (RJsxRCount++ === 2) return unsubRJsxR()
+
+    ReactJsxRuntimeModuleId = id
+    ReactJsxRuntime = exports
+})

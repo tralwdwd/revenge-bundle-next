@@ -5,7 +5,7 @@ import { _execPathSubs } from './subscriptions/_internal'
 import { byProps } from '../finders/filters'
 import { waitForModules } from '../finders/wait'
 
-const unsubFFI = waitForModules(byProps('fileFinishedImporting'), (_, exports) => {
+const unsubFFI = waitForModules(byProps('fileFinishedImporting'), exports => {
     unsubFFI()
 
     const orig = exports.fileFinishedImporting

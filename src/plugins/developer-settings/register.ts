@@ -9,13 +9,18 @@ import ReactDevToolsVersionSetting from './definitions/ReactDevToolsVersionSetti
 import RevengeDeveloperSetting from './definitions/RevengeDeveloperSetting'
 import AssetBrowserSetting from './definitions/AssetBrowserSetting'
 
-registerSettingsItems({
-    [MobileSetting.REVENGE_DEVELOPER]: RevengeDeveloperSetting,
-    [MobileSetting.REACT_DEVTOOLS_VERSION]: ReactDevToolsVersionSetting,
-    [MobileSetting.REACT_DEVTOOLS_CONNECT]: ReactDevToolsConnectSetting,
-    [MobileSetting.REACT_DEVTOOLS_DISCONNECT]: ReactDevToolsDisconnectSetting,
-    [MobileSetting.EVALUATE_JAVASCRIPT]: EvaluateJavaScriptSetting,
-    [MobileSetting.ASSET_BROWSER]: AssetBrowserSetting,
-})
+import { api } from '.'
 
-addSettingsItemToSection('REVENGE', MobileSetting.REVENGE_DEVELOPER)
+export function register() {
+    api.cleanup(
+        registerSettingsItems({
+            [MobileSetting.REVENGE_DEVELOPER]: RevengeDeveloperSetting,
+            [MobileSetting.REACT_DEVTOOLS_VERSION]: ReactDevToolsVersionSetting,
+            [MobileSetting.REACT_DEVTOOLS_CONNECT]: ReactDevToolsConnectSetting,
+            [MobileSetting.REACT_DEVTOOLS_DISCONNECT]: ReactDevToolsDisconnectSetting,
+            [MobileSetting.EVALUATE_JAVASCRIPT]: EvaluateJavaScriptSetting,
+            [MobileSetting.ASSET_BROWSER]: AssetBrowserSetting,
+        }),
+        addSettingsItemToSection('REVENGE', MobileSetting.REVENGE_DEVELOPER),
+    )
+}

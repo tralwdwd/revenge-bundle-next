@@ -16,7 +16,7 @@ let ClipboardModule: typeof import('@react-native-clipboard/clipboard') = proxif
         // r6 = 4792;
         // r5 = [27, 4793];
 
-        const module = lookupModule(
+        const [module] = lookupModule(
             preferExports(
                 byProps<typeof ClipboardModule>('useClipboard'),
                 every(

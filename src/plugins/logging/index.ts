@@ -1,4 +1,4 @@
-import { AppStartPerformance } from '@revenge-mod/discord/common'
+import { AppStartPerformance } from '@revenge-mod/discord/preinit'
 
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
@@ -6,6 +6,7 @@ import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 AppStartPerformance.mark('👊', 'Plugins register')
 
 const tsReg = performance.now()
+let tsPreInit: number
 let tsInit: number
 
 registerPlugin(
@@ -17,9 +18,13 @@ registerPlugin(
         icon: 'PaperIcon',
     },
     {
+        preInit() {
+            tsPreInit = performance.now()
+            AppStartPerformance.mark('👊', 'Plugins preInit', tsPreInit - tsReg)
+        },
         init() {
             tsInit = performance.now()
-            AppStartPerformance.mark('👊', 'Plugins init', tsInit - tsReg)
+            AppStartPerformance.mark('👊', 'Plugins init', tsInit - tsPreInit)
         },
         start({ logger }) {
             AppStartPerformance.mark('👊', 'Plugins start', performance.now() - tsInit)

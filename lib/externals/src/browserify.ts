@@ -4,7 +4,7 @@ import { proxify } from '@revenge-mod/utils/proxy'
 
 export let nodeUtil: typeof import('node:util') = proxify(
     () => {
-        const module = lookupModule(
+        const [module] = lookupModule(
             preferExports(byProps<typeof nodeUtil>('inspect'), byDependencies([relativeDep(1), [], []])),
             {
                 includeUninitialized: true,

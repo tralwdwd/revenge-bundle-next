@@ -262,8 +262,8 @@ export namespace DiscordModules {
             onBlur?: () => void
             onFocus?: () => void
 
-            leadingIcon?: () => JSX.Element
-            trailingIcon?: () => JSX.Element
+            leadingIcon?: FC
+            trailingIcon?: FC
             leadingText?: string
             trailingText?: string
             description?: string

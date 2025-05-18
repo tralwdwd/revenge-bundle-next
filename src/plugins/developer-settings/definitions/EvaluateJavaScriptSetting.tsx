@@ -9,7 +9,7 @@ import { getErrorStack } from '@revenge-mod/utils/errors'
 
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 
-import { pluginApi } from '..'
+import { api } from '..'
 import { MobileSetting } from '../constants'
 
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
@@ -98,14 +98,14 @@ function EvaluateJavaScriptAlert() {
                             setLoading(true)
 
                             try {
-                                if (!pluginApi) {
+                                if (!api) {
                                     alert('Unable to provide plugin API. Running snippet in a second...')
                                     await new Promise(rs => setTimeout(rs, 1000))
                                 } else {
                                     // @ts-expect-error
-                                    globalThis.revenge = pluginApi.unscoped
+                                    globalThis.revenge = api.unscoped
                                     // @ts-expect-error
-                                    globalThis.api = pluginApi
+                                    globalThis.api = api
                                 }
 
                                 // Do a no-local-scope-access eval

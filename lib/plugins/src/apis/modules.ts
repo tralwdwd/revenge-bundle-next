@@ -13,6 +13,7 @@ export type PluginApiModulesMetro =
 
 export type PluginApiModulesFinders =
     // biome-ignore format: Don't
+    typeof import('@revenge-mod/modules/finders/get') &
     typeof import('@revenge-mod/modules/finders/lookup') &
     typeof import('@revenge-mod/modules/finders/wait') & {
         filters: typeof import('@revenge-mod/modules/finders/filters')
@@ -20,6 +21,7 @@ export type PluginApiModulesFinders =
 
 export const modules: PluginApiModules = {
     finders: {
+        ...require('@revenge-mod/modules/finders/get'),
         ...require('@revenge-mod/modules/finders/lookup'),
         ...require('@revenge-mod/modules/finders/wait'),
         filters: require('@revenge-mod/modules/finders/filters'),

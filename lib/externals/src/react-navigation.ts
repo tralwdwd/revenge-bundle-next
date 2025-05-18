@@ -1,13 +1,13 @@
 import { byDependencies, byName, byProps, looseDeps, preferExports } from '@revenge-mod/modules/finders/filters'
-import { lookupModule, lookupModuleId } from '@revenge-mod/modules/finders/lookup'
+import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import { proxify } from '@revenge-mod/utils/proxy'
 
-const _createClassModuleId = lookupModuleId(byName('_createClass'))
-const _classCallCheckModuleId = lookupModuleId(byName('_classCallCheck'))
+const [, _createClassModuleId] = lookupModule(byName('_createClass'))
+const [, _classCallCheckModuleId] = lookupModule(byName('_classCallCheck'))
 
 export let ReactNavigationNative: typeof import('@react-navigation/native') = proxify(
     () => {
-        const module = lookupModule(
+        const [module] = lookupModule(
             preferExports(
                 byProps<typeof ReactNavigationNative>('useLinkTo'),
                 byDependencies(looseDeps([[], looseDeps([[_createClassModuleId, _classCallCheckModuleId]])])),
@@ -26,7 +26,7 @@ export let ReactNavigationNative: typeof import('@react-navigation/native') = pr
 
 export let ReactNavigationStack: typeof import('@react-navigation/stack') = proxify(
     () => {
-        const module = lookupModule(
+        const [module] = lookupModule(
             preferExports(
                 byProps<typeof ReactNavigationStack>('createStackNavigator'),
                 byDependencies(looseDeps([[], looseDeps([[_createClassModuleId, _classCallCheckModuleId]])])),

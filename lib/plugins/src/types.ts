@@ -1,6 +1,6 @@
-import type { DiscordModules } from '@revenge-mod/discord/types'
+import type { PluginStatus, PluginFlags } from './constants'
 
-import type { PluginFlags as PF, PluginStatus as PS } from './constants'
+import type { DiscordModules } from '@revenge-mod/discord/types'
 
 import type { PluginApiDiscord } from './apis/discord'
 import type { PluginApiExternals } from './apis/externals'
@@ -8,21 +8,26 @@ import type { PluginApiModules } from './apis/modules'
 import type { PluginApiReact } from './apis/react'
 import type { PluginApiPlugins } from './apis/plugins'
 
-export type PluginFlags = (typeof PF)[keyof typeof PF]
-export type PluginStatus = (typeof PS)[keyof typeof PS]
+/**
+ * The unscoped plugin API (very limited). This API is available as a global for plugins.
+ * Available in the `preInit` phase.
+ */
+export interface UnscopedPreInitPluginApi {
+    modules: PluginApiModules
+    patcher: typeof import('@revenge-mod/patcher')
+    plugins: PluginApiPlugins
+    // utils: PluginApiUtils
+}
 
 /**
  * The unscoped plugin API (limited). This API is available as a global for plugins.
  * Available in the `init` phase.
  */
-export interface UnscopedInitPluginApi {
+export interface UnscopedInitPluginApi extends UnscopedPreInitPluginApi {
+    assets: typeof import('@revenge-mod/assets')
     discord: PluginApiDiscord
     externals: PluginApiExternals
-    modules: PluginApiModules
-    patcher: typeof import('@revenge-mod/patcher')
-    plugins: PluginApiPlugins
     react: PluginApiReact
-    // utils: PluginApiUtils
 }
 
 /**
@@ -30,7 +35,6 @@ export interface UnscopedInitPluginApi {
  * Available in the `start` and `stop` phase.
  */
 export interface UnscopedPluginApi extends UnscopedInitPluginApi {
-    assets: typeof import('@revenge-mod/assets')
     // ui: typeof import('@revenge-mod/ui')
 }
 
@@ -38,14 +42,22 @@ export type PluginCleanup = () => any
 export type PluginCleanupApi = (...fns: PluginCleanup[]) => void
 
 /**
+ * The plugin API (very limited).
+ * Available in the `preInit` phase.
+ */
+export interface PreInitPluginApi {
+    unscoped: UnscopedPreInitPluginApi
+    cleanup: PluginCleanupApi
+    plugin: Plugin
+}
+
+/**
  * The plugin API (limited).
  * Available in the `init` phase.
  */
-export interface InitPluginApi {
-    plugin: Plugin
-    logger: InstanceType<DiscordModules.Logger>
+export interface InitPluginApi extends PreInitPluginApi {
     unscoped: UnscopedInitPluginApi
-    cleanup: PluginCleanupApi
+    logger: InstanceType<DiscordModules.Logger>
 }
 
 /**
@@ -98,24 +110,29 @@ export interface PluginManifest {
 
 export interface PluginLifecycles {
     /**
-     * Runs immediately as soon as possible with limited APIs.
+     * Runs as soon as possible with very limited APIs.
+     * Before the index module (module 0)'s factory is run.
+     *
+     * @param api Plugin API (very limited).
+     */
+    preInit?: (api: PreInitPluginApi) => any
+    /**
+     * Runs as soon as all important modules are initialized.
+     * After the index module (module 0)'s factory is run.
      *
      * @param api Plugin API (limited).
-     * @param context Plugin context.
      */
     init?: (api: InitPluginApi) => any
     /**
      * Runs when the plugin can be started with all APIs available.
      *
      * @param api Plugin API.
-     * @param context Plugin context.
      */
     start?: (api: PluginApi) => any
     /**
      * Runs when the plugin is stopped.
      *
      * @param api Plugin API.
-     * @param context Plugin context.
      */
     stop?: (api: PluginApi) => any
 }
@@ -137,12 +154,14 @@ export interface Plugin {
 
     /**
      * The plugin flags.
+     * @see {@link PluginFlags}
      */
-    flags: PluginFlags
+    flags: number
     /**
      * The plugin status.
+     * @see {@link PluginStatus}
      */
-    status: PluginStatus
+    status: number
     /**
      * Errors encountered during the plugin lifecycles.
      */
@@ -152,4 +171,8 @@ export interface Plugin {
      * Disable the plugin. This will also stop the plugin if it is running.
      */
     disable(): Promise<void>
+    /**
+     * Stop the plugin.
+     */
+    stop(): Promise<void>
 }
