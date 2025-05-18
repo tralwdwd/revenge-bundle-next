@@ -101,13 +101,15 @@ export namespace DiscordModules {
         new (
             tag: string,
         ): {
+            logDangerously(...args: unknown[]): void
             log(...args: unknown[]): void
             error(...args: unknown[]): void
             warn(...args: unknown[]): void
             info(...args: unknown[]): void
-            debug(...args: unknown[]): void
             time(...args: unknown[]): void
             trace(...args: unknown[]): void
+            fileOnly(...args: unknown[]): void
+            verboseDangerously(...args: unknown[]): void
             verbose(...args: unknown[]): void
         }
     }
