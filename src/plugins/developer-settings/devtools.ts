@@ -1,9 +1,9 @@
 import { ToastActionCreators } from '@revenge-mod/discord/actions'
 import { React } from '@revenge-mod/react'
+import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 import { getErrorStack } from '@revenge-mod/utils/errors'
 import { useReRender } from '@revenge-mod/utils/react'
 import { api } from '.'
-import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 
 export const DevToolsContext: {
     ws: WebSocket | undefined

@@ -1,5 +1,5 @@
-import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
+import { PluginFlags } from '@revenge-mod/plugins/constants'
 
 import { _data } from '@revenge-mod/discord/_/modules/settings'
 import { isSettingsModulesLoaded, onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'

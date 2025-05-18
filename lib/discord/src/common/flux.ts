@@ -2,8 +2,8 @@ import { byDependencies, byProps, preferExports, relativeDep } from '@revenge-mo
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 
-import type { DiscordModules } from '../types'
 import type { Metro } from '@revenge-mod/modules/types'
+import type { DiscordModules } from '../types'
 
 // ../discord_common/js/packages/flux
 

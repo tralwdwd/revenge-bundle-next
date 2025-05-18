@@ -1,4 +1,4 @@
-import type { ModuleFirstRequiredCallback, ModuleInitializedCallback, ModuleFinishedImportingCallback } from '.'
+import type { ModuleFinishedImportingCallback, ModuleFirstRequiredCallback, ModuleInitializedCallback } from '.'
 import type { Metro } from '../../types'
 
 export const _reqAll = new Set<ModuleFirstRequiredCallback>()

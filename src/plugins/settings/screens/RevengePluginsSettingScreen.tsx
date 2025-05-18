@@ -1,24 +1,24 @@
 import { Design } from '@revenge-mod/discord/design'
 import { FlashList } from '@revenge-mod/externals/shopify'
-import { React, ReactNative } from '@revenge-mod/react'
 import {
+    type InternalPlugin,
+    InternalPluginFlags,
     _metas,
     _plugins,
     enablePlugin,
     initPlugin,
-    InternalPluginFlags,
     preInitPlugin,
     startPlugin,
-    type InternalPlugin,
 } from '@revenge-mod/plugins/_'
+import { React, ReactNative } from '@revenge-mod/react'
 
 import FormSwitch from '~/components/FormSwitch'
 import Page from '~/components/Page'
 import SearchInput from '~/components/SearchInput'
 
-import { PluginFlags } from '@revenge-mod/plugins/constants'
-import { Tokens } from '@revenge-mod/discord/common'
 import { getAssetByName, getAssetId } from '@revenge-mod/assets'
+import { Tokens } from '@revenge-mod/discord/common'
+import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { useReRender } from '@revenge-mod/utils/react'
 
 const { Image, useWindowDimensions } = ReactNative

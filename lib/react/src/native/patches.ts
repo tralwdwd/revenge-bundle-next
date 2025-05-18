@@ -1,8 +1,8 @@
 import { after, before } from '@revenge-mod/patcher'
 import { ReactNative } from '..'
 
-import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { byProps } from '@revenge-mod/modules/finders/filters'
+import { waitForModules } from '@revenge-mod/modules/finders/wait'
 
 import type { RunApplicationCallback } from '.'
 

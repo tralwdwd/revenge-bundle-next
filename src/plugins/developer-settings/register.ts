@@ -2,12 +2,12 @@ import { addSettingsItemToSection, registerSettingsItems } from '@revenge-mod/di
 
 import { MobileSetting } from './constants'
 
+import AssetBrowserSetting from './definitions/AssetBrowserSetting'
 import EvaluateJavaScriptSetting from './definitions/EvaluateJavaScriptSetting'
 import ReactDevToolsConnectSetting from './definitions/ReactDevToolsConnectSetting'
 import ReactDevToolsDisconnectSetting from './definitions/ReactDevToolsDisconnectSetting'
 import ReactDevToolsVersionSetting from './definitions/ReactDevToolsVersionSetting'
 import RevengeDeveloperSetting from './definitions/RevengeDeveloperSetting'
-import AssetBrowserSetting from './definitions/AssetBrowserSetting'
 
 import { api } from '.'
 

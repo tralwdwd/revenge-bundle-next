@@ -1,12 +1,12 @@
-import type { PluginStatus, PluginFlags } from './constants'
+import type { PluginFlags, PluginStatus } from './constants'
 
 import type { DiscordModules } from '@revenge-mod/discord/types'
 
 import type { PluginApiDiscord } from './apis/discord'
 import type { PluginApiExternals } from './apis/externals'
 import type { PluginApiModules } from './apis/modules'
-import type { PluginApiReact } from './apis/react'
 import type { PluginApiPlugins } from './apis/plugins'
+import type { PluginApiReact } from './apis/react'
 
 /**
  * The unscoped plugin API (very limited). This API is available as a global for plugins.
