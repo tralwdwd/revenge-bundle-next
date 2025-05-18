@@ -2,11 +2,20 @@ import { parse } from 'path'
 import { transform } from '@swc/core'
 import { $, main } from 'bun'
 import chalk from 'chalk'
-import { exists, mkdir, readdir, writeFile } from 'fs/promises'
+import { exists, mkdir, readdir, rm, writeFile } from 'fs/promises'
 import { type OutputChunk, type RolldownPlugin, rolldown } from 'rolldown'
 import { aliasPlugin } from 'rolldown/experimental'
 
 import pkg from '../package.json'
+
+const AssetsDir = 'src/assets'
+const GeneratedAssetsDir = 'dist/assets/generated'
+
+await rm(GeneratedAssetsDir, { recursive: true, force: true })
+    .then(() => {
+        console.debug(chalk.gray('\u{1F5BB} Deleted old assets'))
+    })
+    .catch()
 
 // If this file is being run directly, build the project
 if (main === import.meta.filename) build()
@@ -182,8 +191,6 @@ function hermesCPlugin({ after, before, flags }: { flags?: string[]; before?: ()
 }
 
 async function generateAssets() {
-    const AssetsDir = 'src/assets'
-    const GeneratedAssetsDir = 'dist/assets/generated'
     if (!(await exists(GeneratedAssetsDir))) await mkdir(GeneratedAssetsDir, { recursive: true })
 
     const promises: Promise<void>[] = []
