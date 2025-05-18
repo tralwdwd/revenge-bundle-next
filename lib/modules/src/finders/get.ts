@@ -61,7 +61,7 @@ export function getModule(filter: Filter, callback: GetModuleCallback<any>, opti
 
     const unsub = waitForModules(
         filter,
-        (id, exports) => {
+        (exports, id) => {
             unsub()
             callback(exports, id)
         },
