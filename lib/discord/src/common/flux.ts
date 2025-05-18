@@ -1,6 +1,14 @@
-import { byDependencies, byProps, preferExports, relativeDep } from '@revenge-mod/modules/finders/filters'
+import {
+    byDependencies,
+    byProps,
+    createFilterGenerator,
+    preferExports,
+    relativeDep,
+    type Filter,
+} from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
+import { noopFalse } from '@revenge-mod/utils/callbacks'
 
 import type { Metro } from '@revenge-mod/modules/types'
 import type { DiscordModules } from '../types'
@@ -28,3 +36,20 @@ export const Stores = new Proxy(_stores, {
     ownKeys: () => Reflect.ownKeys(_stores),
     get: (_, name) => _stores[name as string],
 })
+
+export function getStore<T>(name: string, callback: (store: DiscordModules.Flux.Store<T>) => void) {
+    const store = Stores[name]
+    if (store) {
+        callback(store)
+        return noopFalse
+    }
+
+    return waitForModules(byStoreName<T>(name), callback)
+}
+
+export type ByStoreName = <T>(name: string) => Filter<DiscordModules.Flux.Store<T>>
+
+export const byStoreName = createFilterGenerator<[name: string]>(
+    ([name], _, exports) => exports.getName?.length === 0 && exports.getName() === name,
+    ([name]) => `revenge.discord.byStoreName(${name})`,
+) as ByStoreName
