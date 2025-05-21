@@ -11,6 +11,8 @@ import { after } from '@revenge-mod/patcher'
 
 import type { FC } from 'react'
 
+onSettingsModulesLoaded(() => require('./register'))
+
 registerPlugin(
     {
         id: 'revenge.settings',
@@ -21,8 +23,6 @@ registerPlugin(
     },
     {
         start({ logger }) {
-            onSettingsModulesLoaded(() => require('./register'))
-
             const unsubForRendererConfig = waitForModules(
                 byProps<{
                     SETTING_RENDERER_CONFIG: Record<string, SettingsItem>
@@ -32,7 +32,13 @@ registerPlugin(
 
                     logger.info('Settings modules loaded, running subscriptions and patching...')
 
-                    for (const sub of _subs) sub()
+                    for (const sub of _subs)
+                        try {
+                            sub()
+                        } catch (e) {
+                            logger.error('Failed to run settings modules subscription', e)
+                        }
+
                     // We don't ever need to call this again
                     _subs.clear()
                     _data[2] = true
