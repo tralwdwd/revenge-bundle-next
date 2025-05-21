@@ -74,7 +74,7 @@ export type ByProps = <T extends Record<string, any> = Record<string, any>>(
  *
  * @example
  * ```ts
- * const React = await findModule(byProps<typeof import('react')>('createElement'))
+ * const [React] = lookupModule(byProps<typeof import('react')>('createElement'))
  * // const React: typeof import('react')
  * ```
  */
@@ -121,7 +121,7 @@ export type BySingleProp = <T extends Record<string, any>>(prop: keyof T) => Fil
  *
  * @example
  * ```ts
- * const FormSwitchModule = await findModule(bySingleProp('FormSwitch'))
+ * const [FormSwitchModule] = lookupModule(bySingleProp('FormSwitch'))
  * // const FormSwitchModule: { FormSwitch: any }
  * ```
  */
@@ -142,15 +142,15 @@ export type ByName = <T extends object = object>(name: string) => Filter<T, true
  *
  * @example Auto-typing as object
  * ```ts
- * const SomeComponent = await findModule(byName('SomeComponent'))
- * // const SomeComponent: object
+ * const [SomeComponent] = lookupModule(byName('SomeComponent'))
+ * // const SomeComponent: { name: 'SomeComponent' }
  * ```
  *
  * @example Typing as function component
  * ```ts
  * type MyComponent = React.FC<{ foo: string }>
  *
- * const MyComponent = await findModule(byName<MyComponent>('MyComponent'))
+ * const [MyComponent] = lookupModule(byName<MyComponent>('MyComponent'))
  * // const MyComponent: MyComponent & { name: 'MyComponent' }
  * ```
  *
@@ -160,7 +160,7 @@ export type ByName = <T extends object = object>(name: string) => Filter<T, true
  *    someMethod(): void
  * }
  *
- * const SomeClass = await findModule(byName<{ new(param: string): SomeClass }>('SomeClass'))
+ * const [SomeClass] = lookupModule(byName<{ new(param: string): SomeClass }>('SomeClass'))
  * // const SomeClass: { new(): SomeClass, name: 'SomeClass' }
  */
 export const byName = createFilterGenerator<Parameters<ByName>>(
@@ -190,18 +190,18 @@ type ByDependencies = <T>(deps: ComparableDependencyMap) => Filter<T, false>
  *
  * @example
  * ```ts
- * const Logger = await findModule(byDependencies([4, undefined, 2]))
+ * const [Logger] = lookupModule(byDependencies([4, undefined, 2]))
  * // or
- * const Logger = await findModule(byDependencies([4, , 2]))
+ * const [Logger] = lookupModule(byDependencies([4, , 2]))
  * // or with relative dependencies
  * // If Logger's module ID is 20, [19, ..., ..., 2] would match:
- * const Logger = await findModule(byDependencies([relativeDep(-1), , 2]))
+ * const [Logger] = lookupModule(byDependencies([relativeDep(-1), , 2]))
  * // or with nested dependencies
  * // The last dependency would need to have zero dependencies:
- * const Logger = await findModule(byDependencies([4, , []]))
+ * const [Logger] = lookupModule(byDependencies([4, , []]))
  * // or with loose dependencies
  * // Module having 4 dependencies [4, ...], [4, ..., ...], [4, ..., ..., ...] etc. would match:
- * const SomeOtherModule = await findModule(byDependencies(looseDeps([4, ,])))
+ * const [SomeOtherModule] = lookupModule(byDependencies(looseDeps([4, ,])))
  * ```
  */
 export const byDependencies = createFilterGenerator<Parameters<ByDependencies>>(
@@ -308,7 +308,7 @@ export type Every = {
  *
  * @example
  * ```ts
- * const SomeModule = await findModule(every(
+ * const [SomeModule] = lookupModule(every(
  *    byProps('x', 'name'),
  *    byName('SomeName'),
  *    byDependencies([1, 485, , 2]),
@@ -350,7 +350,7 @@ export type Some = {
  *
  * @example
  * ```ts
- * const SomeModule = await findModule(some(
+ * const [SomeModule] = lookupModule(some(
  *   byProps('x', 'name'),
  *   byName('SomeName'),
  *   byDependencies([1, 485, , 2]),
@@ -386,7 +386,7 @@ export type ModuleStateAware = <IF extends Filter>(
  * ```ts
  * // will filter byProps('x') for initialized modules
  * // and byDependencies([1, 485, , 2]) for uninitialized modules
- * const SomeModule = await findModule(moduleStateAware(
+ * const [SomeModule] = lookupModule(moduleStateAware(
  *   byProps('x'),
  *   byDependencies([1, 485, , 2]),
  * ))
@@ -423,7 +423,7 @@ export type PreferExports = <WEF extends Filter>(
  * ```ts
  * // will filter byProps('x') for modules with proper exports
  * // and byDependencies([1, 485, , 2]) for without proper exports (uninitialized or bad)
- * const SomeModule = await findModule(preferExports(
+ * const [SomeModule] = lookupModule(preferExports(
  *   byProps('x'),
  *   byDependencies([1, 485, , 2]),
  * ))
