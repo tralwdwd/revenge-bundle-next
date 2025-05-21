@@ -3,7 +3,16 @@ import { SettingListRenderer } from '@revenge-mod/discord/modules/settings/rende
 import { React, ReactNative } from '@revenge-mod/react'
 
 import { MobileSetting } from '../constants'
-import { DevToolsContext } from '../devtools'
+import { DevToolsContext, useIsDevToolsOpen } from '../react-devtools'
+import { api } from '..'
+import { ToastActionCreators } from '@revenge-mod/discord/actions'
+import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
+
+const CircleCheckIcon = lookupGeneratedIconComponent(
+    'CircleCheckIcon',
+    'CircleCheckIcon-secondary',
+    'CircleCheckIcon-primary',
+)
 
 // TODO(plugins/settings): debug bridge
 export default function RevengeDeveloperSettingScreen() {
@@ -18,6 +27,7 @@ export default function RevengeDeveloperSettingScreen() {
                     {
                         settings: [
                             MobileSetting.REACT_DEVTOOLS_VERSION,
+                            MobileSetting.REACT_DEVTOOLS_AUTO_CONNECT,
                             MobileSetting.REACT_DEVTOOLS_CONNECT,
                             MobileSetting.REACT_DEVTOOLS_DISCONNECT,
                         ],
@@ -33,15 +43,33 @@ export default function RevengeDeveloperSettingScreen() {
 }
 
 export function ReactDevToolsAddressSetting() {
+    const open = useIsDevToolsOpen()
+    const settings = api.storage.use(s => s.devtools?.address)
+
     return (
         <ReactNative.View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
             <Design.TextInput
-                editable={!DevToolsContext.open}
-                isDisabled={DevToolsContext.open}
+                editable={!open}
+                isDisabled={open}
                 leadingText="ws://"
-                defaultValue={DevToolsContext.address}
+                defaultValue={settings?.devtools.address ?? DevToolsContext.address}
                 label="React DevTools"
                 onChange={text => (DevToolsContext.address = text)}
+                onBlur={() => {
+                    api.storage
+                        .set({
+                            devtools: {
+                                address: DevToolsContext.address,
+                            },
+                        })
+                        .then(() => {
+                            ToastActionCreators.open({
+                                IconComponent: CircleCheckIcon,
+                                key: 'REACT_DEVTOOLS_ADDRESS_SAVED',
+                                content: 'Address saved',
+                            })
+                        })
+                }}
                 returnKeyType="done"
             />
         </ReactNative.View>

@@ -29,7 +29,7 @@ subscriptions.add((e, err) => {
         api.logger.error('React DevTools error:', actualError)
 
         ToastActionCreators.open({
-            key: 'DEVTOOLS_ERROR',
+            key: 'REACT_DEVTOOLS_ERROR',
             IconComponent: CircleXIcon,
             content: actualError,
         })

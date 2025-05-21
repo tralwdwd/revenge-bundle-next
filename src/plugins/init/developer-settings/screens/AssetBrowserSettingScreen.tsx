@@ -8,12 +8,13 @@ import Page from '~/components/Page'
 import SearchInput from '~/components/SearchInput'
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 
-import { getAllAssets, getAssetId } from '@revenge-mod/assets'
+import { getAllAssets, getAssetId, getAssetModuleId } from '@revenge-mod/assets'
 
 import type { Asset, AssetId } from '@revenge-mod/assets/types'
+import type { Metro } from '@revenge-mod/modules/types'
 
-const { Image, StyleSheet, View } = ReactNative
-const { AlertModal, AlertActionButton, TableRow, Text, Stack } = Design
+const { Image, StyleSheet } = ReactNative
+const { AlertModal, AlertActionButton, TableRow, TableRowGroup, Text } = Design
 
 const Displayable = new Set(['png', 'jpg', 'svg', 'webp'])
 const UndisplayableFallback = {
@@ -27,7 +28,7 @@ const UndisplayableFallback = {
 export default function AssetBrowserSettingScreen() {
     const [search, setSearch] = React.useState('')
     const assets = React.useMemo(
-        () => [...getAllAssets()].map(asset => [getAssetId(asset)!, asset] as const),
+        () => [...getAllAssets()].map(asset => [getAssetId(asset)!, getAssetModuleId(asset)!, asset] as const),
         [getAllAssets],
     )
 
@@ -35,39 +36,58 @@ export default function AssetBrowserSettingScreen() {
         () =>
             !search.length
                 ? assets
-                : assets.filter(([_, asset]) => asset.name.toLowerCase().includes(search.toLowerCase())),
+                : assets.filter(([, , asset]) => asset.name.toLowerCase().includes(search.toLowerCase())),
         [assets, search],
     )
 
     return (
         <Page spacing={16}>
             <SearchInput size="md" onChange={(v: string) => setSearch(v)} />
-            <View style={styles.listContainer}>
-                <FlashList.FlashList
-                    data={filteredAssets}
-                    renderItem={({ item: [id, asset] }) => <AssetDisplay id={id} asset={asset} />}
-                    estimatedItemSize={80}
-                />
-            </View>
+            <FlashList.FlashList
+                data={filteredAssets}
+                keyExtractor={([id]) => id.toString()}
+                renderItem={({ item: [id, moduleId, asset], index }) => (
+                    <AssetDisplay
+                        start={!index}
+                        end={index === assets.length - 1}
+                        id={id}
+                        moduleId={moduleId}
+                        asset={asset}
+                    />
+                )}
+                estimatedItemSize={80}
+            />
         </Page>
     )
 }
 
 function AssetDisplay({
     id,
+    moduleId,
     asset,
+    start,
+    end,
 }: {
     id: AssetId
+    moduleId: Metro.ModuleID
     asset: Asset
+    start?: boolean
+    end?: boolean
 }) {
     const isDisplayable = Displayable.has(asset.type)
-    const metadata = [`ID: ${id}`, `Type: ${asset.type}`]
+    const metadata = [
+        ['ID', id.toString()],
+        ['Type', asset.type],
+        ['Module ID', moduleId.toString()],
+    ] as const
 
     return (
         <TableRow
+            start={start}
+            end={end}
             variant={isDisplayable ? 'default' : 'danger'}
             label={asset.name}
-            subLabel={metadata.join('  • ')}
+            subLabel={metadata.map(([name, value]) => `${name}: ${value}`).join('  • ')}
             icon={
                 isDisplayable ? (
                     <Image source={id} style={styles.smallPreview} />
@@ -82,37 +102,47 @@ function AssetDisplay({
                     />
                 )
             }
-            onPress={() =>
-                AlertActionCreators.openAlert(
-                    'asset-display',
-                    <AlertModal
-                        title={asset.name}
-                        content={metadata.join(' • ')}
-                        extraContent={
-                            isDisplayable ? (
-                                <Image source={id} style={styles.preview} />
-                            ) : (
-                                <PreviewUnavailable type={asset.type} />
-                            )
-                        }
-                        actions={
-                            <Stack>
-                                <AlertActionButton
-                                    text="Copy asset name"
-                                    variant="primary"
-                                    onPress={() => Clipboard.setString(asset.name)}
-                                />
-                                <AlertActionButton
-                                    text="Copy asset ID"
-                                    variant="secondary"
-                                    onPress={() => Clipboard.setString(id.toString())}
-                                />
-                            </Stack>
-                        }
-                    />,
-                )
-            }
+            onPress={() => openAssetDisplayAlert(asset, id, metadata)}
         />
+    )
+}
+
+function openAssetDisplayAlert(
+    asset: Asset,
+    id: AssetId,
+    metadata: Readonly<Readonly<[string, string]>[]> | [string, string][],
+) {
+    const isDisplayable = Displayable.has(asset.type)
+
+    AlertActionCreators.openAlert(
+        'asset-display',
+        <AlertModal
+            title={asset.name}
+            extraContent={
+                <>
+                    {isDisplayable ? (
+                        <Image source={id} style={styles.preview} />
+                    ) : (
+                        <PreviewUnavailable type={asset.type} />
+                    )}
+                    <TableRowGroup>
+                        {metadata.map(([name, value]) => (
+                            <TableRow
+                                key={id}
+                                label={name}
+                                subLabel={value}
+                                onPress={() => Clipboard.setString(value)}
+                            />
+                        ))}
+                    </TableRowGroup>
+                    <Text variant="text-xs/semibold" color="text-danger">
+                        Note: Asset IDs and module IDs are not consistent between app launches and app versions
+                        respectively and should only be used when absolutely needed.
+                    </Text>
+                </>
+            }
+            actions={<AlertActionButton text="Close" variant="secondary" />}
+        />,
     )
 }
 
@@ -125,11 +155,6 @@ function PreviewUnavailable({ type }: { type: string }) {
 }
 
 const styles = StyleSheet.create({
-    listContainer: {
-        flex: 1,
-        borderRadius: 16,
-        overflow: 'hidden',
-    },
     smallPreview: {
         height: 32,
         width: 32,

@@ -3,7 +3,7 @@ import { React } from '@revenge-mod/react'
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 
 import { MobileSetting } from '../constants'
-import { DevToolsContext } from '../devtools'
+import { DevToolsContext } from '../react-devtools'
 
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
