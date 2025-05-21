@@ -1,3 +1,5 @@
+import type { AnyObject } from './types'
+
 // Retain reference to original functions
 export const objectFreeze = Object.freeze
 export const objectDefineProperty = Object.defineProperty
@@ -63,4 +65,32 @@ export function interceptProperty(prop: PropertyKey, callback: (target: object, 
         if (desc) objectDefineProperty(proto, prop, desc)
         _intercepting.delete(prop)
     }
+}
+
+/**
+ * Simple check if to see if value is an object.
+ *
+ * @param val The value to check.
+ */
+export function isObject(val: any): val is AnyObject {
+    return val && typeof val === 'object' && !Array.isArray(val)
+}
+
+/**
+ * Deep merge two objects.
+ *
+ * @param target The object to merge into.
+ * @param source The object to merge from.
+ *
+ * @returns The merged target.
+ */
+export function mergeDeep(target: AnyObject, source: AnyObject) {
+    if (isObject(target) && isObject(source))
+        for (const key in source)
+            if (isObject(source[key])) {
+                if (!target[key]) Object.assign(target, { [key]: {} })
+                mergeDeep(target[key], source[key])
+            } else Object.assign(target, { [key]: source[key] })
+
+    return target
 }
