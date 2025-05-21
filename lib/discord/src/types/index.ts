@@ -364,9 +364,8 @@ export namespace DiscordModules {
             dragHandlePressableProps?: PressableProps
             labelLineClamp?: number
             subLabelLineClamp?: number
-            // TODO
-            start?: unknown
-            end?: unknown
+            start?: boolean
+            end?: boolean
             variant?: TableRowVariant
         }
 
