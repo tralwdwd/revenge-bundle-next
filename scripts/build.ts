@@ -4,7 +4,7 @@ import { $, main } from 'bun'
 import chalk from 'chalk'
 import { exists, mkdir, readdir, rm, writeFile } from 'fs/promises'
 import { type OutputChunk, type RolldownPlugin, rolldown } from 'rolldown'
-import { aliasPlugin } from 'rolldown/experimental'
+import { aliasPlugin, importGlobPlugin } from 'rolldown/experimental'
 
 import pkg from '../package.json'
 
@@ -50,7 +50,6 @@ export default async function build(dev = false, log = true) {
             __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: String(dev),
         },
         plugins: [
-            swcPlugin(),
             aliasPlugin({
                 entries: [
                     {
@@ -59,6 +58,8 @@ export default async function build(dev = false, log = true) {
                     },
                 ],
             }),
+            importGlobPlugin(),
+            swcPlugin(),
             hermesCPlugin({
                 flags: [
                     dev ? '-Og' : '-O',

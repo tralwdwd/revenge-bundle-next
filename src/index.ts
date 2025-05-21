@@ -22,7 +22,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
         require('@revenge-mod/discord/preinit')
 
         // Run all preinit plugins
-        require('~/plugins/_preinit')
+        require('~/plugins/preinit')
         require('@revenge-mod/plugins/preinit')
 
         onModuleInitialized(IndexModuleId, function onIndexInitialized() {
@@ -30,7 +30,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
                 // Initialize init libraries
 
                 // Run all init plugins
-                require('~/plugins/_all')
+                require('~/plugins/init')
                 require('@revenge-mod/plugins/init')
             })
         })
