@@ -80,6 +80,12 @@ export default async function build(dev = false, log = true) {
     })
 
     await bundle.write({
+        minify: {
+            deadCodeElimination: true,
+            removeWhitespace: false,
+            compress: true,
+            mangle: true,
+        },
         file: 'dist/revenge.js',
         format: 'iife',
         footer: '//# sourceURL=Revenge',
