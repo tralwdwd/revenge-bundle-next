@@ -84,8 +84,8 @@ export default async function build(dev = false, log = true) {
         minify: {
             deadCodeElimination: true,
             removeWhitespace: false,
-            compress: true,
-            mangle: true,
+            compress: !dev,
+            mangle: !dev,
         },
         file: 'dist/revenge.js',
         format: 'iife',
