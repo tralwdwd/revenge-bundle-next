@@ -2,6 +2,9 @@ import type { PluginFlags, PluginStatus } from './constants'
 
 import type { DiscordModules } from '@revenge-mod/discord/types'
 
+import type { Storage, StorageOptions } from '@revenge-mod/storage'
+import type { AnyObject } from '@revenge-mod/utils/types'
+
 import type { PluginApiDiscord } from './apis/discord'
 import type { PluginApiExternals } from './apis/externals'
 import type { PluginApiModules } from './apis/modules'
@@ -55,17 +58,25 @@ export interface PreInitPluginApi {
  * The plugin API (limited).
  * Available in the `init` phase.
  */
-export interface InitPluginApi extends PreInitPluginApi {
+export interface InitPluginApi<S extends AnyObject = AnyObject> extends PreInitPluginApi {
     unscoped: UnscopedInitPluginApi
     logger: InstanceType<DiscordModules.Logger>
+    /**
+     * The plugin storage.
+     *
+     * Note that the instance is only created when the plugin accesses the API.
+     * This is to prevent unnecessary storage instances from being created.
+     *
+     * To preload storage, simply call `api.storage.get()`.
+     */
+    storage: Storage<S>
 }
 
 /**
  * The plugin API.
  * Available in the `start` and `stop` phase.
  */
-export interface PluginApi extends InitPluginApi {
-    // settings: typeof import('@revenge-mod/settings')
+export interface PluginApi<S extends AnyObject = AnyObject> extends InitPluginApi<S> {
     unscoped: UnscopedPluginApi
 }
 
@@ -108,7 +119,11 @@ export interface PluginManifest {
     icon?: string
 }
 
-export interface PluginLifecycles {
+export interface PluginOptions<S extends AnyObject = AnyObject> extends PluginLifecycles<S> {
+    storage?: Omit<StorageOptions<S>, 'directory'>
+}
+
+export interface PluginLifecycles<S extends AnyObject = AnyObject> {
     /**
      * Runs as soon as possible with very limited APIs.
      * Before the index module (module 0)'s factory is run.
@@ -122,22 +137,22 @@ export interface PluginLifecycles {
      *
      * @param api Plugin API (limited).
      */
-    init?: (api: InitPluginApi) => any
+    init?: (api: InitPluginApi<S>) => any
     /**
      * Runs when the plugin can be started with all APIs available.
      *
      * @param api Plugin API.
      */
-    start?: (api: PluginApi) => any
+    start?: (api: PluginApi<S>) => any
     /**
      * Runs when the plugin is stopped.
      *
      * @param api Plugin API.
      */
-    stop?: (api: PluginApi) => any
+    stop?: (api: PluginApi<S>) => any
 }
 
-export interface Plugin {
+export interface Plugin<S extends AnyObject = AnyObject> {
     // TODO(plugins): support plugin bundles
     // /**
     //  * The plugin bundle this plugin belongs to.
@@ -150,7 +165,7 @@ export interface Plugin {
     /**
      * The plugin lifecycles.
      */
-    lifecycles: PluginLifecycles
+    lifecycles: PluginLifecycles<S>
 
     /**
      * The plugin flags.

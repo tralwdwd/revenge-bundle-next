@@ -27,3 +27,5 @@ export const PluginStatus = {
     Started: 1 << 5,
     Stopping: 1 << 6,
 }
+
+export const PluginsStorageDirectory = 'revenge/plugins/storage'

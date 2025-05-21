@@ -1,16 +1,18 @@
+import { getStorage, type StorageOptions } from '@revenge-mod/storage'
 import { allSettled, sleepReject } from '@revenge-mod/utils/promises'
 
 import { _uapi } from './apis'
 
-import { PluginFlags as Flag, PluginStatus as Status } from './constants'
+import { PluginFlags as Flag, PluginsStorageDirectory, PluginStatus as Status } from './constants'
 
+import type { AnyObject } from '@revenge-mod/utils/types'
 import type {
     InitPluginApi,
     Plugin,
     PluginApi,
     PluginCleanup,
-    PluginLifecycles,
     PluginManifest,
+    PluginOptions,
     PreInitPluginApi,
 } from './types'
 
@@ -25,15 +27,26 @@ export const _metas = new Map<
     ]
 >()
 
-export function registerPlugin(manifest: PluginManifest, lifecycles: PluginLifecycles, flags: number, iflags: number) {
+export function registerPlugin<S extends AnyObject = AnyObject>(
+    manifest: PluginManifest,
+    options: PluginOptions<S>,
+    flags: number,
+    iflags: number,
+) {
     // TODO(plugins): verify plugin manifest
     if (_plugins.has(manifest.id)) throw new Error(`Plugin with ID "${manifest.id}" already registered`)
 
     const plugin: InternalPlugin = {
-        cleanups: [],
+        _c: [],
+        _s: options.storage,
         errors: [],
         manifest,
-        lifecycles,
+        lifecycles: {
+            preInit: options.preInit,
+            init: options.init,
+            start: options.start,
+            stop: options.stop,
+        },
         status: 0,
         flags,
         disable: () => disablePlugin(plugin),
@@ -65,7 +78,7 @@ function preparePluginPreInit(id: PluginManifest['id']) {
 
     meta[0] = {
         cleanup: (...items) => {
-            plugin.cleanups.push(...items)
+            plugin._c.push(...items)
         },
         plugin,
         unscoped: _uapi,
@@ -74,11 +87,33 @@ function preparePluginPreInit(id: PluginManifest['id']) {
     meta[3] = PluginApiLevel.PreInit
 }
 
-function preparePluginInit(id: PluginManifest['id']) {
+function preparePluginInit(id: PluginManifest['id'], storageOptions?: StorageOptions<AnyObject>) {
     const meta = _metas.get(id)!
     const api = meta[0] as InitPluginApi
 
-    api.logger = new api.unscoped.discord.common.Logger(`Revenge > Plugins (${id})`)
+    Object.defineProperties(api, {
+        logger: {
+            configurable: true,
+            get() {
+                // @ts-expect-error
+                // biome-ignore lint/performance/noDelete: <explanation>
+                delete api.logger
+                return (api.logger = new api.unscoped.discord.common.Logger(`Revenge > Plugins (${id})`))
+            },
+        },
+        storage: {
+            configurable: true,
+            get() {
+                // @ts-expect-error
+                // biome-ignore lint/performance/noDelete: <explanation>
+                delete api.storage
+                return (api.storage = getStorage(`${PluginsStorageDirectory}/${id}.json`, {
+                    ...storageOptions,
+                    directory: 'documents',
+                }))
+            },
+        },
+    })
 
     meta[3] = PluginApiLevel.Init
 }
@@ -224,7 +259,7 @@ export async function stopPlugin(plugin: InternalPlugin) {
         throw new Error(`Plugin "${manifest.id}" is not running`)
 
     if (apiLevel < PluginApiLevel.PreInit) preparePluginPreInit(manifest.id)
-    if (apiLevel < PluginApiLevel.Init) preparePluginInit(manifest.id)
+    if (apiLevel < PluginApiLevel.Init) preparePluginInit(manifest.id, plugin._s)
     if (apiLevel < PluginApiLevel.Start) preparePluginStart(manifest.id)
 
     plugin.status |= Status.Stopping
@@ -239,7 +274,7 @@ export async function stopPlugin(plugin: InternalPlugin) {
         await handlePluginError(e, plugin)
     } finally {
         // Run cleanups
-        const results = await allSettled(plugin.cleanups.map(cleanup => cleanup()))
+        const results = await allSettled(plugin._c.map(cleanup => cleanup()))
         for (const result of results)
             if (result.status === 'rejected') {
                 await handlePluginError(result.reason, plugin)
@@ -253,7 +288,7 @@ export async function stopPlugin(plugin: InternalPlugin) {
 
         // Clear temp data
         meta[1] = []
-        plugin.cleanups = []
+        plugin._c = []
 
         // Reset status
         plugin.status = 0
@@ -261,7 +296,8 @@ export async function stopPlugin(plugin: InternalPlugin) {
 }
 
 export interface InternalPlugin extends Plugin {
-    cleanups: PluginCleanup[]
+    _s?: StorageOptions<AnyObject>
+    _c: PluginCleanup[]
 }
 
 export const InternalPluginFlags = {
