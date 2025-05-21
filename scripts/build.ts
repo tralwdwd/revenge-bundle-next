@@ -171,20 +171,22 @@ function hermesCPlugin({ after, before, flags }: { flags?: string[]; before?: ()
             const file = bundle['revenge.js'] as OutputChunk
             if (!file || !file.code) throw new Error('No code to compile')
 
-            const cmd = Bun.spawnSync(
-                [
-                    `./node_modules/@unbound-mod/hermesc/${process.platform}/${binPath}`,
-                    '-emit-binary',
-                    ...(flags ?? []),
-                ],
-                {
-                    stdin: new Blob([file.code]),
-                    stdout: 'pipe',
-                },
-            )
+            const cmdlist = [
+                `./node_modules/@unbound-mod/hermesc/${process.platform}/${binPath}`,
+                '-emit-binary',
+                ...(flags ?? []),
+            ]
+
+            const cmd = Bun.spawnSync(cmdlist, {
+                stdin: new Blob([file.code]),
+                stdout: 'pipe',
+            })
 
             const buf = cmd.stdout
-            if (!buf.length) throw new Error('No output from hermesc')
+            if (!buf.length)
+                throw new Error(
+                    `No output from hermesc. Probably a compilation error.\nTry running the command manually: ${cmdlist.join(' ')}`,
+                )
 
             this.emitFile({
                 type: 'asset',
