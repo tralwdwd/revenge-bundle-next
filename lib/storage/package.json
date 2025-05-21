@@ -2,5 +2,9 @@
   "name": "@revenge-mod/storage",
   "private": true,
   "type": "module",
-  "exports": {}
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  }
 }
