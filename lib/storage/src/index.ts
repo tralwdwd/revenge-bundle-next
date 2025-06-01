@@ -1,7 +1,7 @@
 // TODO(storage): Implement using NativeModules interop instead
 
-import { React } from '@revenge-mod/react'
 import { FileModule } from '@revenge-mod/discord/native'
+import { React } from '@revenge-mod/react'
 import { mergeDeep } from '@revenge-mod/utils/objects'
 import { useReRender } from '@revenge-mod/utils/react'
 
@@ -51,6 +51,9 @@ export function getStorage<T extends AnyObject = AnyObject>(path: string, option
         },
         exists() {
             return FileModule.fileExists(fullPath)
+        },
+        delete() {
+            return FileModule.removeFile(directory, path)
         },
         async get() {
             if (!(await this.exists())) {
@@ -119,7 +122,7 @@ export interface Storage<T extends AnyObject> {
      * The cached storage object. Set once `get()` is called, or `options.default` is set, and updated on `set()`.
      * You should not modify this directly.
      */
-    cache?: AnyObject
+    cache?: T | AnyObject
     /**
      * Use the storage in a React component. The component will re-render when the storage is updated.
      *
@@ -161,6 +164,10 @@ export interface Storage<T extends AnyObject> {
      * Whether the storage is exists.
      */
     exists(): Promise<boolean>
+    /**
+     * Delete the storage.
+     */
+    delete(): Promise<boolean>
 }
 
 export type StorageDirectory = 'cache' | 'documents'
