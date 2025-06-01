@@ -8,8 +8,9 @@ import { aliasPlugin, importGlobPlugin } from 'rolldown/experimental'
 
 import pkg from '../package.json'
 
-const AssetsDir = 'src/assets'
-const GeneratedAssetsDir = 'dist/assets/generated'
+const ShimsDir = `${import.meta.dir}/../shims`
+const AssetsDir = `${import.meta.dir}/../src/assets`
+const GeneratedAssetsDir = `${import.meta.dir}/../dist/assets/generated`
 
 await rm(GeneratedAssetsDir, { recursive: true, force: true })
     .then(() => {
@@ -54,7 +55,7 @@ export default async function build(dev = false, log = true) {
                 entries: [
                     {
                         find: 'react/jsx-runtime',
-                        replacement: './shims/react~jsx-runtime.ts',
+                        replacement: `${ShimsDir}/react~jsx-runtime.ts`,
                     },
                 ],
             }),
@@ -82,7 +83,6 @@ export default async function build(dev = false, log = true) {
 
     await bundle.write({
         minify: {
-            deadCodeElimination: true,
             removeWhitespace: false,
             compress: !dev,
             mangle: !dev,
@@ -178,6 +178,7 @@ function hermesCPlugin({ after, before, flags }: { flags?: string[]; before?: ()
             ]
 
             const cmd = Bun.spawnSync(cmdlist, {
+                // @ts-expect-error: Types are incorrect, but this works
                 stdin: new Blob([file.code]),
                 stdout: 'pipe',
             })
