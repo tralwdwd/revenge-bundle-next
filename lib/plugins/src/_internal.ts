@@ -1,4 +1,4 @@
-import { getStorage, type StorageOptions } from '@revenge-mod/storage'
+import { type StorageOptions, getStorage } from '@revenge-mod/storage'
 import { allSettled, sleepReject } from '@revenge-mod/utils/promises'
 
 import { _uapi } from './apis'

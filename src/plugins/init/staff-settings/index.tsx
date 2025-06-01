@@ -1,5 +1,5 @@
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
-import { getStore, Stores } from '@revenge-mod/discord/common/flux'
+import { Stores, getStore } from '@revenge-mod/discord/common/flux'
 import { Design } from '@revenge-mod/discord/design'
 
 import { byProps } from '@revenge-mod/modules/finders/filters'
