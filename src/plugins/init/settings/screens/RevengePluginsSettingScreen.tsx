@@ -16,7 +16,7 @@ import FormSwitch from '~/components/FormSwitch'
 import Page from '~/components/Page'
 import SearchInput from '~/components/SearchInput'
 
-import { getAssetByName, getAssetId } from '@revenge-mod/assets'
+import { getAssetIdByName } from '@revenge-mod/assets'
 import { Tokens } from '@revenge-mod/discord/common'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { useReRender } from '@revenge-mod/utils/react'
@@ -118,7 +118,7 @@ function InstalledPluginCard({
         <Card style={[styles.card, rightGap && styles.rightGap]}>
             <Stack direction="horizontal" style={[styles.grow, styles.topContainer]}>
                 <Stack spacing={8} direction="horizontal" style={[styles.topContainer, styles.autoSize]}>
-                    <Image source={getAssetId(getAssetByName(icon ?? 'PuzzlePieceIcon')!)!} style={styles.icon} />
+                    <Image source={getAssetIdByName(icon ?? 'PuzzlePieceIcon')!} style={styles.icon} />
                     <Text variant="heading-lg/semibold">{name}</Text>
                 </Stack>
                 <FormSwitch

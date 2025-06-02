@@ -1,7 +1,7 @@
+import { ToastActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { SettingListRenderer } from '@revenge-mod/discord/modules/settings/renderer'
 import { React, ReactNative } from '@revenge-mod/react'
-import { ToastActionCreators } from '@revenge-mod/discord/actions'
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 
 import { api } from '..'

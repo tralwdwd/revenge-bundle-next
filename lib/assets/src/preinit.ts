@@ -3,7 +3,8 @@ import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
 
-import { _assets, _metas, _overrides } from './_internal'
+import { _metas, _overrides } from './_internal'
+import { cacheAsset } from './caches'
 
 import type { ReactNative } from '@revenge-mod/react/types'
 import type { Asset, ReactNativeAsset } from './types'
@@ -43,17 +44,12 @@ const unsubAR = waitForModules(byProps<ReactNative.AssetsRegistry>('registerAsse
     exports.registerAsset = (asset: Asset) => {
         const result = orig(asset as ReactNativeAsset)
 
-        const { name, type } = asset
-
-        let reg = _assets.get(name)
-        if (!reg) {
-            reg = [asset, {}]
-            _assets.set(name, reg)
+        // Cache packager assets only
+        if ((asset as ReactNativeAsset).__packager_asset) {
+            cacheAsset(asset, _initing)
+            // In-memory cache
+            _metas.set(asset, [result, _initing])
         }
-
-        // In-memory cache
-        reg[1][type] = asset
-        _metas.set(asset, [result, _initing])
 
         return result
     }
@@ -68,7 +64,7 @@ const unsubRAS = waitForModules(
         unsubRAS()
 
         // Custom assets
-        // Why do we need to do this? Because RN/Dicord (unsure which) will attempt to resolve the asset via its path, which we don't provide via custom assets.
+        // Why do we need to do this? Because RN/Discord (unsure which) will attempt to resolve the asset via its path, which we don't provide via custom assets.
         // This will result in a crash, because it tries to read the path and run checks on it, but the path is undefined.
         // @ts-expect-error
         rAS.addCustomSourceTransformer(({ asset }) => {
@@ -78,6 +74,6 @@ const unsubRAS = waitForModules(
 
         // Asset overrides
         // @ts-expect-error
-        rAS.addCustomSourceTransformer(({ asset }) => _overrides.get(asset.name))
+        rAS.addCustomSourceTransformer(({ asset }) => _overrides.get(asset))
     },
 )

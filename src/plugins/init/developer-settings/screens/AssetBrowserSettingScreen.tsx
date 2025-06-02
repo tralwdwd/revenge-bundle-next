@@ -8,7 +8,7 @@ import Page from '~/components/Page'
 import SearchInput from '~/components/SearchInput'
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 
-import { getAllAssets, getAssetId, getAssetModuleId } from '@revenge-mod/assets'
+import { getAssetId, getAssetModuleId, getAssets } from '@revenge-mod/assets'
 
 import type { Asset, AssetId } from '@revenge-mod/assets/types'
 import type { Metro } from '@revenge-mod/modules/types'
@@ -28,8 +28,8 @@ const UndisplayableFallback = {
 export default function AssetBrowserSettingScreen() {
     const [search, setSearch] = React.useState('')
     const assets = React.useMemo(
-        () => [...getAllAssets()].map(asset => [getAssetId(asset)!, getAssetModuleId(asset)!, asset] as const),
-        [getAllAssets],
+        () => [...getAssets()].map(asset => [getAssetId(asset)!, getAssetModuleId(asset)!, asset] as const),
+        [getAssets],
     )
 
     const filteredAssets = React.useMemo(
