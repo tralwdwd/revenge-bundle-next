@@ -28,6 +28,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
         onModuleInitialized(IndexModuleId, function onIndexInitialized() {
             runCatching(() => {
                 // Initialize init libraries
+                require('@revenge-mod/discord/init')
 
                 // Run all init plugins
                 require('~/plugins/init')

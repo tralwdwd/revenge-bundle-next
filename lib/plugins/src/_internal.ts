@@ -1,7 +1,7 @@
 import { type StorageOptions, getStorage } from '@revenge-mod/storage'
 import { allSettled, sleepReject } from '@revenge-mod/utils/promises'
 
-import { _uapi } from './apis'
+import { _uapi as uapi } from './apis'
 
 import { PluginFlags as Flag, PluginsStorageDirectory, PluginStatus as Status } from './constants'
 
@@ -15,6 +15,12 @@ import type {
     PluginOptions,
     PreInitPluginApi,
 } from './types'
+
+export const _uapi = uapi
+
+export const _preInitExts: Array<(api: PreInitPluginApi, plugin: InternalPlugin) => void> = []
+export const _initExts: Array<(api: InitPluginApi, plugin: InternalPlugin) => void> = []
+export const _startExts: Array<(api: PluginApi, plugin: InternalPlugin) => void> = []
 
 export const _plugins = new Map<PluginManifest['id'], InternalPlugin>()
 export const _metas = new Map<
@@ -68,61 +74,55 @@ function handlePluginError(e: unknown, plugin: InternalPlugin) {
     if (!(iflags & InternalPluginFlags.Essential)) return plugin.disable()
 }
 
-function preparePluginPreInit(id: PluginManifest['id']) {
-    const plugin = _plugins.get(id)!
-    const meta = _metas.get(id)!
+function preparePluginPreInit(plugin: InternalPlugin) {
+    const meta = _metas.get(plugin.manifest.id)!
 
     // Clear errors from previous runs
     plugin.errors = []
     plugin.status &= ~Flag.Errored
 
-    meta[0] = {
+    const api = (meta[0] = {
         cleanup: (...items) => {
             plugin._c.push(...items)
         },
         plugin,
         unscoped: _uapi,
-    }
+    })
+
+    for (const ext of _preInitExts) ext(api, plugin)
 
     meta[3] = PluginApiLevel.PreInit
 }
 
-function preparePluginInit(id: PluginManifest['id'], storageOptions?: StorageOptions<AnyObject>) {
-    const meta = _metas.get(id)!
+function preparePluginInit(plugin: InternalPlugin, storageOptions?: StorageOptions<AnyObject>) {
+    const meta = _metas.get(plugin.manifest.id)!
     const api = meta[0] as InitPluginApi
 
-    Object.defineProperties(api, {
-        logger: {
-            configurable: true,
-            get() {
-                // @ts-expect-error
-                // biome-ignore lint/performance/noDelete: <explanation>
-                delete api.logger
-                return (api.logger = new api.unscoped.discord.common.Logger(`Revenge > Plugins (${id})`))
-            },
-        },
-        storage: {
-            configurable: true,
-            get() {
-                // @ts-expect-error
-                // biome-ignore lint/performance/noDelete: <explanation>
-                delete api.storage
-                return (api.storage = getStorage(`${PluginsStorageDirectory}/${id}.json`, {
-                    ...storageOptions,
-                    directory: 'documents',
-                }))
-            },
+    Object.defineProperty(api, 'storage', {
+        configurable: true,
+        get() {
+            // @ts-expect-error
+            // biome-ignore lint/performance/noDelete: <explanation>
+            delete api.storage
+            return (api.storage = getStorage(`${PluginsStorageDirectory}/${plugin.manifest.id}.json`, {
+                ...storageOptions,
+                directory: 'documents',
+            }))
         },
     })
+
+    for (const ext of _initExts) ext(api, plugin)
 
     meta[3] = PluginApiLevel.Init
 }
 
-function preparePluginStart(id: PluginManifest['id']) {
-    const meta = _metas.get(id)!
+function preparePluginStart(plugin: InternalPlugin) {
+    const meta = _metas.get(plugin.manifest.id)!
 
-    // const api = meta[0] as PluginApi
+    const api = meta[0] as PluginApi
     // api.settings = ...
+
+    for (const ext of _startExts) ext(api, plugin)
 
     meta[3] = PluginApiLevel.Start
 }
@@ -146,17 +146,20 @@ export function enablePlugin(plugin: InternalPlugin, late: boolean) {
 }
 
 export async function preInitPlugin(plugin: InternalPlugin) {
-    const { manifest, lifecycles } = plugin
+    const {
+        manifest: { id },
+        lifecycles,
+    } = plugin
     if (!lifecycles.preInit) return
 
-    const meta = _metas.get(manifest.id)!
+    const meta = _metas.get(id)!
     const [, promises] = meta
 
-    preparePluginPreInit(manifest.id)
+    preparePluginPreInit(plugin)
 
-    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${manifest.id}" is not enabled`)
+    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${id}" is not enabled`)
     if (plugin.status & (Status.PreIniting | Status.PreInited))
-        throw new Error(`Plugin preInit lifecycle for "${manifest.id}" is already running`)
+        throw new Error(`Plugin preInit lifecycle for "${id}" is already running`)
 
     plugin.status |= Status.PreIniting
 
@@ -174,18 +177,21 @@ export async function preInitPlugin(plugin: InternalPlugin) {
 }
 
 export async function initPlugin(plugin: InternalPlugin) {
-    const { manifest, lifecycles } = plugin
+    const {
+        manifest: { id },
+        lifecycles,
+    } = plugin
     if (!lifecycles.init) return
 
-    const meta = _metas.get(manifest.id)!
+    const meta = _metas.get(id)!
     const [, promises, , apiLevel] = meta
 
-    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${manifest.id}" is not enabled`)
+    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${id}" is not enabled`)
     if (plugin.status & (Status.Initing | Status.Inited))
-        throw new Error(`Plugin init lifecycle for "${manifest.id}" is already running`)
+        throw new Error(`Plugin init lifecycle for "${id}" is already running`)
 
-    if (apiLevel < PluginApiLevel.PreInit) preparePluginPreInit(manifest.id)
-    if (apiLevel < PluginApiLevel.Init) preparePluginInit(manifest.id)
+    if (apiLevel < PluginApiLevel.PreInit) preparePluginPreInit(plugin)
+    if (apiLevel < PluginApiLevel.Init) preparePluginInit(plugin)
 
     try {
         const prom = lifecycles.init(meta[0] as InitPluginApi)
@@ -201,21 +207,24 @@ export async function initPlugin(plugin: InternalPlugin) {
 }
 
 export async function startPlugin(plugin: InternalPlugin) {
-    const { manifest, lifecycles } = plugin
+    const {
+        manifest: { id },
+        lifecycles,
+    } = plugin
     if (!lifecycles.start) return
 
-    const meta = _metas.get(manifest.id)!
+    const meta = _metas.get(id)!
     const [, promises, , apiLevel] = meta
 
-    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${manifest.id}" is not enabled`)
+    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${id}" is not enabled`)
     if (plugin.status & (Status.Starting | Status.Started))
-        throw new Error(`Plugin start lifecycle for "${manifest.id}" is already running`)
+        throw new Error(`Plugin start lifecycle for "${id}" is already running`)
 
     plugin.status |= Status.Starting
 
-    if (apiLevel < PluginApiLevel.PreInit) preparePluginPreInit(manifest.id)
-    if (apiLevel < PluginApiLevel.Init) preparePluginInit(manifest.id)
-    if (apiLevel < PluginApiLevel.Start) preparePluginStart(manifest.id)
+    if (apiLevel < PluginApiLevel.PreInit) preparePluginPreInit(plugin)
+    if (apiLevel < PluginApiLevel.Init) preparePluginInit(plugin)
+    if (apiLevel < PluginApiLevel.Start) preparePluginStart(plugin)
 
     try {
         const prom = lifecycles.start(meta[0] as PluginApi)
@@ -233,15 +242,17 @@ export async function startPlugin(plugin: InternalPlugin) {
 const MaxWaitTime = 5000
 
 export async function stopPlugin(plugin: InternalPlugin) {
-    const { manifest, lifecycles } = plugin
-    const meta = _metas.get(manifest.id)!
+    const {
+        manifest: { id },
+        lifecycles,
+    } = plugin
+    const meta = _metas.get(id)!
     const [, promises, iflags, apiLevel] = meta
 
-    if (iflags & InternalPluginFlags.Essential)
-        throw new Error(`Plugin "${manifest.id}" is essential and cannot be stopped`)
+    if (iflags & InternalPluginFlags.Essential) throw new Error(`Plugin "${id}" is essential and cannot be stopped`)
 
-    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${manifest.id}" is not enabled`)
-    if (plugin.status & Status.Stopping) throw new Error(`Plugin "${manifest.id}" is stopping`)
+    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${id}" is not enabled`)
+    if (plugin.status & Status.Stopping) throw new Error(`Plugin "${id}" is stopping`)
 
     // If the plugin is running its lifecycles, we need to wait for it to finish, then we'll stop it
     // We want to wait at max 5 seconds for the lifecycles to finish
@@ -256,11 +267,11 @@ export async function stopPlugin(plugin: InternalPlugin) {
             })
             .catch(e => handlePluginError(e, plugin))
     else if (!(plugin.status & (Status.PreInited | Status.Inited | Status.Started)))
-        throw new Error(`Plugin "${manifest.id}" is not running`)
+        throw new Error(`Plugin "${id}" is not running`)
 
-    if (apiLevel < PluginApiLevel.PreInit) preparePluginPreInit(manifest.id)
-    if (apiLevel < PluginApiLevel.Init) preparePluginInit(manifest.id, plugin._s)
-    if (apiLevel < PluginApiLevel.Start) preparePluginStart(manifest.id)
+    if (apiLevel < PluginApiLevel.PreInit) preparePluginPreInit(plugin)
+    if (apiLevel < PluginApiLevel.Init) preparePluginInit(plugin, plugin._s)
+    if (apiLevel < PluginApiLevel.Start) preparePluginStart(plugin)
 
     plugin.status |= Status.Stopping
 

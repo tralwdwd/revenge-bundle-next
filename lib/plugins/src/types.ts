@@ -1,11 +1,8 @@
 import type { PluginFlags, PluginStatus } from './constants'
 
-import type { DiscordModules } from '@revenge-mod/discord/types'
-
 import type { Storage, StorageOptions } from '@revenge-mod/storage'
 import type { AnyObject } from '@revenge-mod/utils/types'
 
-import type { PluginApiDiscord } from './apis/discord'
 import type { PluginApiExternals } from './apis/externals'
 import type { PluginApiModules } from './apis/modules'
 import type { PluginApiPlugins } from './apis/plugins'
@@ -28,7 +25,6 @@ export interface UnscopedPreInitPluginApi {
  */
 export interface UnscopedInitPluginApi extends UnscopedPreInitPluginApi {
     assets: typeof import('@revenge-mod/assets')
-    discord: PluginApiDiscord
     externals: PluginApiExternals
     react: PluginApiReact
 }
@@ -60,7 +56,6 @@ export interface PreInitPluginApi {
  */
 export interface InitPluginApi<S extends AnyObject = AnyObject> extends PreInitPluginApi {
     unscoped: UnscopedInitPluginApi
-    logger: InstanceType<DiscordModules.Logger>
     /**
      * The plugin storage.
      *

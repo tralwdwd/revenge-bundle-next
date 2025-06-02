@@ -21,6 +21,9 @@
     "./native": {
       "default": "./src/native.ts"
     },
+    "./init": {
+      "default": "./src/init.ts"
+    },
     "./preinit": {
       "default": "./src/preinit.ts"
     },

@@ -3,7 +3,6 @@ import { onRunApplication } from '@revenge-mod/react/native'
 import { _uapi } from './apis'
 
 import * as AssetsLibrary from '@revenge-mod/assets'
-import { discord } from './apis/discord'
 import { externals } from './apis/externals'
 import { react } from './apis/react'
 
@@ -15,7 +14,6 @@ import type { UnscopedInitPluginApi } from './types'
 // Setup init plugin APIs
 const uapi = _uapi as UnscopedInitPluginApi
 uapi.assets = AssetsLibrary
-uapi.discord = discord
 uapi.externals = externals
 uapi.react = react
 
