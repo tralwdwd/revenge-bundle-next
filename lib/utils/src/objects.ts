@@ -94,3 +94,20 @@ export function mergeDeep(target: AnyObject, source: AnyObject) {
 
     return target
 }
+
+/**
+ * Define a lazy property on an object that will be loaded when accessed.
+ *
+ * @param target The target object to define the property on.
+ * @param property The property key to define.
+ * @param loader The function that will be called to load the property value when accessed.
+ */
+export function defineLazyProperty<T extends object, K extends keyof T>(target: T, property: K, loader: () => T[K]) {
+    Object.defineProperty(target, property, {
+        configurable: true,
+        get() {
+            delete target[property]
+            return (target[property] = loader())
+        },
+    })
+}
