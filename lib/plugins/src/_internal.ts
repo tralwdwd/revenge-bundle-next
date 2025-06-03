@@ -1,4 +1,5 @@
-import { type StorageOptions, getStorage } from '@revenge-mod/storage'
+import { getStorage, type StorageOptions } from '@revenge-mod/storage'
+import { defineLazyProperty } from '@revenge-mod/utils/objects'
 import { allSettled, sleepReject } from '@revenge-mod/utils/promises'
 
 import { _uapi as uapi } from './apis'
@@ -98,18 +99,13 @@ function preparePluginInit(plugin: InternalPlugin, storageOptions?: StorageOptio
     const meta = _metas.get(plugin.manifest.id)!
     const api = meta[0] as InitPluginApi
 
-    Object.defineProperty(api, 'storage', {
-        configurable: true,
-        get() {
-            // @ts-expect-error
-            // biome-ignore lint/performance/noDelete: <explanation>
-            delete api.storage
-            return (api.storage = getStorage(`${PluginsStorageDirectory}/${plugin.manifest.id}.json`, {
-                ...storageOptions,
-                directory: 'documents',
-            }))
+    defineLazyProperty(api, 'storage', () => getStorage(
+        `${PluginsStorageDirectory}/${plugin.manifest.id}.json`,
+        {
+            ...storageOptions,
+            directory: 'documents',
         },
-    })
+    ))
 
     for (const ext of _initExts) ext(api, plugin)
 
