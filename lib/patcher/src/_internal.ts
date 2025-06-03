@@ -1,4 +1,16 @@
-export interface FunctionProxyState<T extends UnknownFunction = UnknownFunction> {
+import type {
+    AbstractNewable,
+    AfterHook,
+    BeforeHook,
+    Callable,
+    FiniteDomain,
+    InsteadHook,
+    UnknownFunction,
+} from './types'
+
+export interface FunctionProxyState<
+    T extends UnknownFunction = UnknownFunction,
+> {
     readonly proxy: T
     readonly target: T
 }
@@ -53,7 +65,11 @@ export const patchedFunctionProxyHandler = {
         args = applyHooks(state.before, args)
 
         const { instead } = state
-        let result: ReturnType<T> = Reflect.apply(instead === undefined ? state.target : instead.proxy, receiver, args)
+        let result: ReturnType<T> = Reflect.apply(
+            instead === undefined ? state.target : instead.proxy,
+            receiver,
+            args,
+        )
 
         result = applyHooks(state.after, result)
 
@@ -77,30 +93,44 @@ export const patchedFunctionProxyHandler = {
 
         return result
     },
-    defineProperty: (state, key, descriptor) => Reflect.defineProperty(state.target, key, descriptor),
+    defineProperty: (state, key, descriptor) =>
+        Reflect.defineProperty(state.target, key, descriptor),
     deleteProperty: (state, key) => Reflect.deleteProperty(state.target, key),
-    get: (state, key, receiver: unknown) => Reflect.get(state.target, key, receiver),
-    getOwnPropertyDescriptor: (state, key) => Reflect.getOwnPropertyDescriptor(state.target, key),
+    get: (state, key, receiver: unknown) =>
+        Reflect.get(state.target, key, receiver),
+    getOwnPropertyDescriptor: (state, key) =>
+        Reflect.getOwnPropertyDescriptor(state.target, key),
     getPrototypeOf: state => Reflect.getPrototypeOf(state.target),
     has: (state, key) => Reflect.has(state.target, key),
     isExtensible: state => Reflect.isExtensible(state.target),
     ownKeys: state => Reflect.ownKeys(state.target),
     preventExtensions: state => Reflect.preventExtensions(state.target),
-    set: (state, key, value: unknown, receiver: unknown) => Reflect.set(state.target, key, value, receiver),
-    setPrototypeOf: (state, prototype) => Reflect.setPrototypeOf(state.target, prototype),
+    set: (state, key, value: unknown, receiver: unknown) =>
+        Reflect.set(state.target, key, value, receiver),
+    setPrototypeOf: (state, prototype) =>
+        Reflect.setPrototypeOf(state.target, prototype),
 } as const satisfies Required<ProxyHandler<FunctionProxyState>>
 
 interface PatchedFunctionProxyStateMap extends WeakMap<UnknownFunction, any> {
     readonly delete: (key: UnknownFunction) => boolean
-    readonly get: <K extends UnknownFunction>(key: K) => PatchedFunctionProxyState<PropertyKey, K> | undefined
+    readonly get: <K extends UnknownFunction>(
+        key: K,
+    ) => PatchedFunctionProxyState<PropertyKey, K> | undefined
     readonly has: (key: UnknownFunction) => boolean
-    readonly set: <K extends UnknownFunction>(key: K, value: PatchedFunctionProxyState<PropertyKey, K>) => this
+    readonly set: <K extends UnknownFunction>(
+        key: K,
+        value: PatchedFunctionProxyState<PropertyKey, K>,
+    ) => this
 }
 
 /** proxy -> state */
-export const patchedFunctionProxyStates: PatchedFunctionProxyStateMap = new WeakMap<UnknownFunction>()
+export const patchedFunctionProxyStates: PatchedFunctionProxyStateMap =
+    new WeakMap<UnknownFunction>()
 
-export function createPatchedFunctionProxy<Key extends PropertyKey, Value extends UnknownFunction>(
+export function createPatchedFunctionProxy<
+    Key extends PropertyKey,
+    Value extends UnknownFunction,
+>(
     target: Value,
     parent: Record<Key, Value>,
     key: FiniteDomain<Key>,

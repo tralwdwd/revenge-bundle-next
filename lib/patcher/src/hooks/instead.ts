@@ -1,18 +1,33 @@
 import {
+    createPatchedFunctionProxy,
     type FunctionProxyState,
     type InsteadHookNode,
     type PatchedFunctionProxyState,
-    createPatchedFunctionProxy,
     patchedFunctionProxyHandler,
     patchedFunctionProxyStates,
     unproxy,
 } from '../_internal'
 
+import type {
+    AbstractNewable,
+    Callable,
+    FiniteDomain,
+    InsteadHook,
+    UnknownFunction,
+} from '../types'
+
 const insteadHookProxyHandler = {
     ...patchedFunctionProxyHandler,
-    apply<T extends Callable>(hookNode: InsteadHookNode<T>, receiver: ThisParameterType<T>, args: Parameters<T>) {
+    apply<T extends Callable>(
+        hookNode: InsteadHookNode<T>,
+        receiver: ThisParameterType<T>,
+        args: Parameters<T>,
+    ) {
         const { next } = hookNode
-        return Reflect.apply(hookNode.hook, receiver, [args, next === undefined ? hookNode.target : next.proxy])
+        return Reflect.apply(hookNode.hook, receiver, [
+            args,
+            next === undefined ? hookNode.target : next.proxy,
+        ])
     },
     construct<T extends AbstractNewable<never, object>>(
         hookNode: InsteadHookNode<T>,
@@ -20,7 +35,11 @@ const insteadHookProxyHandler = {
         ctor: AbstractNewable,
     ) {
         const { next } = hookNode
-        return Reflect.construct(hookNode.hook, [args, next === undefined ? hookNode.target : next.proxy], ctor)
+        return Reflect.construct(
+            hookNode.hook,
+            [args, next === undefined ? hookNode.target : next.proxy],
+            ctor,
+        )
     },
 } as const satisfies Required<ProxyHandler<FunctionProxyState>>
 
@@ -36,7 +55,8 @@ function unpatchInstead<T extends UnknownFunction>(
     if (prev === undefined) {
         state.instead = next
         if (next === undefined) {
-            if (state.before === undefined && state.after === undefined) unproxy(state)
+            if (state.before === undefined && state.after === undefined)
+                unproxy(state)
             return
         }
     } else {
@@ -48,7 +68,10 @@ function unpatchInstead<T extends UnknownFunction>(
     hookNode.next = undefined
 }
 
-export function instead<Parent extends Record<Key, UnknownFunction>, Key extends PropertyKey>(
+export function instead<
+    Parent extends Record<Key, UnknownFunction>,
+    Key extends PropertyKey,
+>(
     parent: Parent,
     key: FiniteDomain<Key>,
     hook: InsteadHook<Parent[Key]>,
@@ -78,7 +101,14 @@ export function instead<Key extends PropertyKey, Value extends UnknownFunction>(
         state.instead = hookNode
     } else {
         hookNode.next = undefined
-        state = createPatchedFunctionProxy(target, parent, key, undefined, hookNode, undefined)
+        state = createPatchedFunctionProxy(
+            target,
+            parent,
+            key,
+            undefined,
+            hookNode,
+            undefined,
+        )
     }
 
     return unpatchInstead.bind(undefined, state, hookNode)

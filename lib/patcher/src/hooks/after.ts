@@ -1,10 +1,17 @@
 import {
+    createPatchedFunctionProxy,
     type HookNode,
     type PatchedFunctionProxyState,
-    createPatchedFunctionProxy,
     patchedFunctionProxyStates,
     unproxy,
 } from '../_internal'
+
+import type {
+    AfterHook,
+    BeforeHook,
+    FiniteDomain,
+    UnknownFunction,
+} from '../types'
 
 function unpatchAfter<T extends UnknownFunction>(
     state: PatchedFunctionProxyState<PropertyKey, T>,
@@ -19,7 +26,8 @@ function unpatchAfter<T extends UnknownFunction>(
     if (prev === undefined) {
         state.after = next
         if (next === undefined) {
-            if (state.before === undefined && state.instead === undefined) unproxy(state)
+            if (state.before === undefined && state.instead === undefined)
+                unproxy(state)
             return
         }
     } else {
@@ -31,7 +39,10 @@ function unpatchAfter<T extends UnknownFunction>(
     hookNode.next = undefined
 }
 
-export function after<Parent extends Record<Key, UnknownFunction>, Key extends PropertyKey>(
+export function after<
+    Parent extends Record<Key, UnknownFunction>,
+    Key extends PropertyKey,
+>(
     parent: Parent,
     key: FiniteDomain<Key>,
     hook: AfterHook<Parent[Key]>,
@@ -48,21 +59,28 @@ export function after<Key extends PropertyKey, Value extends UnknownFunction>(
     if (state !== undefined && state.parent === parent && state.key === key) {
         const head = state.after
         hookNode = {
-            unpatched: false,
             hook,
-            prev: undefined,
             next: head,
+            prev: undefined,
+            unpatched: false,
         }
         if (head !== undefined) head.prev = hookNode
         state.after = hookNode
     } else {
         hookNode = {
-            unpatched: false,
             hook,
-            prev: undefined,
             next: undefined,
+            prev: undefined,
+            unpatched: false,
         }
-        state = createPatchedFunctionProxy(target, parent, key, undefined, undefined, hookNode)
+        state = createPatchedFunctionProxy(
+            target,
+            parent,
+            key,
+            undefined,
+            undefined,
+            hookNode,
+        )
     }
 
     return unpatchAfter.bind(undefined, state, hookNode)
