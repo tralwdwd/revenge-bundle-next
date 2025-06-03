@@ -45,7 +45,10 @@ export function getProxyTarget(obj: object) {
 // Heavily inspired by Wintry's lazy utils, but more optimized and stripped down, with a few fixes.
 // https://github.com/pylixonly/wintry/blob/main/src/utils/lazy.ts
 
-const _metas = new WeakMap<object, [factory: () => unknown, cacheable: boolean, cache?: unknown]>()
+const _metas = new WeakMap<
+    object,
+    [factory: () => unknown, cacheable: boolean, cache?: unknown]
+>()
 
 const _handler = {
     ...Object.fromEntries(
@@ -64,7 +67,12 @@ const _handler = {
         if (typeof val === 'function')
             return new Proxy(val, {
                 // If thisArg happens to be a proxified value, we will use the target object instead
-                apply: (fn, thisArg, args) => Reflect.apply(fn, thisArg === recv ? target : thisArg, args),
+                apply: (fn, thisArg, args) =>
+                    Reflect.apply(
+                        fn,
+                        thisArg === recv ? target : thisArg,
+                        args,
+                    ),
             })
 
         return val
@@ -73,7 +81,8 @@ const _handler = {
     // TypeError: getOwnPropertyDescriptor trap result is not configurable but target property '...' is configurable or non-existent
     getOwnPropertyDescriptor: (hint, p) => {
         const d = Reflect.getOwnPropertyDescriptor(unproxifyFromHint(hint)!, p)
-        if (d && !Reflect.getOwnPropertyDescriptor(hint, p)) Object.defineProperty(hint, p, d)
+        if (d && !Reflect.getOwnPropertyDescriptor(hint, p))
+            Object.defineProperty(hint, p, d)
         return d
     },
 } as ProxyHandler<object>
@@ -151,7 +160,8 @@ export function proxify<T>(signal: () => T, options?: ProxifyOptions): T {
  */
 export function unproxify<T extends object>(proxified: T): T {
     const hint = getProxyTarget(proxified)
-    if (!hint) throw new TypeError(`${typeof proxified} is not a proxified value`)
+    if (!hint)
+        throw new TypeError(`${typeof proxified} is not a proxified value`)
     return unproxifyFromHint(hint)
 }
 
@@ -188,16 +198,24 @@ function unproxifyFromHint(hint: object) {
  * z // TypeError: Cannot destructure and proxify null (reading 'z')
  * ```
  */
-export function destructure<T extends object>(proxified: T, options?: ProxifyOptions): T {
+export function destructure<T extends object>(
+    proxified: T,
+    options?: ProxifyOptions,
+): T {
     return new Proxy({} as T, {
         get: (_, p) =>
             proxify(() => {
                 // @ts-expect-error
                 const v = unproxify(proxified)[p]
 
-                if (v == null) throw new TypeError(`Cannot destructure and proxify ${v} (reading '${String(p)}')`)
+                if (v == null)
+                    throw new TypeError(
+                        `Cannot destructure and proxify ${v} (reading '${String(p)}')`,
+                    )
                 if (typeof v === 'function' || typeof v === 'object') return v
-                throw new TypeError(`Cannot destructure and proxify a primitive (reading '${String(p)}')`)
+                throw new TypeError(
+                    `Cannot destructure and proxify a primitive (reading '${String(p)}')`,
+                )
             }, options),
     })
 }

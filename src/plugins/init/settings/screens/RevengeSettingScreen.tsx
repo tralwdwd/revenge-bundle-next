@@ -18,8 +18,12 @@ export default function RevengeSettingScreen() {
                             <Design.Text variant="text-xs/medium">
                                 You are using the next version of Revenge!
                             </Design.Text>
-                            <Design.Text variant="text-xs/semibold" color="text-danger">
-                                This version is experimental and may be unstable.
+                            <Design.Text
+                                color="text-danger"
+                                variant="text-xs/semibold"
+                            >
+                                This version is experimental and may be
+                                unstable.
                             </Design.Text>
                         </>
                     ),

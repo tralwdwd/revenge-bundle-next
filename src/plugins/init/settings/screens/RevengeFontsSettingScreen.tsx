@@ -1,5 +1,4 @@
 import { SettingListRenderer } from '@revenge-mod/discord/modules/settings/renderer'
-
 import { MobileSetting } from '../constants'
 
 export default function RevengeFontsSettingScreen() {

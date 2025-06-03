@@ -1,9 +1,9 @@
+import {
+    isSettingsModulesLoaded,
+    onSettingsModulesLoaded,
+} from '@revenge-mod/discord/modules/settings'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
-
-import { _data } from '@revenge-mod/discord/_/modules/settings'
-import { isSettingsModulesLoaded, onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
-
 import type { PluginApi } from '@revenge-mod/plugins/types'
 
 interface Storage {
@@ -40,7 +40,10 @@ registerPlugin<Storage>(
             else onSettingsModulesLoaded(() => require('./register').register())
 
             api.storage.get().then(settings => {
-                if (settings.devtools.autoConnect) import('./react-devtools').then(it => it.connectToDevTools())
+                if (settings.devtools.autoConnect)
+                    import('./react-devtools').then(it =>
+                        it.connectToDevTools(),
+                    )
             })
         },
     },

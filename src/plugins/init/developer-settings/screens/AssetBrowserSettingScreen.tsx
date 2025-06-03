@@ -1,15 +1,12 @@
+import { getAssetId, getAssetModuleId, getAssets } from '@revenge-mod/assets'
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { Clipboard } from '@revenge-mod/externals/react-native-clipboard'
 import { FlashList } from '@revenge-mod/externals/shopify'
 import { React, ReactNative } from '@revenge-mod/react'
-
 import Page from '~/components/Page'
 import SearchInput from '~/components/SearchInput'
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
-
-import { getAssetId, getAssetModuleId, getAssets } from '@revenge-mod/assets'
-
 import type { Asset, AssetId } from '@revenge-mod/assets/types'
 import type { Metro } from '@revenge-mod/modules/types'
 
@@ -28,7 +25,15 @@ const UndisplayableFallback = {
 export default function AssetBrowserSettingScreen() {
     const [search, setSearch] = React.useState('')
     const assets = React.useMemo(
-        () => [...getAssets()].map(asset => [getAssetId(asset)!, getAssetModuleId(asset)!, asset] as const),
+        () =>
+            [...getAssets()].map(
+                asset =>
+                    [
+                        getAssetId(asset)!,
+                        getAssetModuleId(asset)!,
+                        asset,
+                    ] as const,
+            ),
         [getAssets],
     )
 
@@ -36,26 +41,28 @@ export default function AssetBrowserSettingScreen() {
         () =>
             !search.length
                 ? assets
-                : assets.filter(([, , asset]) => asset.name.toLowerCase().includes(search.toLowerCase())),
+                : assets.filter(([, , asset]) =>
+                      asset.name.toLowerCase().includes(search.toLowerCase()),
+                  ),
         [assets, search],
     )
 
     return (
         <Page spacing={16}>
-            <SearchInput size="md" onChange={(v: string) => setSearch(v)} />
+            <SearchInput onChange={(v: string) => setSearch(v)} size="md" />
             <FlashList.FlashList
                 data={filteredAssets}
+                estimatedItemSize={80}
                 keyExtractor={([id]) => id.toString()}
                 renderItem={({ item: [id, moduleId, asset], index }) => (
                     <AssetDisplay
-                        start={!index}
+                        asset={asset}
                         end={index === assets.length - 1}
                         id={id}
                         moduleId={moduleId}
-                        asset={asset}
+                        start={!index}
                     />
                 )}
-                estimatedItemSize={80}
             />
         </Page>
     )
@@ -83,26 +90,30 @@ function AssetDisplay({
 
     return (
         <TableRow
-            start={start}
             end={end}
-            variant={isDisplayable ? 'default' : 'danger'}
-            label={asset.name}
-            subLabel={metadata.map(([name, value]) => `${name}: ${value}`).join('  • ')}
             icon={
                 isDisplayable ? (
                     <Image source={id} style={styles.smallPreview} />
                 ) : (
                     <TableRowAssetIcon
-                        variant="danger"
                         name={
                             asset.type in UndisplayableFallback
-                                ? UndisplayableFallback[asset.type as keyof typeof UndisplayableFallback]
+                                ? UndisplayableFallback[
+                                      asset.type as keyof typeof UndisplayableFallback
+                                  ]
                                 : UndisplayableFallback.default
                         }
+                        variant="danger"
                     />
                 )
             }
+            label={asset.name}
             onPress={() => openAssetDisplayAlert(asset, id, metadata)}
+            start={start}
+            subLabel={metadata
+                .map(([name, value]) => `${name}: ${value}`)
+                .join('  • ')}
+            variant={isDisplayable ? 'default' : 'danger'}
         />
     )
 }
@@ -117,7 +128,7 @@ function openAssetDisplayAlert(
     AlertActionCreators.openAlert(
         'asset-display',
         <AlertModal
-            title={asset.name}
+            actions={<AlertActionButton text="Close" variant="secondary" />}
             extraContent={
                 <>
                     {isDisplayable ? (
@@ -130,25 +141,30 @@ function openAssetDisplayAlert(
                             <TableRow
                                 key={id}
                                 label={name}
-                                subLabel={value}
                                 onPress={() => Clipboard.setString(value)}
+                                subLabel={value}
                             />
                         ))}
                     </TableRowGroup>
-                    <Text variant="text-xs/semibold" color="text-danger">
-                        Note: Asset IDs and module IDs are not consistent between app launches and app versions
-                        respectively and should only be used when absolutely needed.
+                    <Text color="text-danger" variant="text-xs/semibold">
+                        Note: Asset IDs and module IDs are not consistent
+                        between app launches and app versions respectively and
+                        should only be used when absolutely needed.
                     </Text>
                 </>
             }
-            actions={<AlertActionButton text="Close" variant="secondary" />}
+            title={asset.name}
         />,
     )
 }
 
 function PreviewUnavailable({ type }: { type: string }) {
     return (
-        <Text variant="text-sm/medium" color="text-danger" style={styles.centeredText}>
+        <Text
+            color="text-danger"
+            style={styles.centeredText}
+            variant="text-sm/medium"
+        >
             Asset type {type.toUpperCase()} is not supported for preview.
         </Text>
     )

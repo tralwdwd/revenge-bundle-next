@@ -1,9 +1,6 @@
 import { React } from '@revenge-mod/react'
-
-import { MobileSetting } from '../constants'
-
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
-
+import { MobileSetting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const ReactVersionSetting: SettingsItem = {

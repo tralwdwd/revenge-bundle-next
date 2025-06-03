@@ -42,7 +42,10 @@ export namespace DiscordNativeModules {
          * @param encoding The encoding to read the asset with
          * @returns
          */
-        readAsset: (nameOrUri: string, encoding: 'base64' | 'utf8') => Promise<string>
+        readAsset: (
+            nameOrUri: string,
+            encoding: 'base64' | 'utf8',
+        ) => Promise<string>
         /**
          * Allowed URI schemes on Android: `file://`, `content://` ([See here](https://developer.android.com/reference/android/content/ContentResolver#accepts-the-following-uri-schemes:_3))
          */
@@ -52,7 +55,11 @@ export namespace DiscordNativeModules {
          * @param encoding Set to `base64` in order to encode response
          */
         readFile(path: string, encoding: 'base64' | 'utf8'): Promise<string>
-        saveFileToGallery?(uri: string, fileName: string, fileType: 'PNG' | 'JPEG'): Promise<string>
+        saveFileToGallery?(
+            uri: string,
+            fileName: string,
+            fileType: 'PNG' | 'JPEG',
+        ): Promise<string>
         /**
          * @param storageDir Either `cache` or `documents`.
          * @param path Path in `storageDir`, parents are recursively created.
@@ -71,7 +78,10 @@ export namespace DiscordNativeModules {
          * @param storageDir Either `cache` or `documents`
          * @param path Path to the file to be removed
          */
-        removeFile(storageDir: 'cache' | 'documents', path: string): Promise<boolean>
+        removeFile(
+            storageDir: 'cache' | 'documents',
+            path: string,
+        ): Promise<boolean>
         /**
          * Clear the folder from the path given
          * (!) On Android, this only clears all *files* and not subdirectories!
@@ -79,7 +89,10 @@ export namespace DiscordNativeModules {
          * @param path Path to the folder to be cleared
          * @returns Whether the clearance succeeded
          */
-        clearFolder(storageDir: 'cache' | 'documents', path: string): Promise<boolean>
+        clearFolder(
+            storageDir: 'cache' | 'documents',
+            path: string,
+        ): Promise<boolean>
         getConstants: () => {
             /**
              * The path the `documents` storage dir (see {@link writeFile}) represents.

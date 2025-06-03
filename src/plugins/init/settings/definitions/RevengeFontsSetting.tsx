@@ -1,7 +1,5 @@
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
-
 import { MobileSetting, UserSettingsSections } from '../constants'
-
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const RevengeFontsSetting: SettingsItem = {
@@ -11,7 +9,8 @@ const RevengeFontsSetting: SettingsItem = {
     title: () => 'Fonts',
     screen: {
         route: UserSettingsSections[MobileSetting.REVENGE_PLUGINS],
-        getComponent: () => require('../screens/RevengePluginsSettingScreen').default,
+        getComponent: () =>
+            require('../screens/RevengePluginsSettingScreen').default,
     },
 }
 

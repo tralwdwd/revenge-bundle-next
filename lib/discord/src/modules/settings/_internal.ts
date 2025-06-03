@@ -1,4 +1,8 @@
-import type { SettingsItem, SettingsModulesLoadedSubscription, SettingsSection } from '.'
+import type {
+    SettingsItem,
+    SettingsModulesLoadedSubscription,
+    SettingsSection,
+} from '.'
 
 export const _data = [
     // Sections to splice in the SettingsOverviewScreen
@@ -6,6 +10,10 @@ export const _data = [
     // SETTING_RENDERER_CONFIG settings
     {},
     false,
-] as [sections: Record<string, SettingsSection>, config: Record<string, SettingsItem>, loaded: boolean]
+] as [
+    sections: Record<string, SettingsSection>,
+    config: Record<string, SettingsItem>,
+    loaded: boolean,
+]
 
 export const _subs = new Set<SettingsModulesLoadedSubscription>()

@@ -1,10 +1,10 @@
 import { Design } from '@revenge-mod/discord/design'
-import type { DiscordModules } from '@revenge-mod/discord/types'
 import { ReactNative } from '@revenge-mod/react'
+import type { DiscordModules } from '@revenge-mod/discord/types'
 
 export default function Page(props: DiscordModules.Components.StackProps) {
     return (
-        <Design.Stack style={styles.page} spacing={24} {...props}>
+        <Design.Stack spacing={24} style={styles.page} {...props}>
             {props.children}
         </Design.Stack>
     )

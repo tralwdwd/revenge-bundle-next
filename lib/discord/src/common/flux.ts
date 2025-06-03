@@ -1,5 +1,4 @@
 import {
-    type Filter,
     byDependencies,
     byProps,
     createFilterGenerator,
@@ -9,7 +8,7 @@ import {
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { noopFalse } from '@revenge-mod/utils/callbacks'
-
+import type { Filter } from '@revenge-mod/modules/finders/filters'
 import type { Metro } from '@revenge-mod/modules/types'
 import type { DiscordModules } from '../types'
 
@@ -18,7 +17,14 @@ import type { DiscordModules } from '../types'
 export const [Dispatcher, DispatcherModuleId] = lookupModule(
     preferExports(
         byProps<DiscordModules.Flux.Dispatcher>('_interceptors'),
-        byDependencies([relativeDep(1), undefined, undefined, undefined, undefined, 2]),
+        byDependencies([
+            relativeDep(1),
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            2,
+        ]),
     ),
     {
         includeUninitialized: true,
@@ -37,7 +43,10 @@ export const Stores = new Proxy(_stores, {
     get: (_, name) => _stores[name as string],
 })
 
-export function getStore<T>(name: string, callback: (store: DiscordModules.Flux.Store<T>) => void) {
+export function getStore<T>(
+    name: string,
+    callback: (store: DiscordModules.Flux.Store<T>) => void,
+) {
     const store = Stores[name]
     if (store) {
         callback(store)
@@ -47,9 +56,12 @@ export function getStore<T>(name: string, callback: (store: DiscordModules.Flux.
     return waitForModules(byStoreName<T>(name), callback)
 }
 
-export type ByStoreName = <T>(name: string) => Filter<DiscordModules.Flux.Store<T>>
+export type ByStoreName = <T>(
+    name: string,
+) => Filter<DiscordModules.Flux.Store<T>>
 
 export const byStoreName = createFilterGenerator<[name: string]>(
-    ([name], _, exports) => exports.getName?.length === 0 && exports.getName() === name,
+    ([name], _, exports) =>
+        exports.getName?.length === 0 && exports.getName() === name,
     ([name]) => `revenge.discord.byStoreName(${name})`,
 ) as ByStoreName

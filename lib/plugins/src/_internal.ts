@@ -1,11 +1,13 @@
-import { getStorage, type StorageOptions } from '@revenge-mod/storage'
+import { getStorage } from '@revenge-mod/storage'
 import { defineLazyProperty } from '@revenge-mod/utils/objects'
 import { allSettled, sleepReject } from '@revenge-mod/utils/promises'
-
 import { _uapi as uapi } from './apis'
-
-import { PluginFlags as Flag, PluginsStorageDirectory, PluginStatus as Status } from './constants'
-
+import {
+    PluginFlags as Flag,
+    PluginsStorageDirectory,
+    PluginStatus as Status,
+} from './constants'
+import type { StorageOptions } from '@revenge-mod/storage'
 import type { AnyObject } from '@revenge-mod/utils/types'
 import type {
     InitPluginApi,
@@ -19,9 +21,15 @@ import type {
 
 export const _uapi = uapi
 
-export const _preInitExts: Array<(api: PreInitPluginApi, plugin: InternalPlugin) => void> = []
-export const _initExts: Array<(api: InitPluginApi, plugin: InternalPlugin) => void> = []
-export const _startExts: Array<(api: PluginApi, plugin: InternalPlugin) => void> = []
+export const _preInitExts: Array<
+    (api: PreInitPluginApi, plugin: InternalPlugin) => void
+> = []
+export const _initExts: Array<
+    (api: InitPluginApi, plugin: InternalPlugin) => void
+> = []
+export const _startExts: Array<
+    (api: PluginApi, plugin: InternalPlugin) => void
+> = []
 
 export const _plugins = new Map<PluginManifest['id'], InternalPlugin>()
 export const _metas = new Map<
@@ -41,7 +49,8 @@ export function registerPlugin<S extends AnyObject = AnyObject>(
     iflags: number,
 ) {
     // TODO(plugins): verify plugin manifest
-    if (_plugins.has(manifest.id)) throw new Error(`Plugin with ID "${manifest.id}" already registered`)
+    if (_plugins.has(manifest.id))
+        throw new Error(`Plugin with ID "${manifest.id}" already registered`)
 
     const plugin: InternalPlugin = {
         _c: [],
@@ -95,17 +104,19 @@ function preparePluginPreInit(plugin: InternalPlugin) {
     meta[3] = PluginApiLevel.PreInit
 }
 
-function preparePluginInit(plugin: InternalPlugin, storageOptions?: StorageOptions<AnyObject>) {
+function preparePluginInit(
+    plugin: InternalPlugin,
+    storageOptions?: StorageOptions<AnyObject>,
+) {
     const meta = _metas.get(plugin.manifest.id)!
     const api = meta[0] as InitPluginApi
 
-    defineLazyProperty(api, 'storage', () => getStorage(
-        `${PluginsStorageDirectory}/${plugin.manifest.id}.json`,
-        {
+    defineLazyProperty(api, 'storage', () =>
+        getStorage(`${PluginsStorageDirectory}/${plugin.manifest.id}.json`, {
             ...storageOptions,
             directory: 'documents',
-        },
-    ))
+        }),
+    )
 
     for (const ext of _initExts) ext(api, plugin)
 
@@ -126,10 +137,13 @@ function preparePluginStart(plugin: InternalPlugin) {
 async function disablePlugin(plugin: InternalPlugin) {
     const iflags = _metas.get(plugin.manifest.id)![2] ?? 0
     if (iflags & InternalPluginFlags.Essential)
-        throw new Error(`Plugin "${plugin.manifest.id}" is essential and cannot be disabled`)
+        throw new Error(
+            `Plugin "${plugin.manifest.id}" is essential and cannot be disabled`,
+        )
 
     // If plugin is not stopped, and is also not stopping, we need to stop it
-    if (plugin.status && !(plugin.status & Status.Stopping)) await stopPlugin(plugin)
+    if (plugin.status && !(plugin.status & Status.Stopping))
+        await stopPlugin(plugin)
 
     // TODO(plugins): write to storage
     plugin.flags &= ~Flag.Enabled
@@ -153,9 +167,12 @@ export async function preInitPlugin(plugin: InternalPlugin) {
 
     preparePluginPreInit(plugin)
 
-    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${id}" is not enabled`)
+    if (!(plugin.flags & Flag.Enabled))
+        throw new Error(`Plugin "${id}" is not enabled`)
     if (plugin.status & (Status.PreIniting | Status.PreInited))
-        throw new Error(`Plugin preInit lifecycle for "${id}" is already running`)
+        throw new Error(
+            `Plugin preInit lifecycle for "${id}" is already running`,
+        )
 
     plugin.status |= Status.PreIniting
 
@@ -182,7 +199,8 @@ export async function initPlugin(plugin: InternalPlugin) {
     const meta = _metas.get(id)!
     const [, promises, , apiLevel] = meta
 
-    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${id}" is not enabled`)
+    if (!(plugin.flags & Flag.Enabled))
+        throw new Error(`Plugin "${id}" is not enabled`)
     if (plugin.status & (Status.Initing | Status.Inited))
         throw new Error(`Plugin init lifecycle for "${id}" is already running`)
 
@@ -212,7 +230,8 @@ export async function startPlugin(plugin: InternalPlugin) {
     const meta = _metas.get(id)!
     const [, promises, , apiLevel] = meta
 
-    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${id}" is not enabled`)
+    if (!(plugin.flags & Flag.Enabled))
+        throw new Error(`Plugin "${id}" is not enabled`)
     if (plugin.status & (Status.Starting | Status.Started))
         throw new Error(`Plugin start lifecycle for "${id}" is already running`)
 
@@ -245,24 +264,32 @@ export async function stopPlugin(plugin: InternalPlugin) {
     const meta = _metas.get(id)!
     const [, promises, iflags, apiLevel] = meta
 
-    if (iflags & InternalPluginFlags.Essential) throw new Error(`Plugin "${id}" is essential and cannot be stopped`)
+    if (iflags & InternalPluginFlags.Essential)
+        throw new Error(`Plugin "${id}" is essential and cannot be stopped`)
 
-    if (!(plugin.flags & Flag.Enabled)) throw new Error(`Plugin "${id}" is not enabled`)
-    if (plugin.status & Status.Stopping) throw new Error(`Plugin "${id}" is stopping`)
+    if (!(plugin.flags & Flag.Enabled))
+        throw new Error(`Plugin "${id}" is not enabled`)
+    if (plugin.status & Status.Stopping)
+        throw new Error(`Plugin "${id}" is stopping`)
 
     // If the plugin is running its lifecycles, we need to wait for it to finish, then we'll stop it
     // We want to wait at max 5 seconds for the lifecycles to finish
     if (plugin.status & (Status.PreIniting | Status.Initing | Status.Starting))
         await Promise.race([
             Promise.all(promises),
-            sleepReject(MaxWaitTime, 'Plugin lifecycles timed out, force stopping'),
+            sleepReject(
+                MaxWaitTime,
+                'Plugin lifecycles timed out, force stopping',
+            ),
         ])
             .then(finished => {
                 // If the lifecycles don't finish in 5 seconds, a reload is probably required to unapply the changes
                 if (!finished) plugin.flags |= Flag.ReloadRequired
             })
             .catch(e => handlePluginError(e, plugin))
-    else if (!(plugin.status & (Status.PreInited | Status.Inited | Status.Started)))
+    else if (
+        !(plugin.status & (Status.PreInited | Status.Inited | Status.Started))
+    )
         throw new Error(`Plugin "${id}" is not running`)
 
     if (apiLevel < PluginApiLevel.PreInit) preparePluginPreInit(plugin)
@@ -275,7 +302,10 @@ export async function stopPlugin(plugin: InternalPlugin) {
         if (lifecycles.stop)
             await Promise.race([
                 lifecycles.stop(meta[0] as PluginApi),
-                sleepReject(MaxWaitTime, 'Plugin stop lifecycle timed out, force stopping'),
+                sleepReject(
+                    MaxWaitTime,
+                    'Plugin stop lifecycle timed out, force stopping',
+                ),
             ])
     } catch (e) {
         await handlePluginError(e, plugin)

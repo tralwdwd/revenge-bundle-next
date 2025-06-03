@@ -5,7 +5,6 @@ import { getStorage } from '@revenge-mod/storage'
 import { createLogger } from '@revenge-mod/utils/logger'
 import { mergeDeep } from '@revenge-mod/utils/objects'
 import { proxify } from '@revenge-mod/utils/proxy'
-
 import type { Metro } from '@revenge-mod/modules/types'
 import type { Asset } from './types'
 

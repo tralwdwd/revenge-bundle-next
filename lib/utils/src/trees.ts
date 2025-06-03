@@ -18,7 +18,11 @@ export interface FindInTreeOptions {
     maxDepth?: number
 }
 
-export function findInTree(tree: SearchTree, filter: SearchFilter, opts?: FindInTreeOptions): any | undefined {
+export function findInTree(
+    tree: SearchTree,
+    filter: SearchFilter,
+    opts?: FindInTreeOptions,
+): any | undefined {
     type StackItem = [node: any, depth: number]
     const stack: StackItem[] = [[tree, 0]]
     const maxDepth = opts?.maxDepth ?? 100
@@ -37,7 +41,8 @@ export function findInTree(tree: SearchTree, filter: SearchFilter, opts?: FindIn
 
             if (typeof item !== 'object' || item == null) continue
 
-            if (!isArray && opts?.walkable?.size && !opts.walkable?.has(key)) continue
+            if (!isArray && opts?.walkable?.size && !opts.walkable?.has(key))
+                continue
             if (!isArray && opts?.ignore?.has(key)) continue
 
             stack.push([item, depth + 1])

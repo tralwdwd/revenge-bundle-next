@@ -1,6 +1,10 @@
-import { byDependencies, byProps, preferExports, relativeDep } from '@revenge-mod/modules/finders/filters'
+import {
+    byDependencies,
+    byProps,
+    preferExports,
+    relativeDep,
+} from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
-
 import type { Metro } from '@revenge-mod/modules/types'
 import type { DiscordModules } from './types'
 

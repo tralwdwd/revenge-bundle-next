@@ -1,25 +1,23 @@
+import { getAssetIdByName } from '@revenge-mod/assets'
+import { Tokens } from '@revenge-mod/discord/common'
 import { Design } from '@revenge-mod/discord/design'
 import { FlashList } from '@revenge-mod/externals/shopify'
 import {
-    type InternalPlugin,
-    InternalPluginFlags,
     _metas,
     _plugins,
     enablePlugin,
+    InternalPluginFlags,
     initPlugin,
     preInitPlugin,
     startPlugin,
 } from '@revenge-mod/plugins/_'
+import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { React, ReactNative } from '@revenge-mod/react'
-
+import { useReRender } from '@revenge-mod/utils/react'
 import FormSwitch from '~/components/FormSwitch'
 import Page from '~/components/Page'
 import SearchInput from '~/components/SearchInput'
-
-import { getAssetIdByName } from '@revenge-mod/assets'
-import { Tokens } from '@revenge-mod/discord/common'
-import { PluginFlags } from '@revenge-mod/plugins/constants'
-import { useReRender } from '@revenge-mod/utils/react'
+import type { InternalPlugin } from '@revenge-mod/plugins/_'
 
 const { Image, useWindowDimensions } = ReactNative
 const { Card, Text, Stack } = Design
@@ -31,7 +29,10 @@ export default function RevengePluginsSettingScreen() {
     const numColumns = Math.floor((width - 16) / 448)
 
     const plugins = React.useMemo(
-        () => [..._plugins.values()].map(plugin => [plugin, _metas.get(plugin.manifest.id)![2]] as const),
+        () =>
+            [..._plugins.values()].map(
+                plugin => [plugin, _metas.get(plugin.manifest.id)![2]] as const,
+            ),
         [_plugins],
     )
 
@@ -51,16 +52,16 @@ export default function RevengePluginsSettingScreen() {
 
     return (
         <Page spacing={16}>
-            <SearchInput size="md" onChange={(v: string) => setSearch(v)} />
+            <SearchInput onChange={(v: string) => setSearch(v)} size="md" />
             <FlashList.MasonryFlashList
                 data={filteredPlugins}
-                numColumns={numColumns}
                 estimatedItemSize={108}
+                numColumns={numColumns}
                 renderItem={({ item: [plugin, iflags], columnIndex }) => (
                     <InstalledPluginCard
+                        iflags={iflags}
                         key={plugin.manifest.id}
                         plugin={plugin}
-                        iflags={iflags}
                         rightGap={columnIndex + 1 < numColumns}
                     />
                 )}
@@ -103,7 +104,11 @@ function InstalledPluginCard({
     plugin,
     iflags,
     rightGap,
-}: { plugin: InternalPlugin; iflags: number; rightGap?: boolean }) {
+}: {
+    plugin: InternalPlugin
+    iflags: number
+    rightGap?: boolean
+}) {
     const {
         manifest: { name, description, author, icon },
         flags,
@@ -116,14 +121,23 @@ function InstalledPluginCard({
 
     return (
         <Card style={[styles.card, rightGap && styles.rightGap]}>
-            <Stack direction="horizontal" style={[styles.grow, styles.topContainer]}>
-                <Stack spacing={8} direction="horizontal" style={[styles.topContainer, styles.autoSize]}>
-                    <Image source={getAssetIdByName(icon ?? 'PuzzlePieceIcon')!} style={styles.icon} />
+            <Stack
+                direction="horizontal"
+                style={[styles.grow, styles.topContainer]}
+            >
+                <Stack
+                    direction="horizontal"
+                    spacing={8}
+                    style={[styles.topContainer, styles.autoSize]}
+                >
+                    <Image
+                        source={getAssetIdByName(icon ?? 'PuzzlePieceIcon')!}
+                        style={styles.icon}
+                    />
                     <Text variant="heading-lg/semibold">{name}</Text>
                 </Stack>
                 <FormSwitch
                     disabled={essential}
-                    value={enabled}
                     // biome-ignore lint/complexity/useArrowFunction: Async arrows are not supported
                     onValueChange={async function (v) {
                         if (v) {
@@ -139,10 +153,15 @@ function InstalledPluginCard({
                         // make an event based system for this, so we can register a listener for when plugins are disabled
                         // and check its flags afterwards
                     }}
+                    value={enabled}
                 />
             </Stack>
             <Stack spacing={4} style={[styles.alignedContainer, styles.grow]}>
-                <Text style={styles.grow} variant="heading-md/medium" color="text-muted">
+                <Text
+                    color="text-muted"
+                    style={styles.grow}
+                    variant="heading-md/medium"
+                >
                     by {author}
                 </Text>
                 <Text style={styles.grow} variant="text-md/medium">

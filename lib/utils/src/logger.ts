@@ -3,7 +3,8 @@ export function createLogger(tag: string) {
         log: (message: string) => console.log(`[${tag}] ${message}`),
         warn: (message: string) => console.warn(`[${tag}] ${message}`),
         error: (message: string) => console.error(`[${tag}] ${message}`),
-        wtf: (message: string) => console.error(`\u001b[31m[${tag}] ${message}\u001b[0m`),
+        wtf: (message: string) =>
+            console.error(`\u001b[31m[${tag}] ${message}\u001b[0m`),
     } satisfies BasicLogger
 }
 

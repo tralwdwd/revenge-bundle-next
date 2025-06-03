@@ -1,13 +1,21 @@
-import { byDependencies, byProps, looseDeps, preferExports, relativeDep } from '@revenge-mod/modules/finders/filters'
+import {
+    byDependencies,
+    byProps,
+    looseDeps,
+    preferExports,
+    relativeDep,
+} from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
-
-import { ReactJsxRuntimeModuleId, ReactModuleId, ReactNativeModuleId } from '@revenge-mod/react'
-
+import {
+    ReactJsxRuntimeModuleId,
+    ReactModuleId,
+    ReactNativeModuleId,
+} from '@revenge-mod/react'
 import { proxify } from '@revenge-mod/utils/proxy'
-
 import type { DiscordModules } from '../../types'
 
-export type SettingListRenderer = DiscordModules.Modules.Settings.SettingListRenderer
+export type SettingListRenderer =
+    DiscordModules.Modules.Settings.SettingListRenderer
 
 export let SettingListRenderer: SettingListRenderer = proxify(
     () => {

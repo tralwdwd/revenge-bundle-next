@@ -1,6 +1,5 @@
 import { isProxy } from '@revenge-mod/utils/proxy'
 import { _inits, _metas, _uninits } from './_internal'
-
 import type { Metro } from '../types'
 
 /**
@@ -29,7 +28,9 @@ export function initializedModuleHasBadExports(id: Metro.ModuleID): boolean {
  * Returns the dependencies of a module.
  * @param id The module ID.
  */
-export function getModuleDependencies(id: Metro.ModuleID): Metro.DependencyMap | undefined {
+export function getModuleDependencies(
+    id: Metro.ModuleID,
+): Metro.DependencyMap | undefined {
     return _metas.get(id)?.[0]
 }
 
@@ -45,7 +46,9 @@ export function isModuleInitialized(id: Metro.ModuleID): boolean {
  * Returns the exports of an initialized module.
  * @param id The module ID.
  */
-export function getInitializedModuleExports(id: Metro.ModuleID): Metro.ModuleExports | undefined {
+export function getInitializedModuleExports(
+    id: Metro.ModuleID,
+): Metro.ModuleExports | undefined {
     return _metas.get(id)?.[2]?.exports
 }
 
@@ -53,7 +56,9 @@ export function getInitializedModuleExports(id: Metro.ModuleID): Metro.ModuleExp
  * Returns whether a particular module export is bad. This is used for filter functions to check whether an export is filterable.
  * @param exp The export to check.
  */
-export function isModuleExportBad(exp: Metro.ModuleExports[PropertyKey]): boolean {
+export function isModuleExportBad(
+    exp: Metro.ModuleExports[PropertyKey],
+): boolean {
     return (
         // Nullish?
         exp == null ||
@@ -78,7 +83,8 @@ export function isModuleExportsBad(exports: Metro.ModuleExports): boolean {
         // - String, Boolean, Symbol, BigInt exports are not useful (who would do `module.exports = ...`?)
         !(typeof exports === 'object' || typeof exports === 'function') ||
         // Checking if the object is empty
-        (exports.__proto__ === Object.prototype && !Reflect.ownKeys(exports).length) ||
+        (exports.__proto__ === Object.prototype &&
+            !Reflect.ownKeys(exports).length) ||
         // Can't run isProxy() on this because this isn't your typical proxy:
         // https://github.com/facebook/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
         exports === nativeModuleProxy

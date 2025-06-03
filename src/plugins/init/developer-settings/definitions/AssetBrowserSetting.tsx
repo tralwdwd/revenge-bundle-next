@@ -1,7 +1,5 @@
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
-
 import { MobileSetting, UserSettingsSections } from '../constants'
-
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const AssetBrowserSetting: SettingsItem = {
@@ -11,7 +9,8 @@ const AssetBrowserSetting: SettingsItem = {
     title: () => 'Asset Browser',
     screen: {
         route: UserSettingsSections[MobileSetting.ASSET_BROWSER],
-        getComponent: () => require('../screens/AssetBrowserSettingScreen').default,
+        getComponent: () =>
+            require('../screens/AssetBrowserSettingScreen').default,
     },
 }
 

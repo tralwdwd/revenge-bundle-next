@@ -1,19 +1,17 @@
-import { _inits, _metas, _paths, _uninits } from '../metro/_internal'
-import {
-    type RunFilterOptions,
-    type RunFilterReturnExportsOptions,
-    exportsFromFilterResultFlag,
-    runFilter,
-} from './_internal'
-
+import { _inits, _paths, _uninits } from '../metro/_internal'
 import { getInitializedModuleExports } from '../metro/utils'
-
+import { exportsFromFilterResultFlag, runFilter } from './_internal'
 import type { If } from '@revenge-mod/utils/types'
-import type { MaybeDefaultExportMatched } from '../types'
-import type { Metro } from '../types'
+import type { MaybeDefaultExportMatched, Metro } from '../types'
+import type {
+    RunFilterOptions,
+    RunFilterReturnExportsOptions,
+} from './_internal'
 import type { Filter, FilterResult } from './filters'
 
-export interface BaseLookupModulesOptions<IncludeUninitialized extends boolean = boolean> extends RunFilterOptions {
+export interface BaseLookupModulesOptions<
+    IncludeUninitialized extends boolean = boolean,
+> extends RunFilterOptions {
     /**
      * Whether to include initialized modules in the lookup.
      *
@@ -35,9 +33,13 @@ export interface BaseLookupModulesOptions<IncludeUninitialized extends boolean =
 export type LookupModulesOptions<
     ReturnNamespace extends boolean = boolean,
     IncludeUninitialized extends boolean = boolean,
-> = RunFilterReturnExportsOptions<ReturnNamespace> & BaseLookupModulesOptions<IncludeUninitialized>
+> = RunFilterReturnExportsOptions<ReturnNamespace> &
+    BaseLookupModulesOptions<IncludeUninitialized>
 
-export type LookupModulesResult<F extends Filter, O extends LookupModulesOptions> = [
+export type LookupModulesResult<
+    F extends Filter,
+    O extends LookupModulesOptions,
+> = [
     exports: O extends RunFilterReturnExportsOptions<true>
         ? MaybeDefaultExportMatched<FilterResult<F>>
         : FilterResult<F>,
@@ -46,7 +48,11 @@ export type LookupModulesResult<F extends Filter, O extends LookupModulesOptions
 
 export type LookupModuleIdsOptions<
     IncludeUninitialized extends boolean = boolean,
-    IncludeAll extends If<IncludeUninitialized, false, boolean> = If<IncludeUninitialized, false, boolean>,
+    IncludeAll extends If<IncludeUninitialized, false, boolean> = If<
+        IncludeUninitialized,
+        false,
+        boolean
+    >,
 > = RunFilterOptions &
     (
         | (BaseLookupModulesOptions<IncludeUninitialized> & {
@@ -82,10 +88,14 @@ export type LookupModuleIdsOptions<
  * for (const exports of lookup) console.log(exports)
  * ```
  */
-export function lookupModules<F extends Filter>(filter: F): Generator<LookupModulesResult<F, never>, undefined>
+export function lookupModules<F extends Filter>(
+    filter: F,
+): Generator<LookupModulesResult<F, never>, undefined>
 
 export function lookupModules<
-    F extends O extends BaseLookupModulesOptions<true> ? Filter<any, false> : Filter,
+    F extends O extends BaseLookupModulesOptions<true>
+        ? Filter<any, false>
+        : Filter,
     O extends LookupModulesOptions,
 >(filter: F, options: O): Generator<LookupModulesResult<F, O>, undefined>
 
@@ -94,7 +104,8 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
         for (const id of _inits) {
             const exports = getInitializedModuleExports(id)
             const flag = runFilter(filter, id, exports, options)
-            if (flag) yield [exportsFromFilterResultFlag(flag, exports, options), id]
+            if (flag)
+                yield [exportsFromFilterResultFlag(flag, exports, options), id]
         }
 
     if (options?.includeUninitialized)
@@ -103,7 +114,11 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
                 // Run the filter again to ensure we have the correct exports
                 const exports = __r(id)
                 const flag = runFilter(filter, id, exports, options)
-                if (flag) yield [exportsFromFilterResultFlag(flag, exports, options), id]
+                if (flag)
+                    yield [
+                        exportsFromFilterResultFlag(flag, exports, options),
+                        id,
+                    ]
                 else warnDeveloperAboutAPartialFilterMatch(id, filter.key)
             }
 }
@@ -122,7 +137,9 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
  * const React = lookupModule(byProps<typeof import('react')>('createElement'))
  * ```
  */
-export function lookupModule<F extends Filter>(filter: F): LookupModulesResult<F, never> | []
+export function lookupModule<F extends Filter>(
+    filter: F,
+): LookupModulesResult<F, never> | []
 
 export function lookupModule<F extends Filter, O extends LookupModulesOptions>(
     filter: F,
@@ -134,7 +151,8 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
         for (const id of _inits) {
             const exports = getInitializedModuleExports(id)
             const flag = runFilter(filter, id, exports, options)
-            if (flag) return [exportsFromFilterResultFlag(flag, exports, options), id]
+            if (flag)
+                return [exportsFromFilterResultFlag(flag, exports, options), id]
         }
 
     if (options?.includeUninitialized)
@@ -143,7 +161,11 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
                 const exports = __r(id)
                 // Run the filter again to ensure we have the correct exports
                 const flag = runFilter(filter, id, exports, options)
-                if (flag) return [exportsFromFilterResultFlag(flag, exports, options), id]
+                if (flag)
+                    return [
+                        exportsFromFilterResultFlag(flag, exports, options),
+                        id,
+                    ]
                 warnDeveloperAboutAPartialFilterMatch(id, filter.key)
             }
 
@@ -163,7 +185,9 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
  * const [{ default: Logger }] = lookupModuleByImportedPath<{ default: typeof DiscordModules.Logger }>('modules/debug/Logger.tsx')
  * ```
  */
-export function lookupModuleByImportedPath<T = any>(path: string): [exports: T, id: Metro.ModuleID] | [] {
+export function lookupModuleByImportedPath<T = any>(
+    path: string,
+): [exports: T, id: Metro.ModuleID] | [] {
     const id = _paths.get(path)
     if (id == null) return []
     return [getInitializedModuleExports(id), id]
@@ -174,7 +198,10 @@ export function lookupModuleByImportedPath<T = any>(path: string): [exports: T, 
  * This will cause modules to be initialized unnecessarily, and may cause issues.
  * @internal
  */
-function warnDeveloperAboutAPartialFilterMatch(id: Metro.ModuleID, key: string) {
+function warnDeveloperAboutAPartialFilterMatch(
+    id: Metro.ModuleID,
+    key: string,
+) {
     console.warn(
         `[revenge.modules.finders.lookup] Module ${id} matched ${key} during uninitialized lookup, but did not match the full filter.`,
     )

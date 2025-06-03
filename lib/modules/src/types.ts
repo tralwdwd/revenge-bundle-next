@@ -55,7 +55,11 @@ export namespace Metro {
 
     export type RequireFn = (id: ModuleID) => ModuleExports
 
-    export type DefineFn = (factory: FactoryFn, moduleId: ModuleID, dependencyMap?: DependencyMap | undefined) => void
+    export type DefineFn = (
+        factory: FactoryFn,
+        moduleId: ModuleID,
+        dependencyMap?: DependencyMap | undefined,
+    ) => void
 
     export type ModuleDefiner = (moduleId: ModuleID) => void
 

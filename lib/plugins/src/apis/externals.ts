@@ -10,9 +10,15 @@ export interface PluginApiExternals {
 export const externals = {} as PluginApiExternals
 
 // TODO: Rolldown issue: Bug requires us to do { ...require('...') } instead of just require('...')
-defineLazyProperty(externals, 'Browserify', () => ({ ...require('@revenge-mod/externals/browserify') }))
+defineLazyProperty(externals, 'Browserify', () => ({
+    ...require('@revenge-mod/externals/browserify'),
+}))
 defineLazyProperty(externals, 'ReactNativeClipboard', () => ({
     ...require('@revenge-mod/externals/react-native-clipboard'),
 }))
-defineLazyProperty(externals, 'ReactNavigation', () => ({ ...require('@revenge-mod/externals/react-navigation') }))
-defineLazyProperty(externals, 'Shopify', () => ({ ...require('@revenge-mod/externals/shopify') }))
+defineLazyProperty(externals, 'ReactNavigation', () => ({
+    ...require('@revenge-mod/externals/react-navigation'),
+}))
+defineLazyProperty(externals, 'Shopify', () => ({
+    ...require('@revenge-mod/externals/shopify'),
+}))

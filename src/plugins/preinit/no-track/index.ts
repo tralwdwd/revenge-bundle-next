@@ -1,8 +1,6 @@
 import { byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
-
 import { instead } from '@revenge-mod/patcher'
-
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 
@@ -18,13 +16,16 @@ registerPlugin(
     {
         preInit({ cleanup }) {
             // modules/errors/native/SentryInitUtils.tsx
-            const unsubSIU = waitForModules(byProps('initSentry'), SentryInitUtils => {
-                unsubSIU()
+            const unsubSIU = waitForModules(
+                byProps('initSentry'),
+                SentryInitUtils => {
+                    unsubSIU()
 
-                console.log('Patching SentryInitUtils...')
-                cleanup(instead(SentryInitUtils, 'initSentry', () => {}))
-                cleanup(() => SentryInitUtils.initSentry())
-            })
+                    console.log('Patching SentryInitUtils...')
+                    cleanup(instead(SentryInitUtils, 'initSentry', () => {}))
+                    cleanup(() => SentryInitUtils.initSentry())
+                },
+            )
         },
         init({ cleanup, logger }) {
             // utils/AnalyticsUtils.tsx
@@ -41,10 +42,19 @@ registerPlugin(
 
                     logger.info('Patching AnalyticsUtils...')
                     cleanup(instead(AnalyticsUtils.default, 'track', () => {}))
-                    cleanup(instead(AnalyticsUtils, 'trackNetworkAction', () => {}))
+                    cleanup(
+                        instead(AnalyticsUtils, 'trackNetworkAction', () => {}),
+                    )
 
-                    for (const key in AnalyticsUtils.default.AnalyticsActionHandlers)
-                        cleanup(instead(AnalyticsUtils.default.AnalyticsActionHandlers, key, () => {}))
+                    for (const key in AnalyticsUtils.default
+                        .AnalyticsActionHandlers)
+                        cleanup(
+                            instead(
+                                AnalyticsUtils.default.AnalyticsActionHandlers,
+                                key,
+                                () => {},
+                            ),
+                        )
                 },
             )
             // modules/app_analytics/useTrackImpression.tsx
@@ -57,7 +67,13 @@ registerPlugin(
                     unsubTI()
 
                     logger.info('Patching useTrackImpression...')
-                    cleanup(instead(useTrackImpression, 'trackImpression', () => {}))
+                    cleanup(
+                        instead(
+                            useTrackImpression,
+                            'trackImpression',
+                            () => {},
+                        ),
+                    )
                     cleanup(instead(useTrackImpression, 'default', () => {}))
                 },
             )

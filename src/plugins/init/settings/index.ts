@@ -1,14 +1,11 @@
-import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
-import { PluginFlags } from '@revenge-mod/plugins/constants'
-
+import { _data, _subs } from '@revenge-mod/discord/_/modules/settings'
+import { onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
-
-import { _data, _subs } from '@revenge-mod/discord/_/modules/settings'
-import { type SettingsItem, onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
-
 import { after } from '@revenge-mod/patcher'
-
+import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
+import { PluginFlags } from '@revenge-mod/plugins/constants'
+import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 import type { FC } from 'react'
 
 onSettingsModulesLoaded(() => require('./register'))
@@ -30,29 +27,39 @@ registerPlugin(
                 SettingRendererConfig => {
                     unsubForRendererConfig()
 
-                    logger.info('Settings modules loaded, running subscriptions and patching...')
+                    logger.info(
+                        'Settings modules loaded, running subscriptions and patching...',
+                    )
 
                     for (const sub of _subs)
                         try {
                             sub()
                         } catch (e) {
-                            logger.error('Failed to run settings modules subscription', e)
+                            logger.error(
+                                'Failed to run settings modules subscription',
+                                e,
+                            )
                         }
 
                     // We don't ever need to call this again
                     _subs.clear()
                     _data[2] = true
 
-                    let ORIGINAL_RENDERER_CONFIG = SettingRendererConfig.SETTING_RENDERER_CONFIG
+                    let ORIGINAL_RENDERER_CONFIG =
+                        SettingRendererConfig.SETTING_RENDERER_CONFIG
 
-                    Object.defineProperty(SettingRendererConfig, 'SETTING_RENDERER_CONFIG', {
-                        get: () =>
-                            ({
-                                ...ORIGINAL_RENDERER_CONFIG,
-                                ..._data[1],
-                            }) as Record<string, SettingsItem>,
-                        set: v => (ORIGINAL_RENDERER_CONFIG = v),
-                    })
+                    Object.defineProperty(
+                        SettingRendererConfig,
+                        'SETTING_RENDERER_CONFIG',
+                        {
+                            get: () =>
+                                ({
+                                    ...ORIGINAL_RENDERER_CONFIG,
+                                    ..._data[1],
+                                }) as Record<string, SettingsItem>,
+                            set: v => (ORIGINAL_RENDERER_CONFIG = v),
+                        },
+                    )
                 },
             )
 
@@ -76,14 +83,17 @@ registerPlugin(
                         }
 
                         // Check if we even have custom sections
-                        const firstCustomSection = customSections[Object.keys(customSections)[0]]
+                        const firstCustomSection =
+                            customSections[Object.keys(customSections)[0]]
                         if (!firstCustomSection) return tree
 
                         // Check if sections are already spliced
                         const firstCustomItem = firstCustomSection.settings[0]
                         if (
                             sections.findIndex(section =>
-                                section.settings.some(setting => setting === firstCustomItem),
+                                section.settings.some(
+                                    setting => setting === firstCustomItem,
+                                ),
                             ) !== -1
                         )
                             return tree

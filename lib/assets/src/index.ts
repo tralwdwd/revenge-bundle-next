@@ -1,16 +1,15 @@
 import { ReactNative } from '@revenge-mod/react'
-
 import { _customs, _metas, _overrides } from './_internal'
 import { cache } from './caches'
 import { AssetRegistry } from './preinit'
-
 import type { Metro } from '@revenge-mod/modules/types'
 import type { Asset, AssetId, RegisterableAsset } from './types'
 
 export { AssetRegistry, AssetRegistryModuleId } from './preinit'
 
 // iOS cannot display SVGs
-let _preferredType: Asset['type'] = ReactNative.Platform.OS === 'ios' ? 'png' : 'svg'
+let _preferredType: Asset['type'] =
+    ReactNative.Platform.OS === 'ios' ? 'png' : 'svg'
 
 /**
  * Set the preferred asset type. This is used to determine which asset to use when multiple types are available.
@@ -26,7 +25,8 @@ export function setPreferredAssetType(type: Asset['type']) {
  */
 export function* getAssets(): Generator<Asset> {
     for (const name of Object.keys(cache!))
-        for (const mid of Object.values(cache[name])) yield AssetRegistry.getAssetByID(__r(mid)) as Asset
+        for (const mid of Object.values(cache[name]))
+            yield AssetRegistry.getAssetByID(__r(mid)) as Asset
 
     for (const asset of _customs) yield asset
 }
@@ -48,7 +48,9 @@ export function getAssetByName(name: string): Asset | undefined {
  * @param name The asset name.
  * @returns A record keyed by the type of the asset, with the value being the asset itself.
  */
-export function getAssetsByName(name: string): Record<Asset['type'], Asset> | undefined {
+export function getAssetsByName(
+    name: string,
+): Record<Asset['type'], Asset> | undefined {
     const reg = cache[name]
     if (!reg) return
 
@@ -89,7 +91,9 @@ export function getAssetIdByName(name: string): AssetId | undefined {
  *
  * @param asset The asset to get the module ID for.
  */
-export function getAssetModuleId(asset: Asset): Metro.ModuleID | -1 | undefined {
+export function getAssetModuleId(
+    asset: Asset,
+): Metro.ModuleID | -1 | undefined {
     return _metas.get(asset)?.[1]
 }
 
@@ -101,7 +105,9 @@ export function getAssetModuleId(asset: Asset): Metro.ModuleID | -1 | undefined 
  */
 export function registerAsset(asset: RegisterableAsset): AssetId {
     if (cache[asset.name]?.[asset.type] !== undefined)
-        throw new Error(`Asset with name ${asset.name} and type ${asset.type} already exists!`)
+        throw new Error(
+            `Asset with name ${asset.name} and type ${asset.type} already exists!`,
+        )
 
     _customs.add(asset)
 

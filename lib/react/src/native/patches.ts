@@ -1,9 +1,7 @@
-import { after, before } from '@revenge-mod/patcher'
-import { ReactNative } from '..'
-
 import { byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
-
+import { after, before } from '@revenge-mod/patcher'
+import { ReactNative } from '..'
 import type { RunApplicationCallback } from '.'
 
 export const _bra = new Set<RunApplicationCallback>()

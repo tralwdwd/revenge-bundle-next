@@ -23,7 +23,9 @@ export function yielded<T>(generator: Generator<T>, skip = 0): T {
     if (skip)
         for (let i = 0; i < skip; i++)
             if (generator.next().done)
-                throw new Error(`Generator has no more values to drop (dropped ${i + 1} out of ${skip})`)
+                throw new Error(
+                    `Generator has no more values to drop (dropped ${i + 1} out of ${skip})`,
+                )
 
     return generator.next().value
 }

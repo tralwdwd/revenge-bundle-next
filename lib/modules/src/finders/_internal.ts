@@ -1,5 +1,4 @@
 import { isModuleExportBad } from '../metro/utils'
-
 import type { If } from '@revenge-mod/utils/types'
 import type { Metro } from '../types'
 import type { Filter } from './filters'
@@ -13,7 +12,9 @@ export interface RunFilterOptions {
     skipDefault?: boolean
 }
 
-export type RunFilterReturnExportsOptions<ReturnNamespace extends boolean = boolean> = RunFilterOptions &
+export type RunFilterReturnExportsOptions<
+    ReturnNamespace extends boolean = boolean,
+> = RunFilterOptions &
     If<
         ReturnNamespace,
         {
@@ -44,14 +45,18 @@ const FilterResultFlags = {
     Namespace: 3,
 }
 
-export type FilterResultFlag = (typeof FilterResultFlags)[keyof typeof FilterResultFlags]
+export type FilterResultFlag =
+    (typeof FilterResultFlags)[keyof typeof FilterResultFlags]
 
 // The reason this returns a flag is because flags are never falsy, while exports may be falsy when using ID-only filters (eg. `byDependencies`).
 
 // Currently, we only have options that are relevant for checking exports
 // If we add more options later on, do NOT forget about
 // adding them here, and passing them in the lookup* functions
-export function runFilter(filter: Filter<any, false>, id: Metro.ModuleID): FilterResultFlag | undefined
+export function runFilter(
+    filter: Filter<any, false>,
+    id: Metro.ModuleID,
+): FilterResultFlag | undefined
 
 export function runFilter(
     filter: Filter,
@@ -81,7 +86,11 @@ export function runFilter(
     }
 
     const defaultExport = exports.default
-    if (!options?.skipDefault && !isModuleExportBad(defaultExport) && filter(id, defaultExport)) {
+    if (
+        !options?.skipDefault &&
+        !isModuleExportBad(defaultExport) &&
+        filter(id, defaultExport)
+    ) {
         // TODO(modules/finders/caches::default)
         return FilterResultFlags.Default
     }
@@ -92,6 +101,7 @@ export function exportsFromFilterResultFlag(
     exports: Metro.ModuleExports,
     options?: RunFilterReturnExportsOptions,
 ) {
-    if (flag === FilterResultFlags.Default && !options?.returnNamespace) return exports.default
+    if (flag === FilterResultFlags.Default && !options?.returnNamespace)
+        return exports.default
     return exports
 }

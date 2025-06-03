@@ -1,12 +1,10 @@
-import type { PluginFlags, PluginStatus } from './constants'
-
 import type { Storage, StorageOptions } from '@revenge-mod/storage'
 import type { AnyObject } from '@revenge-mod/utils/types'
-
 import type { PluginApiExternals } from './apis/externals'
 import type { PluginApiModules } from './apis/modules'
 import type { PluginApiPlugins } from './apis/plugins'
 import type { PluginApiReact } from './apis/react'
+import type { PluginFlags, PluginStatus } from './constants'
 
 /**
  * The unscoped plugin API (very limited). This API is available as a global for plugins.
@@ -54,7 +52,8 @@ export interface PreInitPluginApi {
  * The plugin API (limited).
  * Available in the `init` phase.
  */
-export interface InitPluginApi<S extends AnyObject = AnyObject> extends PreInitPluginApi {
+export interface InitPluginApi<S extends AnyObject = AnyObject>
+    extends PreInitPluginApi {
     unscoped: UnscopedInitPluginApi
     /**
      * The plugin storage.
@@ -71,7 +70,8 @@ export interface InitPluginApi<S extends AnyObject = AnyObject> extends PreInitP
  * The plugin API.
  * Available in the `start` and `stop` phase.
  */
-export interface PluginApi<S extends AnyObject = AnyObject> extends InitPluginApi<S> {
+export interface PluginApi<S extends AnyObject = AnyObject>
+    extends InitPluginApi<S> {
     unscoped: UnscopedPluginApi
 }
 
@@ -114,7 +114,8 @@ export interface PluginManifest {
     icon?: string
 }
 
-export interface PluginOptions<S extends AnyObject = AnyObject> extends PluginLifecycles<S> {
+export interface PluginOptions<S extends AnyObject = AnyObject>
+    extends PluginLifecycles<S> {
     storage?: Omit<StorageOptions<S>, 'directory'>
 }
 

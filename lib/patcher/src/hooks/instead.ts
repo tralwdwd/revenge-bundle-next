@@ -1,13 +1,14 @@
 import {
     createPatchedFunctionProxy,
-    type FunctionProxyState,
-    type InsteadHookNode,
-    type PatchedFunctionProxyState,
     patchedFunctionProxyHandler,
     patchedFunctionProxyStates,
     unproxy,
 } from '../_internal'
-
+import type {
+    FunctionProxyState,
+    InsteadHookNode,
+    PatchedFunctionProxyState,
+} from '../_internal'
 import type {
     AbstractNewable,
     Callable,

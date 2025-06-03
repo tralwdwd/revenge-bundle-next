@@ -1,5 +1,4 @@
 import { AppStartPerformance } from '@revenge-mod/discord/preinit'
-
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 
@@ -27,7 +26,11 @@ registerPlugin(
             AppStartPerformance.mark('👊', 'Plugins init', tsInit - tsPreInit)
         },
         start({ logger }) {
-            AppStartPerformance.mark('👊', 'Plugins start', performance.now() - tsInit)
+            AppStartPerformance.mark(
+                '👊',
+                'Plugins start',
+                performance.now() - tsInit,
+            )
             logger.log(
                 `👊 Revenge. Discord, your way. (${__BUILD_VERSION__}-${__BUILD_COMMIT__}-${__BUILD_BRANCH__} (${__BUILD_ENV__}))`,
             )

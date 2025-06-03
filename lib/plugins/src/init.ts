@@ -1,14 +1,10 @@
-import { onRunApplication } from '@revenge-mod/react/native'
-
-import { _uapi } from './apis'
-
 import * as AssetsLibrary from '@revenge-mod/assets'
+import { onRunApplication } from '@revenge-mod/react/native'
+import { _plugins, initPlugin, startPlugin } from './_internal'
+import { _uapi } from './apis'
 import { externals } from './apis/externals'
 import { react } from './apis/react'
-
-import { _plugins, initPlugin, startPlugin } from './_internal'
 import { PluginFlags } from './constants'
-
 import type { UnscopedInitPluginApi } from './types'
 
 // Setup init plugin APIs
@@ -17,7 +13,8 @@ uapi.assets = AssetsLibrary
 uapi.externals = externals
 uapi.react = react
 
-for (const plugin of _plugins.values()) if (plugin.flags & PluginFlags.Enabled) initPlugin(plugin)
+for (const plugin of _plugins.values())
+    if (plugin.flags & PluginFlags.Enabled) initPlugin(plugin)
 
 const unsub = onRunApplication(() => {
     unsub()
@@ -26,5 +23,6 @@ const unsub = onRunApplication(() => {
     // const UILibrary = require('@revenge-mod/ui')
     // uapi.ui = UiLibrary
 
-    for (const plugin of _plugins.values()) if (plugin.flags & PluginFlags.Enabled) startPlugin(plugin)
+    for (const plugin of _plugins.values())
+        if (plugin.flags & PluginFlags.Enabled) startPlugin(plugin)
 })

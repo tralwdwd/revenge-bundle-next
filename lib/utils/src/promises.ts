@@ -1,4 +1,6 @@
-export function allSettled(promises: Promise<any>[]): Promise<PromiseSettledResult<any>[]> {
+export function allSettled(
+    promises: Promise<any>[],
+): Promise<PromiseSettledResult<any>[]> {
     const mapped = promises.map(p =>
         p instanceof Promise
             ? p

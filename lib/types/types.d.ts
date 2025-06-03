@@ -5,7 +5,10 @@ import type { Metro } from '@revenge-mod/modules/types'
 /// HERMES
 
 declare global {
-    function setTimeout(cb: (...args: unknown[]) => unknown, timeout?: number): number
+    function setTimeout(
+        cb: (...args: unknown[]) => unknown,
+        timeout?: number,
+    ): number
     /**
      * Calls the garbage collector
      */
@@ -28,13 +31,17 @@ declare global {
 /// HERMES PROMISES
 
 declare global {
+    // biome-ignore lint/correctness/noUnusedVariables: Type parameter names must match
     interface Promise<T> {
         /// PROMISE POLYFILLS FROM: https://github.com/then/promise
         /// AND: https://github.com/facebook/hermes/blob/main/lib/InternalBytecode/01-Promise.js
         _h: 0 | 1 | 2
     }
 
-    type HermesPromiseRejectionHandler = (promise: Promise<any>, error: any) => void
+    type HermesPromiseRejectionHandler = (
+        promise: Promise<any>,
+        error: any,
+    ) => void
 
     interface PromiseConstructor {
         _m: HermesPromiseRejectionHandler

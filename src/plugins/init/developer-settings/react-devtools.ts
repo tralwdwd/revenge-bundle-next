@@ -20,11 +20,16 @@ export const DevToolsContext: {
 type Subscription = (event: 1 | 2 | 3, err?: unknown) => void
 const subscriptions: Set<Subscription> = new Set()
 
-const CircleXIcon = lookupGeneratedIconComponent('CircleXIcon', 'CircleXIcon-secondary', 'CircleXIcon-primary')
+const CircleXIcon = lookupGeneratedIconComponent(
+    'CircleXIcon',
+    'CircleXIcon-secondary',
+    'CircleXIcon-primary',
+)
 
 subscriptions.add((e, err) => {
     if (e === 3) {
-        const actualError = (err as { message: string }).message ?? getErrorStack(err)
+        const actualError =
+            (err as { message: string }).message ?? getErrorStack(err)
 
         api.logger.error('React DevTools error:', actualError)
 
@@ -39,7 +44,9 @@ subscriptions.add((e, err) => {
 export function connectToDevTools() {
     if (!DevToolsContext.available || DevToolsContext.ws) return
 
-    const websocket = (DevToolsContext.ws = new WebSocket(`ws://${DevToolsContext.address}`))
+    const websocket = (DevToolsContext.ws = new WebSocket(
+        `ws://${DevToolsContext.address}`,
+    ))
 
     websocket.addEventListener('open', () => {
         DevToolsContext.open = true

@@ -1,7 +1,5 @@
 import { _ara, _bra } from './patches'
 
-import type { AppRegistry } from 'react-native'
-
 /**
  * Registers a callback to be run when a call to {@link AppRegistry.runApplication} is made.
  *

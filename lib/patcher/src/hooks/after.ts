@@ -1,11 +1,9 @@
 import {
     createPatchedFunctionProxy,
-    type HookNode,
-    type PatchedFunctionProxyState,
     patchedFunctionProxyStates,
     unproxy,
 } from '../_internal'
-
+import type { HookNode, PatchedFunctionProxyState } from '../_internal'
 import type {
     AfterHook,
     BeforeHook,

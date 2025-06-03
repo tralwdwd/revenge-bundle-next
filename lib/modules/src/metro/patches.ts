@@ -1,9 +1,7 @@
-import { _initing, _paths } from './_internal'
-
-import { _execPathSubs } from './subscriptions/_internal'
-
 import { byProps } from '../finders/filters'
 import { waitForModules } from '../finders/wait'
+import { _initing, _paths } from './_internal'
+import { _execPathSubs } from './subscriptions/_internal'
 
 const unsubFFI = waitForModules(byProps('fileFinishedImporting'), exports => {
     unsubFFI()

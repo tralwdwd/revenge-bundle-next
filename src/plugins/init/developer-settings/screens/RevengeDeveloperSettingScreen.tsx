@@ -1,9 +1,8 @@
 import { ToastActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { SettingListRenderer } from '@revenge-mod/discord/modules/settings/renderer'
-import { React, ReactNative } from '@revenge-mod/react'
+import { ReactNative } from '@revenge-mod/react'
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
-
 import { api } from '..'
 import { MobileSetting } from '../constants'
 import { DevToolsContext, useIsDevToolsOpen } from '../react-devtools'
@@ -34,7 +33,10 @@ export default function RevengeDeveloperSettingScreen() {
                     },
                     {
                         label: 'Tools',
-                        settings: [MobileSetting.EVALUATE_JAVASCRIPT, MobileSetting.ASSET_BROWSER],
+                        settings: [
+                            MobileSetting.EVALUATE_JAVASCRIPT,
+                            MobileSetting.ASSET_BROWSER,
+                        ],
                     },
                 ]}
             />
@@ -49,12 +51,13 @@ export function ReactDevToolsAddressSetting() {
     return (
         <ReactNative.View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
             <Design.TextInput
+                defaultValue={
+                    settings?.devtools.address ?? DevToolsContext.address
+                }
                 editable={!open}
                 isDisabled={open}
-                leadingText="ws://"
-                defaultValue={settings?.devtools.address ?? DevToolsContext.address}
                 label="React DevTools"
-                onChange={text => (DevToolsContext.address = text)}
+                leadingText="ws://"
                 onBlur={() => {
                     api.storage
                         .set({
@@ -70,6 +73,7 @@ export function ReactDevToolsAddressSetting() {
                             })
                         })
                 }}
+                onChange={text => (DevToolsContext.address = text)}
                 returnKeyType="done"
             />
         </ReactNative.View>

@@ -1,12 +1,12 @@
-import { parse } from 'path'
 import { transform } from '@swc/core'
 import { $, main } from 'bun'
 import chalk from 'chalk'
 import { exists, mkdir, readdir, rm, writeFile } from 'fs/promises'
-import { type OutputChunk, type RolldownPlugin, rolldown } from 'rolldown'
+import { parse } from 'path'
+import { rolldown } from 'rolldown'
 import { aliasPlugin, importGlobPlugin } from 'rolldown/experimental'
-
 import pkg from '../package.json'
+import type { OutputChunk, RolldownPlugin } from 'rolldown'
 
 const ShimsDir = `${import.meta.dir}/../shims`
 const AssetsDir = `${import.meta.dir}/../src/assets`
@@ -45,8 +45,12 @@ export default async function build(dev = false, log = true) {
         },
         define: {
             __BUILD_VERSION__: JSON.stringify(pkg.version),
-            __BUILD_COMMIT__: JSON.stringify((await $`git rev-parse HEAD`.text()).trim().substring(0, 7)),
-            __BUILD_BRANCH__: JSON.stringify((await $`git rev-parse --abbrev-ref HEAD`.text()).trim()),
+            __BUILD_COMMIT__: JSON.stringify(
+                (await $`git rev-parse HEAD`.text()).trim().substring(0, 7),
+            ),
+            __BUILD_BRANCH__: JSON.stringify(
+                (await $`git rev-parse --abbrev-ref HEAD`.text()).trim(),
+            ),
             __BUILD_ENV__: JSON.stringify(dev ? 'development' : 'production'),
             __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: String(dev),
         },
@@ -71,11 +75,24 @@ export default async function build(dev = false, log = true) {
                     '-Wno-undefined-variable',
                 ],
                 before() {
-                    if (log) console.debug(chalk.cyanBright('\u{1F5CE} JS compilation finished...'))
-                    if (log) console.debug(chalk.gray('\u{1F5CE} Compiling bytecode...'))
+                    if (log)
+                        console.debug(
+                            chalk.cyanBright(
+                                '\u{1F5CE} JS compilation finished...',
+                            ),
+                        )
+                    if (log)
+                        console.debug(
+                            chalk.gray('\u{1F5CE} Compiling bytecode...'),
+                        )
                 },
                 after() {
-                    if (log) console.debug(chalk.cyanBright('\u{1F5CE} Bytecode compilation finished'))
+                    if (log)
+                        console.debug(
+                            chalk.cyanBright(
+                                '\u{1F5CE} Bytecode compilation finished',
+                            ),
+                        )
                 },
             }),
         ],
@@ -122,7 +139,7 @@ function swcPlugin() {
                         },
                     },
                     env: {
-                        // https://github.com/discord/hermes/blob/main/doc/Features.md
+                        // https://github.com/facebook/hermes/blob/main/doc/Features.md
                         targets: 'fully supports es6',
                         include: [
                             'transform-async-generator-functions',
@@ -152,14 +169,23 @@ function swcPlugin() {
     } satisfies RolldownPlugin
 }
 
-function hermesCPlugin({ after, before, flags }: { flags?: string[]; before?: () => void; after?: () => void } = {}) {
+function hermesCPlugin({
+    after,
+    before,
+    flags,
+}: {
+    flags?: string[]
+    before?: () => void
+    after?: () => void
+} = {}) {
     const paths = {
         win32: 'hermesc.exe',
         darwin: 'hermesc',
         linux: 'hermesc',
     }
 
-    if (!(process.platform in paths)) throw new Error(`Unsupported platform: ${process.platform}`)
+    if (!(process.platform in paths))
+        throw new Error(`Unsupported platform: ${process.platform}`)
 
     const binPath = paths[process.platform as keyof typeof paths]
 
@@ -201,7 +227,8 @@ function hermesCPlugin({ after, before, flags }: { flags?: string[]; before?: ()
 }
 
 async function generateAssets() {
-    if (!(await exists(GeneratedAssetsDir))) await mkdir(GeneratedAssetsDir, { recursive: true })
+    if (!(await exists(GeneratedAssetsDir)))
+        await mkdir(GeneratedAssetsDir, { recursive: true })
 
     const promises: Promise<void>[] = []
 

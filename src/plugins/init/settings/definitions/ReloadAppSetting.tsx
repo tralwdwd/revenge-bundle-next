@@ -1,10 +1,6 @@
 import { BundleUpdaterManager } from '@revenge-mod/discord/native'
-import { React } from '@revenge-mod/react'
-
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
-
 import { MobileSetting } from '../constants'
-
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const ReloadAppSetting: SettingsItem = {

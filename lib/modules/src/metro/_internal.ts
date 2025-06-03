@@ -1,6 +1,5 @@
 import { _execInitSubs, _execReqSubs } from './subscriptions/_internal'
 import { isModuleExportsBad } from './utils'
-
 import type { Metro } from '../types'
 
 /** Initializing ID */
@@ -19,7 +18,12 @@ export const _metas = new Map<
 export function patchMetroDefine(metroDefine: Metro.DefineFn) {
     return ((origFactory, id, deps) => {
         // deps won't be undefined last time I checked
-        const metadata = [deps!, false] as typeof _metas extends Map<any, infer V> ? V : never
+        const metadata = [deps!, false] as typeof _metas extends Map<
+            any,
+            infer V
+        >
+            ? V
+            : never
         _metas.set(id, metadata)
         _uninits.add(id)
 
@@ -33,7 +37,15 @@ export function patchMetroDefine(metroDefine: Metro.DefineFn) {
                 _execReqSubs(id)
 
                 try {
-                    origFactory(global, req, importDefault, importAll, module, exports, deps)
+                    origFactory(
+                        global,
+                        req,
+                        importDefault,
+                        importAll,
+                        module,
+                        exports,
+                        deps,
+                    )
                     metadata[1] = true
 
                     // Add the module to the initialized set only if the factory doesn't error or the exports aren't bad

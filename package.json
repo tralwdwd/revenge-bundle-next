@@ -29,7 +29,14 @@
     "build": "bun --bun run scripts/build.ts",
     "dev": "bun --bun run scripts/dev.ts"
   },
-  "trustedDependencies": ["@biomejs/biome", "@parcel/watcher", "@swc/core"],
+  "trustedDependencies": [
+    "@biomejs/biome",
+    "@parcel/watcher",
+    "@swc/core"
+  ],
   "type": "module",
-  "workspaces": ["lib/*", "plugins/*"]
+  "workspaces": [
+    "lib/*",
+    "plugins/*"
+  ]
 }

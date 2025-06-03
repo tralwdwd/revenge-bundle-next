@@ -4,7 +4,6 @@ import { FileModule } from '@revenge-mod/discord/native'
 import { React } from '@revenge-mod/react'
 import { mergeDeep } from '@revenge-mod/utils/objects'
 import { useReRender } from '@revenge-mod/utils/react'
-
 import type { AnyObject, DeepPartial } from '@revenge-mod/utils/types'
 
 /**
@@ -13,7 +12,10 @@ import type { AnyObject, DeepPartial } from '@revenge-mod/utils/types'
  * @param path Path relative to the directory.
  * @param directory Directory to use. Can be either 'cache' or 'documents'.
  */
-export function getStorage<T extends AnyObject = AnyObject>(path: string, options?: StorageOptions<T>): Storage<T> {
+export function getStorage<T extends AnyObject = AnyObject>(
+    path: string,
+    options?: StorageOptions<T>,
+): Storage<T> {
     const { CacheDirPath, DocumentsDirPath } = FileModule.getConstants()
 
     const directory = options?.directory ?? 'documents'
@@ -71,7 +73,12 @@ export function getStorage<T extends AnyObject = AnyObject>(path: string, option
                     for (const sub of subs) sub(cache)
                     return cache
                 } catch (e) {
-                    console.error('Failed to parse storage file (most likely corrupted)', directory, path, e)
+                    console.error(
+                        'Failed to parse storage file (most likely corrupted)',
+                        directory,
+                        path,
+                        e,
+                    )
                 }
             }
         },
@@ -85,7 +92,12 @@ export function getStorage<T extends AnyObject = AnyObject>(path: string, option
 
                 for (const sub of subs) sub(value)
             } catch (e) {
-                console.error('Failed to write storage file', directory, path, e)
+                console.error(
+                    'Failed to write storage file',
+                    directory,
+                    path,
+                    e,
+                )
             }
         },
     }
@@ -110,7 +122,9 @@ export interface StorageOptions<T> {
     load?: boolean
 }
 
-export type UseStorageFilter<T extends AnyObject> = (newValue: DeepPartial<T>) => any
+export type UseStorageFilter<T extends AnyObject> = (
+    newValue: DeepPartial<T>,
+) => any
 
 export interface Storage<T extends AnyObject> {
     /**

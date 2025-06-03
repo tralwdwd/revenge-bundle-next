@@ -9,7 +9,10 @@ declare global {
     const __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: boolean
 
     export interface ImportMeta {
-        glob<T = any>(pattern: ImportMetaGlobPattern, options?: ImportMetaGlobOptions): Record<string, () => Promise<T>>
+        glob<T = any>(
+            pattern: ImportMetaGlobPattern,
+            options?: ImportMetaGlobOptions,
+        ): Record<string, () => Promise<T>>
         glob<T = any>(
             pattern: ImportMetaGlobPattern,
             options: Extract<ImportMetaGlobOptions, { eager: true }>,

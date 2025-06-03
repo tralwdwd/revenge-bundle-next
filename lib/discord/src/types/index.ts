@@ -51,12 +51,20 @@ export namespace DiscordModules {
 
         export interface Dispatcher {
             _actionHandlers: unknown
-            _interceptors?: ((payload: DispatcherPayload) => undefined | boolean)[]
+            _interceptors?: ((
+                payload: DispatcherPayload,
+            ) => undefined | boolean)[]
             _currentDispatchActionType: undefined | string
             _processingWaitQueue: boolean
-            _subscriptions: Record<string, Set<(payload: DispatcherPayload) => void>>
+            _subscriptions: Record<
+                string,
+                Set<(payload: DispatcherPayload) => void>
+            >
             _waitQueue: unknown[]
-            addDependencies(node1: DispatcherDependency, node2: DispatcherDependency): void
+            addDependencies(
+                node1: DispatcherDependency,
+                node2: DispatcherDependency,
+            ): void
             dispatch(payload: DispatcherPayload): Promise<void>
             flushWaitQueue(): void
             isDispatching(): boolean
@@ -65,19 +73,29 @@ export namespace DiscordModules {
                 actionHandler: Record<string, (e: DispatcherPayload) => void>,
                 storeDidChange: (e: DispatcherPayload) => boolean,
             ): string
-            setInterceptor(interceptor?: (payload: DispatcherPayload) => undefined | boolean): void
+            setInterceptor(
+                interceptor?: (
+                    payload: DispatcherPayload,
+                ) => undefined | boolean,
+            ): void
             /**
              * Subscribes to an action type
              * @param actionType The action type to subscribe to
              * @param callback The callback to call when the action is dispatched
              */
-            subscribe(actionType: string, callback: (payload: DispatcherPayload) => void): void
+            subscribe(
+                actionType: string,
+                callback: (payload: DispatcherPayload) => void,
+            ): void
             /**
              * Unsubscribes from an action type
              * @param actionType The action type to unsubscribe from
              * @param callback The callback to remove
              */
-            unsubscribe(actionType: string, callback: (payload: DispatcherPayload) => void): void
+            unsubscribe(
+                actionType: string,
+                callback: (payload: DispatcherPayload) => void,
+            ): void
             wait(cb: () => void): void
         }
     }
@@ -88,7 +106,10 @@ export namespace DiscordModules {
 
     export interface AppStartPerformance {
         mark(...args: AppStartPerformance.MarkArgs): void
-        markAndLog(logger: InstanceType<DiscordModules.Logger>, ...args: AppStartPerformance.MarkArgs): void
+        markAndLog(
+            logger: InstanceType<DiscordModules.Logger>,
+            ...args: AppStartPerformance.MarkArgs
+        ): void
         [index: string]: unknown
     }
 
@@ -132,7 +153,9 @@ export namespace DiscordModules {
             | 'eyebrow'
 
         export type TextStyleSheet = Record<TextVariant, RNTextProps>
-        export type CreateStylesFunction = <const S extends Record<string, TextStyle | ViewStyle | ImageStyle>>(
+        export type CreateStylesFunction = <
+            const S extends Record<string, TextStyle | ViewStyle | ImageStyle>,
+        >(
             styles: S,
         ) => () => S
     }
@@ -303,7 +326,8 @@ export namespace DiscordModules {
             label?: string
         }
 
-        export interface TextAreaProps extends Omit<TextInputProps, 'multiline'> {}
+        export interface TextAreaProps
+            extends Omit<TextInputProps, 'multiline'> {}
 
         export type TextInput = FC<TextInputProps>
         export type TextField = FC<TextFieldProps>
@@ -326,7 +350,8 @@ export namespace DiscordModules {
 
         export type ActionSheet = FC<ActionSheetProps>
 
-        export interface ActionSheetCloseButtonProps extends Pick<ComponentProps<IconButton>, 'variant' | 'onPress'> {}
+        export interface ActionSheetCloseButtonProps
+            extends Pick<ComponentProps<IconButton>, 'variant' | 'onPress'> {}
 
         export type ActionSheetCloseButton = FC<ActionSheetCloseButtonProps>
 
@@ -374,7 +399,8 @@ export namespace DiscordModules {
             Icon: TableRowIcon
         }
 
-        export interface TableSwitchRowProps extends Omit<TableRowProps, 'trailing'> {
+        export interface TableSwitchRowProps
+            extends Omit<TableRowProps, 'trailing'> {
             accessibilityHint?: string
             value: boolean
             onValueChange(value: boolean): void
@@ -496,7 +522,11 @@ export namespace DiscordModules {
 
             export interface SettingsListProps {
                 ListHeaderComponent?: ComponentType
-                sections: Array<{ label?: string | ReactNode; settings: string[]; subLabel?: string | ReactNode }>
+                sections: Array<{
+                    label?: string | ReactNode
+                    settings: string[]
+                    subLabel?: string | ReactNode
+                }>
             }
 
             export type SettingsList = FC<SettingsListProps>

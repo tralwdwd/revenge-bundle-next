@@ -1,8 +1,6 @@
 import { React } from '@revenge-mod/react'
-
 import type { StackScreenProps } from '@react-navigation/stack'
 import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
-
 import type { MobileSetting, UserSettingsSections } from '../constants'
 
 export default function RevengeCustomPageScreen({

@@ -1,17 +1,11 @@
-import { React } from '@revenge-mod/react'
-
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
-
 import { nodeUtil } from '@revenge-mod/externals/browserify'
-
+import { React } from '@revenge-mod/react'
 import { getErrorStack } from '@revenge-mod/utils/errors'
-
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
-
 import { api } from '..'
 import { MobileSetting } from '../constants'
-
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const ALERT_KEY = 'evaluate-javascript'
@@ -21,7 +15,8 @@ const EvaluateJavaScriptSetting: SettingsItem = {
     IconComponent: () => <TableRowAssetIcon name="FileIcon" />,
     title: () => 'Evaluate JavaScript',
     useDescription: () => 'Runs a JavaScript code snippet.',
-    onPress: () => AlertActionCreators.openAlert(ALERT_KEY, <EvaluateJavaScriptAlert />),
+    onPress: () =>
+        AlertActionCreators.openAlert(ALERT_KEY, <EvaluateJavaScriptAlert />),
     type: 'pressable',
 }
 
@@ -47,60 +42,21 @@ function EvaluateJavaScriptAlert() {
 
     return (
         <AlertModal
-            title="Evaluate JavaScript"
-            extraContent={
-                <Stack>
-                    <TextArea
-                        autoFocus
-                        label="Code"
-                        size="md"
-                        placeholder="ReactNative.NativeModules.BundleUpdaterManager.reload()"
-                        onChange={v => (code.current = v)}
-                    />
-                    <TableRowGroup>
-                        <TableSwitchRow
-                            label="Await result"
-                            subLabel="Wait for the result of the code before displaying it."
-                            value={awaitResult}
-                            onValueChange={setAwaitResult}
-                        />
-                        <TableSwitchRow
-                            label="Show hidden"
-                            subLabel="Show hidden properties of the object."
-                            value={showHidden}
-                            onValueChange={setShowHidden}
-                        />
-                        <TableRow
-                            label="Inspect depth"
-                            subLabel="The depth of the object to inspect."
-                            trailing={<Text>{inspectDepth}</Text>}
-                        />
-                        <Slider
-                            startIcon={<Text>1</Text>}
-                            endIcon={<Text>10</Text>}
-                            step={1}
-                            minimumValue={1}
-                            maximumValue={10}
-                            value={inspectDepth}
-                            onValueChange={setInspectDepth}
-                        />
-                    </TableRowGroup>
-                </Stack>
-            }
             actions={
                 <Stack>
                     <Button
-                        text="Evaluate"
-                        variant="primary"
                         loading={loading}
-                        // Async arrow functions are not supported
                         onPress={async function onPress() {
                             setLoading(true)
 
                             try {
                                 if (!api) {
-                                    alert('Unable to provide plugin API. Running snippet in a second...')
-                                    await new Promise(rs => setTimeout(rs, 1000))
+                                    alert(
+                                        'Unable to provide plugin API. Running snippet in a second...',
+                                    )
+                                    await new Promise(rs =>
+                                        setTimeout(rs, 1000),
+                                    )
                                 } else {
                                     // @ts-expect-error
                                     globalThis.revenge = api.unscoped
@@ -113,10 +69,15 @@ function EvaluateJavaScriptAlert() {
                                 const res = globalThis.eval?.(code.current)
 
                                 alert(
-                                    nodeUtil.inspect(awaitResult && res instanceof Promise ? await res : res, {
-                                        depth: inspectDepth,
-                                        showHidden,
-                                    }),
+                                    nodeUtil.inspect(
+                                        awaitResult && res instanceof Promise
+                                            ? await res
+                                            : res,
+                                        {
+                                            depth: inspectDepth,
+                                            showHidden,
+                                        },
+                                    ),
                                 )
 
                                 // @ts-expect-error
@@ -129,10 +90,53 @@ function EvaluateJavaScriptAlert() {
                             setLoading(false)
                             AlertActionCreators.dismissAlert(ALERT_KEY)
                         }}
+                        text="Evaluate"
+                        // Async arrow functions are not supported
+                        variant="primary"
                     />
                     <AlertActionButton text="Cancel" variant="secondary" />
                 </Stack>
             }
+            extraContent={
+                <Stack>
+                    <TextArea
+                        autoFocus
+                        label="Code"
+                        onChange={v => (code.current = v)}
+                        placeholder="ReactNative.NativeModules.BundleUpdaterManager.reload()"
+                        size="md"
+                    />
+                    <TableRowGroup>
+                        <TableSwitchRow
+                            label="Await result"
+                            onValueChange={setAwaitResult}
+                            subLabel="Wait for the result of the code before displaying it."
+                            value={awaitResult}
+                        />
+                        <TableSwitchRow
+                            label="Show hidden"
+                            onValueChange={setShowHidden}
+                            subLabel="Show hidden properties of the object."
+                            value={showHidden}
+                        />
+                        <TableRow
+                            label="Inspect depth"
+                            subLabel="The depth of the object to inspect."
+                            trailing={<Text>{inspectDepth}</Text>}
+                        />
+                        <Slider
+                            endIcon={<Text>10</Text>}
+                            maximumValue={10}
+                            minimumValue={1}
+                            onValueChange={setInspectDepth}
+                            startIcon={<Text>1</Text>}
+                            step={1}
+                            value={inspectDepth}
+                        />
+                    </TableRowGroup>
+                </Stack>
+            }
+            title="Evaluate JavaScript"
         />
     )
 }

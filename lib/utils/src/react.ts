@@ -1,8 +1,7 @@
 import { React } from '@revenge-mod/react'
-
-import { type SearchFilter, findInTree } from './trees'
-
+import { findInTree } from './trees'
 import type { ReactNode } from 'react'
+import type { SearchFilter } from './trees'
 
 export function useIsFirstRender() {
     let firstRender = false
@@ -21,7 +20,10 @@ export function useReRender() {
 
 const ReactFiberWalkable = new Set(['props', 'children', 'child', 'sibling'])
 
-export function findInReactFiber(tree: Extract<ReactNode, { props: unknown }>, filter: SearchFilter): any {
+export function findInReactFiber(
+    tree: Extract<ReactNode, { props: unknown }>,
+    filter: SearchFilter,
+): any {
     return findInTree(tree, filter, {
         walkable: ReactFiberWalkable,
     })

@@ -1,7 +1,8 @@
-import { registerSettingsItems, registerSettingsSection } from '@revenge-mod/discord/modules/settings'
-
+import {
+    registerSettingsItems,
+    registerSettingsSection,
+} from '@revenge-mod/discord/modules/settings'
 import { MobileSetting } from './constants'
-
 import HermesVersionSetting from './definitions/HermesVersionSetting'
 import ReactNativeVersionSetting from './definitions/ReactNativeVersionSetting'
 // import RevengeThemesSetting from './definitions/RevengeThemesSetting'
@@ -22,7 +23,8 @@ registerSettingsItems({
     // [MobileSetting.REVENGE_THEMES]: RevengeThemesSetting,
     // [MobileSetting.REVENGE_FONTS]: RevengeFontsSetting,
     [MobileSetting.REVENGE_CUSTOM_PAGE]: RevengeCustomPageSetting,
-    [MobileSetting.REVENGE_GITHUB_ORGANIZATION]: RevengeGitHubOrganizationSetting,
+    [MobileSetting.REVENGE_GITHUB_ORGANIZATION]:
+        RevengeGitHubOrganizationSetting,
     [MobileSetting.REVENGE_DISCORD_SERVER]: RevengeDiscordServerSetting,
     [MobileSetting.RELOAD_APP]: ReloadAppSetting,
     [MobileSetting.REVENGE_VERSION]: RevengeVersionSetting,

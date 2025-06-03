@@ -4,7 +4,8 @@ export interface PluginApiModules {
     native: PluginApiModulesNative
 }
 
-export type PluginApiModulesNative = typeof import('@revenge-mod/modules/native')
+export type PluginApiModulesNative =
+    typeof import('@revenge-mod/modules/native')
 
 export type PluginApiModulesMetro =
     // biome-ignore format: Don't

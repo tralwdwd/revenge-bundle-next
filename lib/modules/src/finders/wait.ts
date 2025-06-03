@@ -1,12 +1,19 @@
-import { onAnyModuleInitialized, onModuleFinishedImporting } from '../metro/subscriptions'
-import { getInitializedModuleExports, initializedModuleHasBadExports } from '../metro/utils'
-import { type RunFilterReturnExportsOptions, exportsFromFilterResultFlag, runFilter } from './_internal'
-
-import type { MaybeDefaultExportMatched } from '../types'
-import type { Metro } from '../types'
+import {
+    onAnyModuleInitialized,
+    onModuleFinishedImporting,
+} from '../metro/subscriptions'
+import {
+    getInitializedModuleExports,
+    initializedModuleHasBadExports,
+} from '../metro/utils'
+import { exportsFromFilterResultFlag, runFilter } from './_internal'
+import type { MaybeDefaultExportMatched, Metro } from '../types'
+import type { RunFilterReturnExportsOptions } from './_internal'
 import type { Filter, FilterResult } from './filters'
 
-export interface BaseWaitForModulesOptions<IncludeAll extends boolean = boolean> {
+export interface BaseWaitForModulesOptions<
+    IncludeAll extends boolean = boolean,
+> {
     /**
      * Whether to include all modules, including ones with bad exports.
      *
@@ -22,12 +29,15 @@ export type WaitForModulesCallback<T> = (exports: T, id: Metro.ModuleID) => any
 export type WaitForModulesOptions<
     ReturnNamespace extends boolean = boolean,
     IncludeBadExports extends boolean = boolean,
-> = RunFilterReturnExportsOptions<ReturnNamespace> & BaseWaitForModulesOptions<IncludeBadExports>
+> = RunFilterReturnExportsOptions<ReturnNamespace> &
+    BaseWaitForModulesOptions<IncludeBadExports>
 
 export type WaitForModulesResult<
     F extends Filter,
     O extends WaitForModulesOptions,
-> = O extends RunFilterReturnExportsOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>
+> = O extends RunFilterReturnExportsOptions<true>
+    ? MaybeDefaultExportMatched<FilterResult<F>>
+    : FilterResult<F>
 
 /**
  * Wait for modules to initialize. **Callback won't be called if the module is already initialized!**
@@ -55,7 +65,9 @@ export function waitForModules<F extends Filter>(
 ): WaitForModulesUnsubscribeFunction
 
 export function waitForModules<
-    F extends O extends WaitForModulesOptions<boolean, true> ? Filter<any, false> : Filter,
+    F extends O extends WaitForModulesOptions<boolean, true>
+        ? Filter<any, false>
+        : Filter,
     O extends WaitForModulesOptions,
 >(
     filter: F,
@@ -63,17 +75,29 @@ export function waitForModules<
     options: O,
 ): WaitForModulesUnsubscribeFunction
 
-export function waitForModules(filter: Filter, callback: WaitForModulesCallback<any>, options?: WaitForModulesOptions) {
+export function waitForModules(
+    filter: Filter,
+    callback: WaitForModulesCallback<any>,
+    options?: WaitForModulesOptions,
+) {
     return onAnyModuleInitialized(
         options?.includeAll
             ? (id, exports) => {
                   const flag = runFilter(filter, id, exports, options)
-                  if (flag) callback(exportsFromFilterResultFlag(flag, exports, options), id)
+                  if (flag)
+                      callback(
+                          exportsFromFilterResultFlag(flag, exports, options),
+                          id,
+                      )
               }
             : (id, exports) => {
                   if (initializedModuleHasBadExports(id)) return
                   const flag = runFilter(filter, id, exports, options)
-                  if (flag) callback(exportsFromFilterResultFlag(flag, exports, options), id)
+                  if (flag)
+                      callback(
+                          exportsFromFilterResultFlag(flag, exports, options),
+                          id,
+                      )
               },
     )
 }

@@ -2,10 +2,8 @@ import { _initing, _uninits } from '@revenge-mod/modules/_/metro'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
-
 import { _metas, _overrides } from './_internal'
 import { cacheAsset } from './caches'
-
 import type { ReactNative } from '@revenge-mod/react/types'
 import type { Asset, ReactNativeAsset } from './types'
 
@@ -13,52 +11,57 @@ export let AssetRegistry: ReactNative.AssetsRegistry
 export let AssetRegistryModuleId: number
 
 // Tracking/caching assets
-const unsubAR = waitForModules(byProps<ReactNative.AssetsRegistry>('registerAsset'), (exports, id) => {
-    AssetRegistryModuleId = id
-    AssetRegistry = exports as ReactNative.AssetsRegistry
+const unsubAR = waitForModules(
+    byProps<ReactNative.AssetsRegistry>('registerAsset'),
+    (exports, id) => {
+        AssetRegistryModuleId = id
+        AssetRegistry = exports as ReactNative.AssetsRegistry
 
-    // There are two matching exports. One is the original, and one is a re-export.
-    // The original asset-registry is simply required by the re-exported one with no changes.
+        // There are two matching exports. One is the original, and one is a re-export.
+        // The original asset-registry is simply required by the re-exported one with no changes.
 
-    // This is the re-exported registry, because it has dependencies.
-    // We can begin the caching process here, asset registrar modules have the reexported registry as a dependency.
-    if (getModuleDependencies(id)!.length) {
-        unsubAR()
+        // This is the re-exported registry, because it has dependencies.
+        // We can begin the caching process here, asset registrar modules have the reexported registry as a dependency.
+        if (getModuleDependencies(id)!.length) {
+            unsubAR()
 
-        // TODO(assets/patches): conditionally run this if cache does not exist
-        // More fragile way, but also more performant:
-        // There is exactly one asset before the reexported asset registry :/
-        const firstAssetModuleId = id - 1
-        for (const mId of _uninits) {
-            if (mId < firstAssetModuleId) continue
+            // TODO(assets/patches): conditionally run this if cache does not exist
+            // More fragile way, but also more performant:
+            // There is exactly one asset before the reexported asset registry :/
+            const firstAssetModuleId = id - 1
+            for (const mId of _uninits) {
+                if (mId < firstAssetModuleId) continue
 
-            const deps = getModuleDependencies(mId)!
-            if (deps.length === 1 && deps[0] === id) __r(mId)
+                const deps = getModuleDependencies(mId)!
+                if (deps.length === 1 && deps[0] === id) __r(mId)
+            }
+
+            // We already patched the original asset registry, so we don't need to patch again.
+            return
         }
 
-        // We already patched the original asset registry, so we don't need to patch again.
-        return
-    }
+        const orig = exports.registerAsset
+        exports.registerAsset = (asset: Asset) => {
+            const result = orig(asset as ReactNativeAsset)
 
-    const orig = exports.registerAsset
-    exports.registerAsset = (asset: Asset) => {
-        const result = orig(asset as ReactNativeAsset)
+            // Cache packager assets only
+            if ((asset as ReactNativeAsset).__packager_asset) {
+                cacheAsset(asset, _initing)
+                // In-memory cache
+                _metas.set(asset, [result, _initing])
+            }
 
-        // Cache packager assets only
-        if ((asset as ReactNativeAsset).__packager_asset) {
-            cacheAsset(asset, _initing)
-            // In-memory cache
-            _metas.set(asset, [result, _initing])
+            return result
         }
-
-        return result
-    }
-})
+    },
+)
 
 // Asset overrides
 const unsubRAS = waitForModules(
     byName<{
-        addCustomSourceTransformer: (transformer: (arg: { asset: Asset }) => ReactNativeAsset) => void
+        addCustomSourceTransformer: (
+            transformer: (arg: { asset: Asset }) => ReactNativeAsset,
+        ) => void
     }>('resolveAssetSource'),
     rAS => {
         unsubRAS()

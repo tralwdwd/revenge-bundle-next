@@ -1,22 +1,24 @@
 import { noopFalse } from '@revenge-mod/utils/callbacks'
-
-import { type LookupModulesOptions, lookupModule, lookupModuleByImportedPath } from './lookup'
-import { type WaitForModulesOptions, waitForModuleByImportedPath, waitForModules } from './wait'
-
-import type { MaybeDefaultExportMatched } from '../types'
-import type { Metro } from '../types'
+import { lookupModule, lookupModuleByImportedPath } from './lookup'
+import { waitForModuleByImportedPath, waitForModules } from './wait'
+import type { MaybeDefaultExportMatched, Metro } from '../types'
 import type { RunFilterReturnExportsOptions } from './_internal'
 import type { Filter, FilterResult } from './filters'
+import type { LookupModulesOptions } from './lookup'
+import type { WaitForModulesOptions } from './wait'
 
 export type GetModuleOptions<
     ReturnNamespace extends boolean = boolean,
     IncludeUninitialized extends boolean = boolean,
-> = WaitForModulesOptions<ReturnNamespace> & LookupModulesOptions<ReturnNamespace, IncludeUninitialized>
+> = WaitForModulesOptions<ReturnNamespace> &
+    LookupModulesOptions<ReturnNamespace, IncludeUninitialized>
 
 export type GetModuleResult<
     F extends Filter,
     O extends GetModuleOptions,
-> = O extends RunFilterReturnExportsOptions<true> ? MaybeDefaultExportMatched<FilterResult<F>> : FilterResult<F>
+> = O extends RunFilterReturnExportsOptions<true>
+    ? MaybeDefaultExportMatched<FilterResult<F>>
+    : FilterResult<F>
 
 export type GetModuleCallback<T> = (exports: T, id: Metro.ModuleID) => any
 
@@ -48,11 +50,21 @@ export function getModule<F extends Filter>(
 ): GetModuleUnsubscribeFunction
 
 export function getModule<
-    F extends O extends GetModuleOptions<boolean, true> ? Filter<any, false> : Filter,
+    F extends O extends GetModuleOptions<boolean, true>
+        ? Filter<any, false>
+        : Filter,
     O extends GetModuleOptions,
->(filter: F, callback: GetModuleCallback<FilterResult<F>>, options: O): GetModuleUnsubscribeFunction
+>(
+    filter: F,
+    callback: GetModuleCallback<FilterResult<F>>,
+    options: O,
+): GetModuleUnsubscribeFunction
 
-export function getModule(filter: Filter, callback: GetModuleCallback<any>, options?: GetModuleOptions) {
+export function getModule(
+    filter: Filter,
+    callback: GetModuleCallback<any>,
+    options?: GetModuleOptions,
+) {
     const [exports, id] = lookupModule(filter, options!)
     if (id != null) {
         callback(exports, id)
@@ -85,7 +97,10 @@ export function getModule(filter: Filter, callback: GetModuleCallback<any>, opti
  * })
  * ```
  */
-export function getModuleByImportedPath<T>(path: string, callback: GetModuleCallback<T>): GetModuleUnsubscribeFunction {
+export function getModuleByImportedPath<T>(
+    path: string,
+    callback: GetModuleCallback<T>,
+): GetModuleUnsubscribeFunction {
     const [exports, id] = lookupModuleByImportedPath(path)
     if (id != null) {
         callback(exports, id)

@@ -31,8 +31,12 @@ export type InterceptPropertyCallback = (target: any, value: any) => any
  * @param callback The callback to call when the property is set, can return a non-null value to set the property to.
  * @returns The function to unintercept the property.
  */
-export function interceptProperty(prop: PropertyKey, callback: (target: object, value: any) => any) {
-    if (_intercepting.has(prop)) throw new Error(`Property ${String(prop)} is already being intercepted`)
+export function interceptProperty(
+    prop: PropertyKey,
+    callback: (target: object, value: any) => any,
+) {
+    if (_intercepting.has(prop))
+        throw new Error(`Property ${String(prop)} is already being intercepted`)
 
     const proto = Object.prototype
     _intercepting.set(prop, Object.getOwnPropertyDescriptor(proto, prop))
@@ -102,7 +106,11 @@ export function mergeDeep(target: AnyObject, source: AnyObject) {
  * @param property The property key to define.
  * @param loader The function that will be called to load the property value when accessed.
  */
-export function defineLazyProperty<T extends object, K extends keyof T>(target: T, property: K, loader: () => T[K]) {
+export function defineLazyProperty<T extends object, K extends keyof T>(
+    target: T,
+    property: K,
+    loader: () => T[K],
+) {
     Object.defineProperty(target, property, {
         configurable: true,
         get() {

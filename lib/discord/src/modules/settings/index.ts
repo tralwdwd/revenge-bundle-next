@@ -1,5 +1,4 @@
 import { _data, _subs } from './_internal'
-
 import type { DiscordModules } from '../../types'
 
 export type SettingsItem = DiscordModules.Modules.Settings.SettingsItem
@@ -22,7 +21,9 @@ export function isSettingsModulesLoaded() {
  * @returns A function to unsubscribe from the event.
  * @throws Throws an error if the settings modules are already loaded. Check with {@link isSettingsModulesLoaded} first.
  */
-export function onSettingsModulesLoaded(subcription: SettingsModulesLoadedSubscription) {
+export function onSettingsModulesLoaded(
+    subcription: SettingsModulesLoadedSubscription,
+) {
     if (_data[2]) throw new Error('Settings modules already loaded')
 
     _subs.add(subcription)
