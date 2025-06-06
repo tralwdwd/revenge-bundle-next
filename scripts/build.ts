@@ -14,7 +14,7 @@ const GeneratedAssetsDir = `${import.meta.dir}/../dist/assets/generated`
 
 await rm(GeneratedAssetsDir, { recursive: true, force: true })
     .then(() => {
-        console.debug(chalk.gray('\u{1F5BB} Deleted old assets'))
+        console.debug(chalk.gray('\u{1F5BB} Deleted old generated assets'))
     })
     .catch()
 
@@ -99,15 +99,10 @@ export default async function build(dev = false, log = true) {
     })
 
     await bundle.write({
-        minify: {
-            removeWhitespace: false,
-            compress: !dev,
-            mangle: !dev,
-        },
+        minify: {},
         file: 'dist/revenge.js',
         format: 'iife',
         footer: '//# sourceURL=Revenge',
-        inlineDynamicImports: true,
     })
 
     if (log)
