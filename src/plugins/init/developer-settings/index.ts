@@ -41,9 +41,9 @@ registerPlugin<Storage>(
 
             api.storage.get().then(settings => {
                 if (settings.devtools.autoConnect)
-                    import('./react-devtools').then(it =>
-                        it.connectToDevTools(),
-                    )
+                    (
+                        require('./react-devtools') as typeof import('./react-devtools')
+                    ).connectToDevTools()
             })
         },
     },
