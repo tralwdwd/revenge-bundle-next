@@ -2,7 +2,6 @@ import * as AssetsLibrary from '@revenge-mod/assets'
 import { onRunApplication } from '@revenge-mod/react/native'
 import { _plugins, initPlugin, startPlugin } from './_internal'
 import { _uapi } from './apis'
-import { externals } from './apis/externals'
 import { react } from './apis/react'
 import { PluginFlags } from './constants'
 import type { UnscopedInitPluginApi } from './types'
@@ -10,7 +9,6 @@ import type { UnscopedInitPluginApi } from './types'
 // Setup init plugin APIs
 const uapi = _uapi as UnscopedInitPluginApi
 uapi.assets = AssetsLibrary
-uapi.externals = externals
 uapi.react = react
 
 for (const plugin of _plugins.values())

@@ -1,6 +1,5 @@
 import type { Storage, StorageOptions } from '@revenge-mod/storage'
 import type { AnyObject } from '@revenge-mod/utils/types'
-import type { PluginApiExternals } from './apis/externals'
 import type { PluginApiModules } from './apis/modules'
 import type { PluginApiPlugins } from './apis/plugins'
 import type { PluginApiReact } from './apis/react'
@@ -23,7 +22,6 @@ export interface UnscopedPreInitPluginApi {
  */
 export interface UnscopedInitPluginApi extends UnscopedPreInitPluginApi {
     assets: typeof import('@revenge-mod/assets')
-    externals: PluginApiExternals
     react: PluginApiReact
 }
 

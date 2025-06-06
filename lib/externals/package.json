@@ -6,6 +6,9 @@
     "./browserify": {
       "default": "./src/browserify.ts"
     },
+    "./init": {
+      "default": "./src/init.ts"
+    },
     "./react-native-clipboard": {
       "default": "./src/react-native-clipboard.ts"
     },
@@ -14,6 +17,9 @@
     },
     "./shopify": {
       "default": "./src/shopify.ts"
+    },
+    "./types": {
+      "default": "./src/types.ts"
     }
   }
 }
