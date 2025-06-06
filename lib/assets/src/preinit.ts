@@ -2,8 +2,8 @@ import { _initing, _uninits } from '@revenge-mod/modules/_/metro'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
-import { _metas, _overrides } from './_internal'
-import { cacheAsset } from './caches'
+import { _logger, _metas, _overrides } from './_internal'
+import { cache, cacheAsset } from './caches'
 import type { ReactNative } from '@revenge-mod/react/types'
 import type { Asset, ReactNativeAsset } from './types'
 
@@ -25,15 +25,27 @@ const unsubAR = waitForModules(
         if (getModuleDependencies(id)!.length) {
             unsubAR()
 
-            // TODO(assets/patches): conditionally run this if cache does not exist
-            // More fragile way, but also more performant:
-            // There is exactly one asset before the reexported asset registry :/
-            const firstAssetModuleId = id - 1
-            for (const mId of _uninits) {
-                if (mId < firstAssetModuleId) continue
+            _logger.log(`[${performance.now()}] Registry found: ${id}`)
 
-                const deps = getModuleDependencies(mId)!
-                if (deps.length === 1 && deps[0] === id) __r(mId)
+            // Make sure we don't try to recache assets if it is already cached.
+            let uncached = true
+            for (const _ in cache) {
+                uncached = false
+                break
+            }
+
+            if (uncached) {
+                _logger.log('Caching assets...')
+
+                // More fragile way, but also more performant:
+                // There is exactly one asset before the reexported asset registry :/
+                const firstAssetModuleId = id - 1
+                for (const mId of _uninits) {
+                    if (mId < firstAssetModuleId) continue
+
+                    const deps = getModuleDependencies(mId)!
+                    if (deps.length === 1 && deps[0] === id) __r(mId)
+                }
             }
 
             // We already patched the original asset registry, so we don't need to patch again.

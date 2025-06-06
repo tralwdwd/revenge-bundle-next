@@ -1,59 +1,52 @@
 // TODO(lib/assets): do not depend on Discord's ClientInfoModule for versioning, use native interop
 import { ClientInfoModule } from '@revenge-mod/discord/native'
 import { getStorage } from '@revenge-mod/storage'
-// import { debounce } from '@revenge-mod/utils/callbacks'
-import { createLogger } from '@revenge-mod/utils/logger'
+import { debounce } from '@revenge-mod/utils/callbacks'
 import { mergeDeep } from '@revenge-mod/utils/objects'
-import { proxify } from '@revenge-mod/utils/proxy'
+import { _logger } from './_internal'
 import type { Metro } from '@revenge-mod/modules/types'
 import type { Asset } from './types'
 
-const logger = createLogger('revenge.assets.caches')
-
 const Version = 1
-const CurrentKey = `${Version}.${ClientInfoModule.Build}`
+const Key = `${Version}.${ClientInfoModule.Build}`
 
-const CacheStorage = getStorage<Cache>('revenge/assets', {
-    default: { k: CurrentKey, c: {} },
+// In-memory cache
+export const cache: Cache = {}
+
+const CacheStorage = getStorage<Cache>(`revenge/assets.${Key}`, {
+    default: cache,
     directory: 'cache',
 })
 
-export const cache: Cache['c'] = proxify(
-    () => {
-        if (CacheStorage.cache) return CacheStorage.cache.c
-    },
-    { hint: 'object' },
-)!
+_logger.log(`[${performance.now()}] CacheStorage instance created`)
 
 // biome-ignore lint/complexity/useArrowFunction: Arrow functions are not supported
-CacheStorage.get().then(async function (cache) {
+CacheStorage.get().then(async function (cache_) {
     // TODO(lib/assets/caches): This loads way too late and requires native interop to load earlier
-    logger.log(`Loaded cache version: ${cache.k}`)
-    if (cache.k !== CurrentKey) {
-        await CacheStorage.delete()
-        await CacheStorage.set({ k: CurrentKey, c: {} })
+
+    // If we are not using the default value, merge it into the in-memory cache, then point the storage cache to the in-memory cache.
+    if (cache_ !== cache) {
+        _logger.log(`[${performance.now()}] CacheStorage loaded`)
+        Object.assign(cache, cache_)
+        CacheStorage.cache = cache
     }
 })
 
 export interface Cache {
-    k: string
-    c: {
-        [key: Asset['name']]: {
-            [key: Asset['type']]: Metro.ModuleID
-        }
+    [key: Asset['name']]: {
+        [key: Asset['type']]: Metro.ModuleID
     }
 }
 
-// const save = debounce(() => CacheStorage.set({}), 1000)
+const save = debounce(() => CacheStorage.set({}), 1000)
 
 export async function cacheAsset(asset: Asset, moduleId: Metro.ModuleID) {
     // Merge directly into the cache, only debouncing actual writes
-    mergeDeep(CacheStorage.cache!.c, {
+    mergeDeep(cache, {
         [asset.name]: {
             [asset.type]: moduleId,
         },
     })
 
-    // Commented out because caching currently does not work properly because it is loaded too late
-    // await save()
+    await save()
 }
