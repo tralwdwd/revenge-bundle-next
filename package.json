@@ -11,7 +11,7 @@
     "@types/node": "^22.15.30",
     "@unbound-mod/hermesc": "^1.0.3",
     "chalk": "^5.4.1",
-    "rolldown": "^1.0.0-beta.11"
+    "rolldown": "^1.0.0-beta.12"
   },
   "peerDependencies": {
     "@react-navigation/core": "^7.8.5",
