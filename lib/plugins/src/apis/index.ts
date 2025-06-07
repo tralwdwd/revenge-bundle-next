@@ -1,4 +1,6 @@
-import * as PatcherLibrary from '@revenge-mod/patcher'
+import * as patcher from '@revenge-mod/patcher'
+import { modules } from './modules'
+import { plugins } from './plugins'
 import type {
     UnscopedInitPluginApi,
     UnscopedPluginApi,
@@ -9,7 +11,7 @@ export const _uapi:
     | UnscopedPreInitPluginApi
     | UnscopedInitPluginApi
     | UnscopedPluginApi = {
-    modules: require('./modules').modules,
-    plugins: require('./plugins').plugins,
-    patcher: PatcherLibrary,
+    modules,
+    plugins,
+    patcher,
 }

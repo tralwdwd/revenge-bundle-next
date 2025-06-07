@@ -1,10 +1,14 @@
-export type PluginApiReact = typeof import('@revenge-mod/react') & {
-    jsxRuntime: typeof import('@revenge-mod/react/jsx-runtime')
-    native: typeof import('@revenge-mod/react/native')
+import * as PluginApiReact_ from '@revenge-mod/react'
+import * as PluginApiReactJsxRuntime from '@revenge-mod/react/jsx-runtime'
+import * as PluginApiReactNative from '@revenge-mod/react/native'
+
+export type PluginApiReact = typeof PluginApiReact_ & {
+    jsxRuntime: typeof PluginApiReactJsxRuntime
+    native: typeof PluginApiReactNative
 }
 
 export const react: PluginApiReact = {
-    ...require('@revenge-mod/react'),
-    jsxRuntime: require('@revenge-mod/react/jsx-runtime'),
-    native: require('@revenge-mod/react/native'),
+    ...PluginApiReact_,
+    jsxRuntime: PluginApiReactJsxRuntime,
+    native: PluginApiReactNative,
 }
