@@ -234,10 +234,14 @@ async function generateAssets() {
 
         if (await exists(path2)) continue
 
+        // We attempt to sanitize the path, but not the name as it should fail if name contains invalid characters
+        const uriPath = JSON.stringify(path)
+        const type = JSON.stringify(ext.slice(1))
+
         promises.push(
             writeFile(
                 path2,
-                `const ${name}=require('@revenge-mod/assets').registerAsset({name:'${name}',type:'${ext.slice(1)}',uri:require('~/../${path}')})/**@type {ReturnType<import('@revenge-mod/assets').registerAsset>}*/\nexport default ${name}`,
+                `import{registerAsset}from'@revenge-mod/assets';import uri from${uriPath};const ${name}=registerAsset({name:'${name}',type:${type},uri});export default ${name}`,
             ),
         )
     }
