@@ -12,11 +12,7 @@
               }
             ]
           }
-        },
-        "recommended": true,
-        "useSortedAttributes": "on",
-        "useSortedKeys": "off",
-        "useSortedProperties": "off"
+        }
       }
     },
     "enabled": true
