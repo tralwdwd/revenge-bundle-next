@@ -33,18 +33,17 @@ registerPlugin<Storage>(
             load: true,
             default: defaultStorage,
         },
-        async start(api_) {
+        start(api_) {
             api = api_
 
             if (isSettingsModulesLoaded()) require('./register')
             else onSettingsModulesLoaded(() => require('./register'))
 
-            const [rdt, settings] = await Promise.all([
-                import('./react-devtools'),
-                api.storage.get(),
-            ])
-
-            if (settings.devtools.autoConnect) rdt.connectToDevTools()
+            Promise.all([import('./react-devtools'), api.storage.get()]).then(
+                ([rdt, settings]) => {
+                    if (settings.devtools.autoConnect) rdt.connectToDevTools()
+                },
+            )
         },
     },
     PluginFlags.Enabled,
