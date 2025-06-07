@@ -1,9 +1,13 @@
 import { getAssets } from '@revenge-mod/assets'
-import { AlertActionCreators } from '@revenge-mod/discord/actions'
+import {
+    AlertActionCreators,
+    ToastActionCreators,
+} from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { Clipboard } from '@revenge-mod/externals/react-native-clipboard'
 import { FlashList } from '@revenge-mod/externals/shopify'
 import { React, ReactNative } from '@revenge-mod/react'
+import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 import Page from '~/components/Page'
 import SearchInput from '~/components/SearchInput'
 import TableRowAssetIcon from '~/components/TableRowAssetIcon'
@@ -41,6 +45,7 @@ export default function AssetBrowserSettingScreen() {
             <SearchInput onChange={(v: string) => setSearch(v)} size="md" />
             <FlashList.FlashList
                 data={filteredAssets}
+                contentContainerStyle={styles.listContainer}
                 estimatedItemSize={80}
                 keyExtractor={asset =>
                     asset.id
@@ -78,8 +83,18 @@ function AssetDisplay({
     const metadata = [
         ['ID', id.toString()],
         ['Type', asset.type],
-        ['Module ID', moduleId?.toString()],
-    ] as const
+    ] as [string, string, unpressable?: boolean, hiddenInText?: boolean][]
+
+    metadata.push(
+        moduleId
+            ? ['Module ID', moduleId.toString()]
+            : [
+                  'Custom asset',
+                  'This is a custom asset registered by a plugin.',
+                  true,
+                  true,
+              ],
+    )
 
     return (
         <TableRow
@@ -104,19 +119,20 @@ function AssetDisplay({
             onPress={() => openAssetDisplayAlert(asset, id, metadata)}
             start={start}
             subLabel={metadata
+                .filter(([, , , hiddenInText]) => !hiddenInText)
                 .map(([name, value]) => `${name}: ${value ?? 'N/A'}`)
-                .join('  • ')}
+                .join('  •  ')}
             variant={isDisplayable ? 'default' : 'danger'}
         />
     )
 }
 
+const CopyIcon = lookupGeneratedIconComponent('CopyIcon')
+
 function openAssetDisplayAlert(
     asset: Asset,
     id: AssetId,
-    metadata:
-        | Readonly<Readonly<[string, string | undefined]>[]>
-        | [string, string | undefined][],
+    metadata: [string, string, pressable?: boolean, ...unknown[]][],
 ) {
     const isDisplayable = Displayable.has(asset.type)
 
@@ -132,23 +148,26 @@ function openAssetDisplayAlert(
                         <PreviewUnavailable type={asset.type} />
                     )}
                     <TableRowGroup>
-                        {metadata.map(([name, value]) =>
-                            value ? (
-                                <TableRow
-                                    key={id}
-                                    label={name}
-                                    onPress={() => Clipboard.setString(value)}
-                                    subLabel={value}
-                                />
-                            ) : (
-                                <TableRow
-                                    key={id}
-                                    label={name}
-                                    subLabel="N/A"
-                                    disabled
-                                />
-                            ),
-                        )}
+                        {metadata.map(([name, value, unpressable]) => (
+                            <TableRow
+                                key={id}
+                                label={name}
+                                onPress={
+                                    unpressable
+                                        ? undefined
+                                        : () => {
+                                              Clipboard.setString(value)
+
+                                              ToastActionCreators.open({
+                                                  key: 'ASSET_BROWSER_COPIED',
+                                                  IconComponent: CopyIcon,
+                                                  content: `Copied ${name} to clipboard`,
+                                              })
+                                          }
+                                }
+                                subLabel={value}
+                            />
+                        ))}
                     </TableRowGroup>
                     <Text color="text-danger" variant="text-xs/semibold">
                         Note: Asset IDs and module IDs are not consistent
@@ -175,6 +194,9 @@ function PreviewUnavailable({ type }: { type: string }) {
 }
 
 const styles = StyleSheet.create({
+    listContainer: {
+        paddingBottom: 16,
+    },
     smallPreview: {
         height: 32,
         width: 32,
