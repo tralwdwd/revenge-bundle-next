@@ -2,20 +2,20 @@ import { _initing, _uninits } from '@revenge-mod/modules/_/metro'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
-import { _logger, _metas, _overrides } from './_internal'
+import { _overrides } from './_internal'
 import { cache, cacheAsset } from './caches'
 import type { ReactNative } from '@revenge-mod/react/types'
-import type { Asset, ReactNativeAsset } from './types'
+import type { Asset, PackagerAsset } from './types'
 
-export let AssetRegistry: ReactNative.AssetsRegistry
-export let AssetRegistryModuleId: number
+export let AssetsRegistry: ReactNative.AssetsRegistry
+export let AssetsRegistryModuleId: number
 
 // Tracking/caching assets
 const unsubAR = waitForModules(
     byProps<ReactNative.AssetsRegistry>('registerAsset'),
     (exports, id) => {
-        AssetRegistryModuleId = id
-        AssetRegistry = exports as ReactNative.AssetsRegistry
+        AssetsRegistryModuleId = id
+        AssetsRegistry = exports as ReactNative.AssetsRegistry
 
         // There are two matching exports. One is the original, and one is a re-export.
         // The original asset-registry is simply required by the re-exported one with no changes.
@@ -25,8 +25,6 @@ const unsubAR = waitForModules(
         if (getModuleDependencies(id)!.length) {
             unsubAR()
 
-            _logger.log(`[${performance.now()}] Registry found: ${id}`)
-
             // Make sure we don't try to recache assets if it is already cached.
             let uncached = true
             for (const _ in cache) {
@@ -35,8 +33,6 @@ const unsubAR = waitForModules(
             }
 
             if (uncached) {
-                _logger.log('Caching assets...')
-
                 // More fragile way, but also more performant:
                 // There is exactly one asset before the reexported asset registry :/
                 const firstAssetModuleId = id - 1
@@ -54,16 +50,15 @@ const unsubAR = waitForModules(
 
         const orig = exports.registerAsset
         exports.registerAsset = (asset: Asset) => {
-            const result = orig(asset as ReactNativeAsset)
+            const result = orig(asset as PackagerAsset)
 
-            // Cache packager assets only
-            if ((asset as ReactNativeAsset).__packager_asset) {
-                cacheAsset(asset, _initing)
-                // In-memory cache
-                _metas.set(asset, [result, _initing])
+            // Cache and set moduleId for packager assets only
+            if ((asset as PackagerAsset).__packager_asset) {
+                asset.moduleId = _initing!
+                cacheAsset(asset, _initing!)
             }
 
-            return result
+            return (asset.id = result)
         }
     },
 )
@@ -72,7 +67,7 @@ const unsubAR = waitForModules(
 const unsubRAS = waitForModules(
     byName<{
         addCustomSourceTransformer: (
-            transformer: (arg: { asset: Asset }) => ReactNativeAsset,
+            transformer: (arg: { asset: Asset }) => PackagerAsset,
         ) => void
     }>('resolveAssetSource'),
     rAS => {

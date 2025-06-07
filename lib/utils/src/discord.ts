@@ -1,4 +1,4 @@
-import { getAssetByName, getAssetModuleId } from '@revenge-mod/assets'
+import { getAssetByName } from '@revenge-mod/assets'
 import { TokensModuleId } from '@revenge-mod/discord/common'
 import { byDependencies, byProps } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
@@ -45,7 +45,7 @@ export function lookupGeneratedIconComponent<N extends string>(
         const mids = []
 
         for (const name of assetNames) {
-            const mid = getAssetModuleId(getAssetByName(name)!)
+            const mid = getAssetByName(name)?.moduleId
             if (!mid) return
 
             mids.push(mid)
@@ -53,7 +53,7 @@ export function lookupGeneratedIconComponent<N extends string>(
 
         filter = [...MultiIconComponentFilterBase, ...mids, 2]
     } else {
-        const mid = getAssetModuleId(getAssetByName(compName)!)
+        const mid = getAssetByName(compName)?.moduleId
         if (!mid) return
 
         IconComponentFilter[4] = mid

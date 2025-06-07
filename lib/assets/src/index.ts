@@ -1,11 +1,19 @@
 import { ReactNative } from '@revenge-mod/react'
-import { _customs, _metas, _overrides } from './_internal'
+import { _customs, _overrides } from './_internal'
 import { cache } from './caches'
-import { AssetRegistry } from './preinit'
-import type { Metro } from '@revenge-mod/modules/types'
-import type { Asset, AssetId, RegisterableAsset } from './types'
+import { AssetsRegistry } from './preinit'
+import type {
+    Asset,
+    AssetId,
+    CustomAsset,
+    PackagerAsset,
+    RegisterableAsset,
+} from './types'
 
-export { AssetRegistry, AssetRegistryModuleId } from './preinit'
+export {
+    AssetsRegistry as AssetRegistry,
+    AssetsRegistryModuleId as AssetRegistryModuleId,
+} from './preinit'
 
 // iOS cannot display SVGs
 let _preferredType: Asset['type'] =
@@ -21,14 +29,29 @@ export function setPreferredAssetType(type: Asset['type']) {
 }
 
 /**
- * Yields all registered assets, including ones with same name but different types, custom assets, and overriden assets.
+ * Yields all assets, both packager and custom.
  */
 export function* getAssets(): Generator<Asset> {
-    for (const name of Object.keys(cache!))
-        for (const mid of Object.values(cache[name]))
-            yield AssetRegistry.getAssetByID(__r(mid)) as Asset
+    yield* getPackagerAssets()
+    yield* getCustomAssets()
+}
 
+/**
+ * Yields all registered custom assets.
+ */
+export function* getCustomAssets(): Generator<CustomAsset> {
     for (const asset of _customs) yield asset
+}
+
+/**
+ * Yields all registered packager assets, including ones with same name but different types.
+ */
+export function* getPackagerAssets(): Generator<PackagerAsset> {
+    for (const name in cache) {
+        const reg = cache[name]
+        for (const type in reg)
+            yield AssetsRegistry.getAssetByID(__r(reg[type]))
+    }
 }
 
 /**
@@ -36,10 +59,14 @@ export function* getAssets(): Generator<Asset> {
  * If more than one asset is registered with the same name, this will return the one with the preferred type, or the first registered one.
  *
  * @param name The asset name.
+ * @param type The preferred asset type, defaults to the current preferred type.
  */
-export function getAssetByName(name: string): Asset | undefined {
-    const id = getAssetIdByName(name)
-    if (id !== undefined) return AssetRegistry.getAssetByID(id)
+export function getAssetByName(
+    name: string,
+    type = _preferredType,
+): Asset | undefined {
+    const id = getAssetIdByName(name, type)
+    if (id !== undefined) return AssetsRegistry.getAssetByID(id)
 }
 
 /**
@@ -56,7 +83,7 @@ export function getAssetsByName(
 
     return Object.entries(reg).reduce(
         (acc, [type, mid]) => {
-            acc[type as Asset['type']] = AssetRegistry.getAssetByID(__r(mid))!
+            acc[type as Asset['type']] = AssetsRegistry.getAssetByID(__r(mid))!
             return acc
         },
         {} as Record<Asset['type'], Asset>,
@@ -64,37 +91,21 @@ export function getAssetsByName(
 }
 
 /**
- * Get the ID of an asset.
- *
- * @param asset The asset to get the ID for.
- */
-export function getAssetId(asset: Asset): AssetId | undefined {
-    return _metas.get(asset)?.[0]
-}
-
-/**
  * Get an asset ID by its name.
  * If more than one asset is registered with the same name, this will return the one with the preferred type, or the first registered one.
  *
  * @param name The asset name.
+ * @param type The preferred asset type, defaults to the current preferred type.
  */
-export function getAssetIdByName(name: string): AssetId | undefined {
+export function getAssetIdByName(
+    name: string,
+    type = _preferredType,
+): AssetId | undefined {
     const reg = cache[name]
     if (!reg) return
 
-    const mid = reg[_preferredType] ?? reg[Object.keys(reg)[0]!]
+    const mid = reg[type] ?? reg[Object.keys(reg)[0]!]
     if (mid !== undefined) return __r(mid)
-}
-
-/**
- * Get the module ID that registered the asset. Returns `-1` if the asset is a custom asset.
- *
- * @param asset The asset to get the module ID for.
- */
-export function getAssetModuleId(
-    asset: Asset,
-): Metro.ModuleID | -1 | undefined {
-    return _metas.get(asset)?.[1]
 }
 
 /**
@@ -109,10 +120,10 @@ export function registerAsset(asset: RegisterableAsset): AssetId {
             `Asset with name ${asset.name} and type ${asset.type} already exists!`,
         )
 
-    _customs.add(asset)
+    _customs.add(asset as CustomAsset)
 
     // @ts-expect-error
-    return AssetRegistry.registerAsset(asset)
+    return AssetsRegistry.registerAsset(asset)
 }
 
 /**

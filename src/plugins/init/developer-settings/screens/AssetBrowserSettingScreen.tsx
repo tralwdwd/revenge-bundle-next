@@ -1,4 +1,4 @@
-import { getAssetId, getAssetModuleId, getAssets } from '@revenge-mod/assets'
+import { getAssets } from '@revenge-mod/assets'
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { Clipboard } from '@revenge-mod/externals/react-native-clipboard'
@@ -24,24 +24,13 @@ const UndisplayableFallback = {
 
 export default function AssetBrowserSettingScreen() {
     const [search, setSearch] = React.useState('')
-    const assets = React.useMemo(
-        () =>
-            [...getAssets()].map(
-                asset =>
-                    [
-                        getAssetId(asset)!,
-                        getAssetModuleId(asset)!,
-                        asset,
-                    ] as const,
-            ),
-        [getAssets],
-    )
+    const assets = React.useMemo(() => [...getAssets()], [getAssets])
 
     const filteredAssets = React.useMemo(
         () =>
             !search.length
                 ? assets
-                : assets.filter(([, , asset]) =>
+                : assets.filter(asset =>
                       asset.name.toLowerCase().includes(search.toLowerCase()),
                   ),
         [assets, search],
@@ -53,13 +42,17 @@ export default function AssetBrowserSettingScreen() {
             <FlashList.FlashList
                 data={filteredAssets}
                 estimatedItemSize={80}
-                keyExtractor={([id]) => id.toString()}
-                renderItem={({ item: [id, moduleId, asset], index }) => (
+                keyExtractor={asset =>
+                    asset.id
+                        ? asset.id.toString()
+                        : `${asset.name}.${asset.type}`
+                }
+                renderItem={({ item: asset, index }) => (
                     <AssetDisplay
                         asset={asset}
-                        end={index === assets.length - 1}
-                        id={id}
-                        moduleId={moduleId}
+                        end={index === filteredAssets.length - 1}
+                        id={asset.id}
+                        moduleId={asset.moduleId}
                         start={!index}
                     />
                 )}
@@ -76,7 +69,7 @@ function AssetDisplay({
     end,
 }: {
     id: AssetId
-    moduleId: Metro.ModuleID
+    moduleId?: Metro.ModuleID
     asset: Asset
     start?: boolean
     end?: boolean
@@ -85,7 +78,7 @@ function AssetDisplay({
     const metadata = [
         ['ID', id.toString()],
         ['Type', asset.type],
-        ['Module ID', moduleId.toString()],
+        ['Module ID', moduleId?.toString()],
     ] as const
 
     return (
@@ -111,7 +104,7 @@ function AssetDisplay({
             onPress={() => openAssetDisplayAlert(asset, id, metadata)}
             start={start}
             subLabel={metadata
-                .map(([name, value]) => `${name}: ${value}`)
+                .map(([name, value]) => `${name}: ${value ?? 'N/A'}`)
                 .join('  • ')}
             variant={isDisplayable ? 'default' : 'danger'}
         />
@@ -121,7 +114,9 @@ function AssetDisplay({
 function openAssetDisplayAlert(
     asset: Asset,
     id: AssetId,
-    metadata: Readonly<Readonly<[string, string]>[]> | [string, string][],
+    metadata:
+        | Readonly<Readonly<[string, string | undefined]>[]>
+        | [string, string | undefined][],
 ) {
     const isDisplayable = Displayable.has(asset.type)
 
@@ -137,14 +132,23 @@ function openAssetDisplayAlert(
                         <PreviewUnavailable type={asset.type} />
                     )}
                     <TableRowGroup>
-                        {metadata.map(([name, value]) => (
-                            <TableRow
-                                key={id}
-                                label={name}
-                                onPress={() => Clipboard.setString(value)}
-                                subLabel={value}
-                            />
-                        ))}
+                        {metadata.map(([name, value]) =>
+                            value ? (
+                                <TableRow
+                                    key={id}
+                                    label={name}
+                                    onPress={() => Clipboard.setString(value)}
+                                    subLabel={value}
+                                />
+                            ) : (
+                                <TableRow
+                                    key={id}
+                                    label={name}
+                                    subLabel="N/A"
+                                    disabled
+                                />
+                            ),
+                        )}
                     </TableRowGroup>
                     <Text color="text-danger" variant="text-xs/semibold">
                         Note: Asset IDs and module IDs are not consistent

@@ -3,7 +3,6 @@ import { ClientInfoModule } from '@revenge-mod/discord/native'
 import { getStorage } from '@revenge-mod/storage'
 import { debounce } from '@revenge-mod/utils/callbacks'
 import { mergeDeep } from '@revenge-mod/utils/objects'
-import { _logger } from './_internal'
 import type { Metro } from '@revenge-mod/modules/types'
 import type { Asset } from './types'
 
@@ -18,15 +17,12 @@ const CacheStorage = getStorage<Cache>(`revenge/assets.${Key}`, {
     directory: 'cache',
 })
 
-_logger.log(`[${performance.now()}] CacheStorage instance created`)
-
 // biome-ignore lint/complexity/useArrowFunction: Arrow functions are not supported
 CacheStorage.get().then(async function (cache_) {
     // TODO(lib/assets/caches): This loads way too late and requires native interop to load earlier
 
     // If we are not using the default value, merge it into the in-memory cache, then point the storage cache to the in-memory cache.
     if (cache_ !== cache) {
-        _logger.log(`[${performance.now()}] CacheStorage loaded`)
         Object.assign(cache, cache_)
         CacheStorage.cache = cache
     }
