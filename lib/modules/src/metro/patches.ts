@@ -9,7 +9,7 @@ const unsubFFI = waitForModules(byProps('fileFinishedImporting'), exports => {
     const orig = exports.fileFinishedImporting
     exports.fileFinishedImporting = (path: string) => {
         orig(path)
-        const id = _initing
+        const id = _initing!
         _paths.set(path, id)
         _execPathSubs(id, path)
     }

@@ -3,7 +3,7 @@ import { isModuleExportsBad } from './utils'
 import type { Metro } from '../types'
 
 /** Initializing ID */
-export let _initing = -1
+export let _initing: Metro.ModuleID | null = null
 /** Known uninitialized IDs */
 export const _uninits = new Set<Metro.ModuleID>()
 /** Known initialized IDs (not blacklisted) */
