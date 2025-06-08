@@ -1,11 +1,10 @@
-import { AlertActionCreators } from '@revenge-mod/discord/actions'
 import { getStore, Stores } from '@revenge-mod/discord/common/flux'
-import { Design } from '@revenge-mod/discord/design'
 import { byProps } from '@revenge-mod/modules/finders/filters'
 import { getModule } from '@revenge-mod/modules/finders/get'
 import { instead } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
+import { resetSettingsScreen } from '../settings'
 
 registerPlugin(
     {
@@ -17,7 +16,7 @@ registerPlugin(
     },
     {
         start({ cleanup, logger, plugin }) {
-            if (plugin.flags & PluginFlags.EnabledLate) showNoticeAlert()
+            if (plugin.flags & PluginFlags.EnabledLate) resetSettingsScreen()
 
             function reinitDEStore() {
                 cleanup(
@@ -58,23 +57,10 @@ registerPlugin(
                     reinitDEStore()
                 }),
                 reinitDEStore,
-                showNoticeAlert,
+                resetSettingsScreen,
             )
         },
     },
     PluginFlags.Enabled,
     InternalPluginFlags.Internal,
 )
-
-function showNoticeAlert() {
-    AlertActionCreators.openAlert(
-        'staff-settings-notice',
-        <Design.AlertModal
-            actions={
-                <Design.AlertActionButton text="Got it" variant="secondary" />
-            }
-            content="Close and open the Settings page again to apply changes."
-            title="Notice"
-        />,
-    )
-}

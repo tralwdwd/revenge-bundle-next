@@ -1,10 +1,14 @@
 import { _data, _subs } from '@revenge-mod/discord/_/modules/settings'
 import { onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
+import { ReactNavigationNative } from '@revenge-mod/externals/react-navigation'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { after } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
+import { findInTree } from '@revenge-mod/utils/trees'
+import type { NavigationState } from '@react-navigation/core'
+import type { StackScreenProps } from '@react-navigation/stack'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 import type { FC } from 'react'
 
@@ -19,13 +23,22 @@ registerPlugin(
         icon: 'SettingsIcon',
     },
     {
+        init() {
+            const unsub = waitForModules(
+                byProps('getRootNavigationRef'),
+                exports => {
+                    unsub()
+                    navigation = exports.getRootNavigationRef()
+                },
+            )
+        },
         start({ logger }) {
-            const unsubForRendererConfig = waitForModules(
+            const unsubRC = waitForModules(
                 byProps<{
                     SETTING_RENDERER_CONFIG: Record<string, SettingsItem>
                 }>('SETTING_RENDERER_CONFIG'),
                 SettingRendererConfig => {
-                    unsubForRendererConfig()
+                    unsubRC()
 
                     logger.info(
                         'Settings modules loaded, running subscriptions and patching...',
@@ -63,10 +76,10 @@ registerPlugin(
                 },
             )
 
-            const unsubForSettingsOverviewScreen = waitForModules(
+            const unsubSOS = waitForModules(
                 byName('SettingsOverviewScreen'),
                 exports => {
-                    unsubForSettingsOverviewScreen()
+                    unsubSOS()
 
                     const customSections = _data[0]
 
@@ -114,3 +127,50 @@ registerPlugin(
     PluginFlags.Enabled,
     InternalPluginFlags.Internal | InternalPluginFlags.Essential,
 )
+
+let navigation: ReturnType<
+    typeof ReactNavigationNative.useNavigation<
+        StackScreenProps<
+            {
+                tabs: undefined
+                settings:
+                    | {
+                          screen: string
+                          params?: Record<string, unknown>
+                      }
+                    | undefined
+            },
+            'settings'
+        >['navigation']
+    >
+>
+
+export function resetSettingsScreen() {
+    const prevState = navigation.getState()
+    const settings = findInTree(prevState, node => node.name === 'settings') as
+        | { state: NavigationState }
+        | undefined
+
+    // We're currently not on the settings screen, so we don't need to reset
+    if (!settings) return
+
+    navigation.navigate('tabs')
+
+    setTimeout(() => {
+        navigation.dispatch(
+            ReactNavigationNative.CommonActions.reset(prevState),
+        )
+
+        // Re-push all routes, because resetting does not keep them for some reason
+
+        if (settings)
+            for (const route of settings.state.routes) {
+                navigation.dispatch(
+                    ReactNavigationNative.StackActions.push(
+                        route.name,
+                        route.params,
+                    ),
+                )
+            }
+    })
+}
