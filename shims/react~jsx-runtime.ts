@@ -19,4 +19,4 @@ const jsxs = ((type, ...args) =>
         ...args,
     )) as typeof _jsxs
 
-export { jsx, jsxs, Fragment }
+module.exports = { jsx, jsxs, Fragment }

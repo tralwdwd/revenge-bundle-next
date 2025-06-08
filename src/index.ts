@@ -37,6 +37,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
                 // Initialize init libraries
                 require('@revenge-mod/externals/init')
                 require('@revenge-mod/discord/init')
+                require('@revenge-mod/components/init')
 
                 // Run all init plugins
                 require('~/plugins/init')

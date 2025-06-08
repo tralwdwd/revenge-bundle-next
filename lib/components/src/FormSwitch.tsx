@@ -1,5 +1,5 @@
 import { FormSwitch as Switch } from '@revenge-mod/discord/design'
-import { ReactNative } from '@revenge-mod/react'
+import { StyleSheet, View } from 'react-native'
 import type { DiscordModules } from '@revenge-mod/discord/types'
 
 /**
@@ -9,13 +9,13 @@ export default function FormSwitch(
     props: DiscordModules.Components.FormSwitchProps,
 ) {
     return (
-        <ReactNative.View style={props.disabled && styles.disabled}>
+        <View style={props.disabled && styles.disabled}>
             <Switch {...props} />
-        </ReactNative.View>
+        </View>
     )
 }
 
-const styles = ReactNative.StyleSheet.create({
+const styles = StyleSheet.create({
     disabled: {
         opacity: 0.5,
     },

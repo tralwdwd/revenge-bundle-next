@@ -1,5 +1,5 @@
-import { ReactNative } from '@revenge-mod/react'
-import TableRowAssetIcon from '~/components/TableRowAssetIcon'
+import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
+import { Linking } from 'react-native'
 import { GitHubOrganizationURL } from '~/constants'
 import { MobileSetting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
@@ -10,7 +10,7 @@ const RevengeGitHubOrganizationSetting: SettingsItem = {
         <TableRowAssetIcon name="img_account_sync_github_white" />
     ),
     title: () => 'GitHub',
-    onPress: () => ReactNative.Linking.openURL(GitHubOrganizationURL),
+    onPress: () => Linking.openURL(GitHubOrganizationURL),
     type: 'pressable',
 }
 

@@ -8,6 +8,11 @@ declare global {
 
     const __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: boolean
 
+    // CommonJS modules, we don't want to depend on @types/node
+    const module: {
+        exports: any
+    }
+
     export interface ImportMeta {
         glob<T = any>(
             pattern: ImportMetaGlobPattern,

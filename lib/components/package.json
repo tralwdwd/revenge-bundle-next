@@ -1,0 +1,25 @@
+{
+  "name": "@revenge-mod/components",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./FormSwitch": {
+      "default": "./src/FormSwitch.tsx"
+    },
+    "./Page": {
+      "default": "./src/Page.tsx"
+    },
+    "./SearchInput": {
+      "default": "./src/SearchInput.tsx"
+    },
+    "./TableRowAssetIcon": {
+      "default": "./src/TableRowAssetIcon.tsx"
+    },
+    "./init": {
+      "default": "./src/init.ts"
+    },
+    "./types": {
+      "types": "./src/types.ts"
+    }
+  }
+}

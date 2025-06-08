@@ -1,9 +1,9 @@
+import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { nodeUtil } from '@revenge-mod/externals/browserify'
-import { React } from '@revenge-mod/react'
 import { getErrorStack } from '@revenge-mod/utils/errors'
-import TableRowAssetIcon from '~/components/TableRowAssetIcon'
+import { useRef, useState } from 'react'
 import { api } from '..'
 import { MobileSetting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
@@ -34,11 +34,11 @@ const {
 } = Design
 
 function EvaluateJavaScriptAlert() {
-    const code = React.useRef('')
-    const [awaitResult, setAwaitResult] = React.useState(true)
-    const [showHidden, setShowHidden] = React.useState(true)
-    const [inspectDepth, setInspectDepth] = React.useState(3)
-    const [loading, setLoading] = React.useState(false)
+    const code = useRef('')
+    const [awaitResult, setAwaitResult] = useState(true)
+    const [showHidden, setShowHidden] = useState(true)
+    const [inspectDepth, setInspectDepth] = useState(3)
+    const [loading, setLoading] = useState(false)
 
     return (
         <AlertModal

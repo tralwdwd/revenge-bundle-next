@@ -1,8 +1,8 @@
 import { ToastActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { SettingListRenderer } from '@revenge-mod/discord/modules/settings/renderer'
-import { ReactNative } from '@revenge-mod/react'
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
+import { View } from 'react-native'
 import { api } from '..'
 import { MobileSetting } from '../constants'
 import { DevToolsContext, useIsDevToolsOpen } from '../react-devtools'
@@ -49,7 +49,7 @@ export function ReactDevToolsAddressSetting() {
     const settings = api.storage.use(s => s.devtools?.address)
 
     return (
-        <ReactNative.View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+        <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
             <Design.TextInput
                 defaultValue={
                     settings?.devtools.address ?? DevToolsContext.address
@@ -76,6 +76,6 @@ export function ReactDevToolsAddressSetting() {
                 onChange={text => (DevToolsContext.address = text)}
                 returnKeyType="done"
             />
-        </ReactNative.View>
+        </View>
     )
 }

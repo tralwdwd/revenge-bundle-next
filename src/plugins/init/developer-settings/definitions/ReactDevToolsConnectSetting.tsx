@@ -1,4 +1,4 @@
-import TableRowAssetIcon from '~/components/TableRowAssetIcon'
+import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import { MobileSetting } from '../constants'
 import {
     connectToDevTools,

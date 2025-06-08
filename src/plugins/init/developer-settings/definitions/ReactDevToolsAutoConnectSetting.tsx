@@ -1,4 +1,4 @@
-import TableRowAssetIcon from '~/components/TableRowAssetIcon'
+import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import { api } from '..'
 import { MobileSetting } from '../constants'
 import { DevToolsContext } from '../react-devtools'

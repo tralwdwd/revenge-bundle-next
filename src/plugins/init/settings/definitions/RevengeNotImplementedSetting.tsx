@@ -1,4 +1,4 @@
-import TableRowAssetIcon from '~/components/TableRowAssetIcon'
+import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const RevengeNotImplementedSetting: SettingsItem = {

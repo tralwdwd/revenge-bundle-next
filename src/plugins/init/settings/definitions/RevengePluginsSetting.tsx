@@ -1,6 +1,6 @@
+import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import { _plugins } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
-import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 import { MobileSetting, UserSettingsSections } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 

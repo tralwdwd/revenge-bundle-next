@@ -1,8 +1,8 @@
 import { ToastActionCreators } from '@revenge-mod/discord/actions'
-import { React } from '@revenge-mod/react'
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 import { getErrorStack } from '@revenge-mod/utils/errors'
 import { useReRender } from '@revenge-mod/utils/react'
+import { useEffect } from 'react'
 import { api } from '.'
 
 export const DevToolsContext: {
@@ -80,14 +80,14 @@ export function disconnectFromDevTools() {
 export function useIsDevToolsOpen() {
     const rerender = useReRender()
 
-    React.useEffect(() => {
+    useEffect(() => {
         const sub: Subscription = e => (e === 1 || e === 2) && rerender()
         subscriptions.add(sub)
 
         return () => {
             subscriptions.delete(sub)
         }
-    }, [])
+    }, [rerender])
 
     return DevToolsContext.open
 }

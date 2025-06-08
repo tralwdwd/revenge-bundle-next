@@ -1,4 +1,4 @@
-import { React } from '@revenge-mod/react'
+import { useEffect } from 'react'
 import type { StackScreenProps } from '@react-navigation/stack'
 import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
 import type { MobileSetting, UserSettingsSections } from '../constants'
@@ -12,7 +12,8 @@ export default function RevengeCustomPageScreen({
 >) {
     const { render: PageComponent, options } = route.params
 
-    React.useEffect(() => {
+    // biome-ignore lint/correctness/useExhaustiveDependencies: We only want to set options once
+    useEffect(() => {
         if (options) navigation.setOptions(options)
     }, [])
 

@@ -1,4 +1,7 @@
 import { getAssetIdByName } from '@revenge-mod/assets'
+import FormSwitch from '@revenge-mod/components/FormSwitch'
+import Page from '@revenge-mod/components/Page'
+import SearchInput from '@revenge-mod/components/SearchInput'
 import { Tokens } from '@revenge-mod/discord/common'
 import { Design } from '@revenge-mod/discord/design'
 import { FlashList } from '@revenge-mod/externals/shopify'
@@ -12,31 +15,30 @@ import {
     startPlugin,
 } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
-import { React, ReactNative } from '@revenge-mod/react'
+import { debounce } from '@revenge-mod/utils/callbacks'
 import { useReRender } from '@revenge-mod/utils/react'
-import FormSwitch from '~/components/FormSwitch'
-import Page from '~/components/Page'
-import SearchInput from '~/components/SearchInput'
+import { useCallback, useMemo, useState } from 'react'
+import { Image, useWindowDimensions } from 'react-native'
 import type { InternalPlugin } from '@revenge-mod/plugins/_'
 
-const { Image, useWindowDimensions } = ReactNative
 const { Card, Text, Stack } = Design
 
 export default function RevengePluginsSettingScreen() {
-    const [search, setSearch] = React.useState('')
+    const [search, setSearch] = useState('')
+    const debouncedSetSearch = useCallback(debounce(setSearch, 100), [])
 
     const { width } = useWindowDimensions()
     const numColumns = Math.floor((width - 16) / 448)
 
-    const plugins = React.useMemo(
+    const plugins = useMemo(
         () =>
             [..._plugins.values()].map(
                 plugin => [plugin, _metas.get(plugin.manifest.id)![2]] as const,
             ),
-        [_plugins],
+        [],
     )
 
-    const filteredPlugins = React.useMemo(
+    const filteredPlugins = useMemo(
         () =>
             plugins.filter(([plugin]) => {
                 const { name, description, author } = plugin.manifest
@@ -52,7 +54,10 @@ export default function RevengePluginsSettingScreen() {
 
     return (
         <Page spacing={16}>
-            <SearchInput onChange={(v: string) => setSearch(v)} size="md" />
+            <SearchInput
+                onChange={(v: string) => debouncedSetSearch(v)}
+                size="md"
+            />
             <FlashList.MasonryFlashList
                 data={filteredPlugins}
                 estimatedItemSize={108}

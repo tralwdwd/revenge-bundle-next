@@ -1,4 +1,4 @@
-import { ReactNative } from '@revenge-mod/react'
+import { Platform } from 'react-native'
 import { _customs, _overrides } from './_internal'
 import { cache } from './caches'
 import { AssetsRegistry } from './preinit'
@@ -16,8 +16,7 @@ export {
 } from './preinit'
 
 // iOS cannot display SVGs
-let _preferredType: Asset['type'] =
-    ReactNative.Platform.OS === 'ios' ? 'png' : 'svg'
+let _preferredType: Asset['type'] = Platform.OS === 'ios' ? 'png' : 'svg'
 
 /**
  * Set the preferred asset type. This is used to determine which asset to use when multiple types are available.

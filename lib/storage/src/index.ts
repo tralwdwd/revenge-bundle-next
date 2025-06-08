@@ -1,6 +1,7 @@
 // TODO(storage): Implement using NativeModules interop instead
 
 import { FileModule } from '@revenge-mod/discord/native'
+// This file is usually imported way too early, so we can't import our shim
 import { React } from '@revenge-mod/react'
 import { mergeDeep } from '@revenge-mod/utils/objects'
 import { useReRender } from '@revenge-mod/utils/react'

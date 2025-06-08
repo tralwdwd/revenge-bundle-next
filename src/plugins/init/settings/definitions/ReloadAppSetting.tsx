@@ -1,5 +1,5 @@
+import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import { BundleUpdaterManager } from '@revenge-mod/discord/native'
-import TableRowAssetIcon from '~/components/TableRowAssetIcon'
 import { MobileSetting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 

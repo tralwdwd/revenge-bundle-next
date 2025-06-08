@@ -1,5 +1,5 @@
 import { Design } from '@revenge-mod/discord/design'
-import { ReactNative } from '@revenge-mod/react'
+import { StyleSheet } from 'react-native'
 import type { DiscordModules } from '@revenge-mod/discord/types'
 
 export default function Page(props: DiscordModules.Components.StackProps) {
@@ -10,7 +10,7 @@ export default function Page(props: DiscordModules.Components.StackProps) {
     )
 }
 
-const styles = ReactNative.StyleSheet.create({
+const styles = StyleSheet.create({
     page: {
         flex: 1,
         paddingHorizontal: 16,

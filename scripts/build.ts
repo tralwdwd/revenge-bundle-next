@@ -61,10 +61,21 @@ export default async function build(dev = false, log = true) {
                         find: 'react/jsx-runtime',
                         replacement: `${ShimsDir}/react~jsx-runtime.ts`,
                     },
+                    // Do not move React to the top!
+                    // If you do that, react/jsx-runtime would resolve to ${ShimsDir}/react.ts/jsx-runtime instead.
+                    {
+                        find: 'react',
+                        replacement: `${ShimsDir}/react.ts`,
+                    },
+                    {
+                        find: 'react-native',
+                        replacement: `${ShimsDir}/react-native.ts`,
+                    },
                 ],
             }),
             importGlobPlugin(),
             swcPlugin(),
+            sourceURLPlugin(),
             hermesCPlugin({
                 flags: [
                     dev ? '-Og' : '-O',
@@ -102,7 +113,6 @@ export default async function build(dev = false, log = true) {
         minify: {},
         file: 'dist/revenge.js',
         format: 'iife',
-        footer: '//# sourceURL=Revenge',
     })
 
     if (log)
@@ -111,6 +121,18 @@ export default async function build(dev = false, log = true) {
                 `\u{2714} Compiled successfully! ${chalk.gray(`(took ${(performance.now() - start).toFixed(2)}ms)`)}`,
             ),
         )
+}
+
+function sourceURLPlugin() {
+    return {
+        name: 'footer',
+        renderChunk(code) {
+            return {
+                code: `${code}\n//# sourceURL=Revenge`,
+                map: null,
+            }
+        },
+    } satisfies RolldownPlugin
 }
 
 function swcPlugin() {

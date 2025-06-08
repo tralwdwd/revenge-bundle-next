@@ -1,3 +1,4 @@
+// @revenge-mod/storage depends on this file, and it is imported way too early, so we can't import our shim
 import { React } from '@revenge-mod/react'
 import { findInTree } from './trees'
 import type { ReactNode } from 'react'

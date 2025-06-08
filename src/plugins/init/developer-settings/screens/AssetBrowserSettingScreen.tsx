@@ -1,4 +1,7 @@
 import { getAssets } from '@revenge-mod/assets'
+import Page from '@revenge-mod/components/Page'
+import SearchInput from '@revenge-mod/components/SearchInput'
+import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import {
     AlertActionCreators,
     ToastActionCreators,
@@ -6,15 +9,13 @@ import {
 import { Design } from '@revenge-mod/discord/design'
 import { Clipboard } from '@revenge-mod/externals/react-native-clipboard'
 import { FlashList } from '@revenge-mod/externals/shopify'
-import { React, ReactNative } from '@revenge-mod/react'
+import { debounce } from '@revenge-mod/utils/callbacks'
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
-import Page from '~/components/Page'
-import SearchInput from '~/components/SearchInput'
-import TableRowAssetIcon from '~/components/TableRowAssetIcon'
+import { useCallback, useMemo, useState } from 'react'
+import { Image, StyleSheet } from 'react-native'
 import type { Asset, AssetId } from '@revenge-mod/assets/types'
 import type { Metro } from '@revenge-mod/modules/types'
 
-const { Image, StyleSheet } = ReactNative
 const { AlertModal, AlertActionButton, TableRow, TableRowGroup, Text } = Design
 
 const Displayable = new Set(['png', 'jpg', 'svg', 'webp'])
@@ -27,10 +28,11 @@ const UndisplayableFallback = {
 }
 
 export default function AssetBrowserSettingScreen() {
-    const [search, setSearch] = React.useState('')
-    const assets = React.useMemo(() => [...getAssets()], [getAssets])
+    const [search, setSearch] = useState('')
+    const debouncedSetSearch = useCallback(debounce(setSearch, 100), [])
+    const assets = useMemo(() => [...getAssets()], [])
 
-    const filteredAssets = React.useMemo(
+    const filteredAssets = useMemo(
         () =>
             !search.length
                 ? assets
@@ -42,7 +44,10 @@ export default function AssetBrowserSettingScreen() {
 
     return (
         <Page spacing={16}>
-            <SearchInput onChange={(v: string) => setSearch(v)} size="md" />
+            <SearchInput
+                onChange={(v: string) => debouncedSetSearch(v)}
+                size="md"
+            />
             <FlashList.FlashList
                 data={filteredAssets}
                 contentContainerStyle={styles.listContainer}
