@@ -157,20 +157,20 @@ export function resetSettingsScreen() {
     navigation.navigate('tabs')
 
     setTimeout(() => {
+        // This navigates to the right screen, but then navigates back to the overview screen for some reason
         navigation.dispatch(
             ReactNavigationNative.CommonActions.reset(prevState),
         )
 
-        // Re-push all routes, because resetting does not keep them for some reason
-
-        if (settings)
-            for (const route of settings.state.routes) {
+        // So we need to re-push all the routes
+        setTimeout(() => {
+            for (const route of settings.state.routes.slice(1))
                 navigation.dispatch(
-                    ReactNavigationNative.StackActions.push(
+                    ReactNavigationNative.CommonActions.navigate(
                         route.name,
                         route.params,
                     ),
                 )
-            }
+        })
     })
 }
