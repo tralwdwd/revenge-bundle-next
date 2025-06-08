@@ -19,7 +19,7 @@
       "default": "./src/shopify.ts"
     },
     "./types": {
-      "default": "./src/types.ts"
+      "types": "./src/types.ts"
     }
   }
 }

@@ -16,7 +16,7 @@
       "default": "./src/preinit.ts"
     },
     "./types": {
-      "default": "./src/types.ts"
+      "types": "./src/types.ts"
     }
   }
 }
