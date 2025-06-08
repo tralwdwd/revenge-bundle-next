@@ -93,7 +93,7 @@ export interface ProxifyOptions {
      *
      * @default 'function'
      */
-    hint?: 'object' | 'function'
+    hint?: 'object' | 'function' | object
     /**
      * Whether the proxified value should be cached.
      */
@@ -124,8 +124,22 @@ export interface ProxifyOptions {
  * ```
  */
 export function proxify<T>(signal: () => T, options?: ProxifyOptions): T {
-    // biome-ignore lint/complexity/useArrowFunction: We need a function with a constructor
-    const hint = (options?.hint === 'object' ? {} : function () {}) as any
+    let hint: any
+
+    switch (options?.hint) {
+        case undefined:
+        case 'function':
+            // biome-ignore lint/complexity/useArrowFunction: We need a function with a constructor
+            hint = function () {}
+            break
+        case 'object':
+            hint = {}
+            break
+        default:
+            hint = options!.hint
+            break
+    }
+
     _metas.set(hint, [signal, options?.cache ?? false])
     return new Proxy(hint, _handler)
 }
