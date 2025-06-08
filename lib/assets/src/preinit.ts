@@ -3,7 +3,7 @@ import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
 import { _overrides } from './_internal'
-import { cache, cacheAsset, promise } from './caches'
+import { cacheAsset, cached } from './caches'
 import type { ReactNative } from '@revenge-mod/react/types'
 import type { Asset, PackagerAsset } from './types'
 
@@ -26,15 +26,8 @@ const unsubAR = waitForModules(
             unsubAR()
 
             // TODO(lib/assets/caches): Ideally we should not wait for the cache promise here, see the promise impl for more info.
-            promise.then(() => {
-                // Make sure we don't try to recache assets if it is already cached.
-                let uncached = true
-                for (const _ in cache) {
-                    uncached = false
-                    break
-                }
-
-                if (uncached) {
+            cached.then(cached => {
+                if (!cached) {
                     // More fragile way, but also more performant:
                     // There is exactly one asset before the reexported asset registry :/
                     const firstAssetModuleId = id - 1

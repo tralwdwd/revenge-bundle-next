@@ -19,12 +19,15 @@ const CacheStorage = getStorage<Cache>(`revenge/assets.${Key}`, {
 
 // TODO(lib/assets/caches): This loads way too late and requires native interop to load earlier
 // biome-ignore lint/complexity/useArrowFunction: Arrow functions are not supported
-export const promise = CacheStorage.get().then(async function (cache_) {
+export const cached = CacheStorage.get().then(async function (cache_) {
+    const cached = cache_ !== cache
     // If we are not using the default value, merge it into the in-memory cache, then point the storage cache to the in-memory cache.
-    if (cache_ !== cache) {
+    if (cached) {
         Object.assign(cache, cache_)
         CacheStorage.cache = cache
     }
+
+    return cached
 })
 
 export interface Cache {
