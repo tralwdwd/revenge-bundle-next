@@ -4,16 +4,11 @@ import {
     unproxy,
 } from '../_internal'
 import type { HookNode, PatchedFunctionProxyState } from '../_internal'
-import type {
-    AfterHook,
-    BeforeHook,
-    FiniteDomain,
-    UnknownFunction,
-} from '../types'
+import type { AfterHook, FiniteDomain, UnknownFunction } from '../types'
 
 function unpatchAfter<T extends UnknownFunction>(
     state: PatchedFunctionProxyState<PropertyKey, T>,
-    hookNode: HookNode<BeforeHook<T>>,
+    hookNode: HookNode<AfterHook<T>>,
 ) {
     if (hookNode.unpatched) return
 
