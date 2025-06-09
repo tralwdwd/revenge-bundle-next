@@ -39,7 +39,7 @@ export interface HookNode<Hook extends UnknownFunction = UnknownFunction> {
 export interface InsteadHookNode<T extends UnknownFunction = UnknownFunction>
     extends HookNode<InsteadHook<T>>,
         FunctionProxyState<T> {
-    readonly hook: InsteadHook<T>
+    hook: InsteadHook<T> | undefined
     prev: InsteadHookNode<T> | undefined
     next: InsteadHookNode<T> | undefined
 }
@@ -180,6 +180,9 @@ export function createPatchedFunctionProxy<
 }
 
 export function unproxy(state: PatchedFunctionProxyState) {
-    const { parent, key } = state
-    if (parent[key] === state.proxy) parent[key] = state.target
+    const { parent, key, proxy } = state
+    if (parent[key] === proxy) {
+        parent[key] = state.target
+        patchedFunctionProxyStates.delete(proxy)
+    }
 }

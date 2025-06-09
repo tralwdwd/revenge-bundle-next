@@ -24,8 +24,8 @@ const insteadHookProxyHandler = {
         receiver: ThisParameterType<T>,
         args: Parameters<T>,
     ) {
-        const { next } = hookNode
-        return Reflect.apply(hookNode.hook, receiver, [
+        const { next, hook } = hookNode
+        return Reflect.apply(hook!, receiver, [
             args,
             next === undefined ? hookNode.target : next.proxy,
         ])
@@ -35,9 +35,9 @@ const insteadHookProxyHandler = {
         args: ConstructorParameters<T>,
         ctor: AbstractNewable,
     ) {
-        const { next } = hookNode
+        const { next, hook } = hookNode
         return Reflect.construct(
-            hookNode.hook,
+            hook!,
             [args, next === undefined ? hookNode.target : next.proxy],
             ctor,
         )
@@ -51,6 +51,7 @@ function unpatchInstead<T extends UnknownFunction>(
     if (hookNode.unpatched) return
 
     hookNode.unpatched = true
+    hookNode.hook = undefined
 
     const { prev, next } = hookNode
     if (prev === undefined) {
