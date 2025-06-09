@@ -113,6 +113,16 @@ export namespace DiscordModules {
         [index: string]: unknown
     }
 
+    export interface Constants {
+        [K: string]:
+            | string
+            | number
+            | boolean
+            | null
+            | ((...args: any[]) => any)
+            | Constants
+    }
+
     /**
      * Discord's `Logger` class.
      *
