@@ -1,4 +1,9 @@
+import { ReactNavigationNative } from '@revenge-mod/externals/react-navigation'
+import { findInTree } from '@revenge-mod/utils/trees'
+import { Constants } from '../../common'
+import { RootNavigationRef } from '../main_tabs_v2'
 import { _data, _subs } from './_internal'
+import type { NavigationState } from '@react-navigation/core'
 import type { DiscordModules } from '../../types'
 
 export type SettingsItem = DiscordModules.Modules.Settings.SettingsItem
@@ -80,4 +85,65 @@ export function addSettingsItemToSection(key: string, item: string) {
 
     const newLength = section.settings.push(item)
     return () => delete section.settings[newLength - 1]
+}
+
+const { CommonActions, StackActions } = ReactNavigationNative
+
+/**
+ * Refreshes the SettingsOverviewScreen, applying any changes made to settings modules.
+ *
+ * @param renavigate Whether to renavigate instead of replacing the screen in the stack.
+ * @returns Whether the SettingsOverviewScreen was refreshed.
+ */
+export async function refreshSettingsOverviewScreen(renavigate?: boolean) {
+    const navigation = RootNavigationRef.getRootNavigationRef()
+    if (!navigation.isReady()) return false
+
+    const state = navigation.getState()
+
+    // State with SettingsOverviewScreen
+    const settingsState = findInTree(
+        state,
+        (node): node is NavigationState =>
+            Array.isArray(node.routes) &&
+            node.routes[0]?.name ===
+                (Constants.UserSettingsSections as Record<string, string>)
+                    .OVERVIEW,
+    )
+
+    // We're currently not on the settings screen, so we don't need to reset
+    if (!settingsState) return false
+
+    if (renavigate) {
+        const mainState = findInTree(
+            state,
+            (node): node is NavigationState =>
+                Array.isArray(node.routes) && node.routes.length > 1,
+        )
+
+        if (!mainState) return false
+
+        navigation.dispatch({
+            ...CommonActions.goBack(),
+            target: mainState.key,
+        })
+
+        navigation.navigate(mainState.routes[mainState.index].name)
+
+        for (const { name, params } of settingsState.routes)
+            navigation.dispatch(CommonActions.navigate(name, params))
+    } else {
+        const {
+            key: target,
+            routes: [{ name, key: source }],
+        } = settingsState
+
+        navigation.dispatch({
+            ...StackActions.replace(name),
+            source,
+            target,
+        })
+    }
+
+    return true
 }
