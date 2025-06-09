@@ -1,3 +1,5 @@
+import type { ExtractPredicate } from './types'
+
 export type SearchTree = Record<string, any>
 export type SearchFilter = (tree: SearchTree) => boolean
 
@@ -18,11 +20,11 @@ export interface FindInTreeOptions {
     maxDepth?: number
 }
 
-export function findInTree(
+export function findInTree<F extends SearchFilter>(
     tree: SearchTree,
-    filter: SearchFilter,
+    filter: F,
     opts?: FindInTreeOptions,
-): any | undefined {
+): ExtractPredicate<F> | undefined {
     type StackItem = [node: any, depth: number]
     const stack: StackItem[] = [[tree, 0]]
     const maxDepth = opts?.maxDepth ?? 100
