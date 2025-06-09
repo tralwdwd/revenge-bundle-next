@@ -104,16 +104,13 @@ function preparePluginPreInit(plugin: InternalPlugin) {
     meta[3] = PluginApiLevel.PreInit
 }
 
-function preparePluginInit(
-    plugin: InternalPlugin,
-    storageOptions?: StorageOptions<AnyObject>,
-) {
+function preparePluginInit(plugin: InternalPlugin) {
     const meta = _metas.get(plugin.manifest.id)!
     const api = meta[0] as InitPluginApi
 
     defineLazyProperty(api, 'storage', () =>
         getStorage(`${PluginsStorageDirectory}/${plugin.manifest.id}.json`, {
-            ...storageOptions,
+            ...plugin._s,
             directory: 'documents',
         }),
     )
@@ -293,7 +290,7 @@ export async function stopPlugin(plugin: InternalPlugin) {
         throw new Error(`Plugin "${id}" is not running`)
 
     if (apiLevel < PluginApiLevel.PreInit) preparePluginPreInit(plugin)
-    if (apiLevel < PluginApiLevel.Init) preparePluginInit(plugin, plugin._s)
+    if (apiLevel < PluginApiLevel.Init) preparePluginInit(plugin)
     if (apiLevel < PluginApiLevel.Start) preparePluginStart(plugin)
 
     plugin.status |= Status.Stopping
