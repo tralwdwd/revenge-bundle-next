@@ -28,7 +28,7 @@
       "default": "./src/preinit.ts"
     },
     "./modules/main_tabs_v2": {
-      "default": "./src/modules/main_tabs_v2/index.ts"
+      "default": "./src/modules/main_tabs_v2.ts"
     },
     "./modules/settings": {
       "default": "./src/modules/settings/index.ts"
