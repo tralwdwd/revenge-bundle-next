@@ -65,11 +65,22 @@ export const patchedFunctionProxyHandler = {
         args = applyHooks(state.before, args)
 
         const { instead } = state
-        let result: ReturnType<T> = Reflect.apply(
-            instead === undefined ? state.target : instead.proxy,
-            receiver,
-            args,
-        )
+        let result: ReturnType<T>
+
+        if (instead === undefined)
+            result = Reflect.apply(state.target, receiver, args)
+        else
+            result = Reflect.apply(
+                // Call the instead hook directly, not through its proxy
+                instead.hook!,
+                receiver,
+                [
+                    args,
+                    instead.next === undefined
+                        ? state.target
+                        : instead.next.proxy,
+                ],
+            )
 
         result = applyHooks(state.after, result)
 
@@ -83,11 +94,22 @@ export const patchedFunctionProxyHandler = {
         args = applyHooks(state.before, args)
 
         const { instead } = state
-        let result: InstanceType<T> = Reflect.construct(
-            instead === undefined ? state.target : instead.proxy,
-            args,
-            ctor,
-        )
+        let result: InstanceType<T>
+
+        if (instead === undefined)
+            result = Reflect.construct(state.target, args, ctor)
+        else
+            result = Reflect.construct(
+                // Call the instead hook directly, not through its proxy
+                instead.hook!,
+                [
+                    args,
+                    instead.next === undefined
+                        ? state.target
+                        : instead.next.proxy,
+                ],
+                ctor,
+            )
 
         result = applyHooks(state.after, result)
 
