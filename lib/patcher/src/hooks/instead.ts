@@ -96,10 +96,10 @@ export function instead<Key extends PropertyKey, Value extends UnknownFunction>(
     hookNode.hook = hook
     hookNode.prev = undefined
 
-    if (state !== undefined && state.parent === parent && state.key === key) {
+    if (state?.parent === parent && state.key === key) {
         const head = state.instead
         hookNode.next = head
-        if (head !== undefined) head.prev = hookNode
+        if (head) head.prev = hookNode
         state.instead = hookNode
     } else {
         hookNode.next = undefined

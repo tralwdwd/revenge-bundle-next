@@ -49,7 +49,7 @@ export function before<Key extends PropertyKey, Value extends UnknownFunction>(
 
     let state = patchedFunctionProxyStates.get(target)
     let hookNode: HookNode<typeof hook>
-    if (state !== undefined && state.parent === parent && state.key === key) {
+    if (state?.parent === parent && state.key === key) {
         const head = state.before
         hookNode = {
             hook,
@@ -57,7 +57,7 @@ export function before<Key extends PropertyKey, Value extends UnknownFunction>(
             prev: undefined,
             unpatched: false,
         }
-        if (head !== undefined) head.prev = hookNode
+        if (head) head.prev = hookNode
         state.before = hookNode
     } else {
         hookNode = {

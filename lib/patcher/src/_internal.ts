@@ -46,7 +46,7 @@ export interface InsteadHookNode<T extends UnknownFunction = UnknownFunction>
 
 /** @throws {TypeError} When `hookNode` is defined, its hook and that of all other hook nodes in its list must also be defined. */
 function applyHooks<T>(hookNode: HookNode<(arg: T) => T> | undefined, arg: T) {
-    while (hookNode !== undefined) {
+    while (hookNode) {
         // Save a reference to the next hook node in case the current hook calls unpatch.
         const { next, hook } = hookNode
         // Indirectly call the hook so as to not give it access to its hook node.
