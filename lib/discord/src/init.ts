@@ -26,12 +26,20 @@ defineLazyProperty(discord, 'native', function () {
 })
 
 defineLazyProperty(discord, 'modules', function () {
-    return {
-        settings: {
+    const modules = {} as PluginApiDiscord.Modules
+
+    defineLazyProperty(modules, 'mainTabsV2', function () {
+        return require('@revenge-mod/discord/modules/main_tabs_v2')
+    })
+
+    defineLazyProperty(modules, 'settings', function () {
+        return {
             ...require('@revenge-mod/discord/modules/settings'),
             renderer: require('@revenge-mod/discord/modules/settings/renderer'),
-        },
-    }
+        }
+    })
+
+    return modules
 })
 
 _initExts.push((api, { manifest: { id } }) =>
