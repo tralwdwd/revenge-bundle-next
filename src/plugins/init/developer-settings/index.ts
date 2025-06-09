@@ -1,10 +1,10 @@
 import {
     isSettingsModulesLoaded,
     onSettingsModulesLoaded,
+    refreshSettingsOverviewScreen,
 } from '@revenge-mod/discord/modules/settings'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
-import { resetSettingsScreen } from '../settings'
 import type { PluginApi } from '@revenge-mod/plugins/types'
 
 interface Storage {
@@ -41,9 +41,9 @@ registerPlugin<Storage>(
             else onSettingsModulesLoaded(() => require('./utils').register())
 
             if (api_.plugin.flags & PluginFlags.EnabledLate)
-                resetSettingsScreen()
+                refreshSettingsOverviewScreen()
 
-            api_.cleanup(resetSettingsScreen)
+            api_.cleanup(refreshSettingsOverviewScreen)
 
             Promise.all([import('./react-devtools'), api.storage.get()]).then(
                 ([rdt, settings]) => {

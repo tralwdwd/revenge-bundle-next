@@ -1,14 +1,10 @@
 import { _data, _subs } from '@revenge-mod/discord/_/modules/settings'
 import { onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
-import { ReactNavigationNative } from '@revenge-mod/externals/react-navigation'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { after } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
-import { findInTree } from '@revenge-mod/utils/trees'
-import type { NavigationState } from '@react-navigation/core'
-import type { StackScreenProps } from '@react-navigation/stack'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 import type { FC } from 'react'
 
@@ -23,15 +19,6 @@ registerPlugin(
         icon: 'SettingsIcon',
     },
     {
-        init() {
-            const unsub = waitForModules(
-                byProps('getRootNavigationRef'),
-                exports => {
-                    unsub()
-                    navigation = exports.getRootNavigationRef()
-                },
-            )
-        },
         start({ logger }) {
             const unsubRC = waitForModules(
                 byProps<{
@@ -127,50 +114,3 @@ registerPlugin(
     PluginFlags.Enabled,
     InternalPluginFlags.Internal | InternalPluginFlags.Essential,
 )
-
-let navigation: ReturnType<
-    typeof ReactNavigationNative.useNavigation<
-        StackScreenProps<
-            {
-                tabs: undefined
-                settings:
-                    | {
-                          screen: string
-                          params?: Record<string, unknown>
-                      }
-                    | undefined
-            },
-            'settings'
-        >['navigation']
-    >
->
-
-export function resetSettingsScreen() {
-    const prevState = navigation.getState()
-    const settings = findInTree(prevState, node => node.name === 'settings') as
-        | { state: NavigationState }
-        | undefined
-
-    // We're currently not on the settings screen, so we don't need to reset
-    if (!settings) return
-
-    navigation.navigate('tabs')
-
-    setTimeout(() => {
-        // This navigates to the right screen, but then navigates back to the overview screen for some reason
-        navigation.dispatch(
-            ReactNavigationNative.CommonActions.reset(prevState),
-        )
-
-        // So we need to re-push all the routes
-        setTimeout(() => {
-            for (const route of settings.state.routes.slice(1))
-                navigation.dispatch(
-                    ReactNavigationNative.CommonActions.navigate(
-                        route.name,
-                        route.params,
-                    ),
-                )
-        })
-    })
-}

@@ -1,10 +1,10 @@
 import { getStore, Stores } from '@revenge-mod/discord/common/flux'
+import { refreshSettingsOverviewScreen } from '@revenge-mod/discord/modules/settings'
 import { byProps } from '@revenge-mod/modules/finders/filters'
 import { getModule } from '@revenge-mod/modules/finders/get'
 import { instead } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
-import { resetSettingsScreen } from '../settings'
 
 registerPlugin(
     {
@@ -15,29 +15,26 @@ registerPlugin(
         icon: 'StaffBadgeIcon',
     },
     {
-        start({ cleanup, logger, plugin }) {
-            if (plugin.flags & PluginFlags.EnabledLate) resetSettingsScreen()
+        start({ cleanup, logger }) {
+            function reset() {
+                getStore<{ initialize(): void }>(
+                    'DeveloperExperimentStore',
+                    store => {
+                        logger.log(
+                            'Reinitializing DeveloperExperimentStore to apply changes...',
+                        )
 
-            function reinitDEStore() {
-                cleanup(
-                    getStore<{ initialize(): void }>(
-                        'DeveloperExperimentStore',
-                        store => {
-                            logger.log(
-                                'Reinitializing DeveloperExperimentStore to apply changes...',
-                            )
+                        const unpatch = instead(
+                            Object,
+                            'defineProperties',
+                            args => args[0],
+                        )
 
-                            setTimeout(() => {
-                                const unpatch = instead(
-                                    Object,
-                                    'defineProperties',
-                                    () => {},
-                                )
-                                store.initialize()
-                                unpatch()
-                            })
-                        },
-                    ),
+                        store.initialize()
+                        unpatch()
+
+                        setImmediate(() => refreshSettingsOverviewScreen(true))
+                    },
                 )
             }
 
@@ -52,12 +49,11 @@ registerPlugin(
                             ([user]) =>
                                 user === Stores.UserStore.getCurrentUser(),
                         ),
+                        reset,
                     )
 
-                    reinitDEStore()
+                    reset()
                 }),
-                reinitDEStore,
-                resetSettingsScreen,
             )
         },
     },
