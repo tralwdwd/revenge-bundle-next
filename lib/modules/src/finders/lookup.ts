@@ -90,7 +90,7 @@ export type LookupModuleIdsOptions<
  */
 export function lookupModules<F extends Filter>(
     filter: F,
-): Generator<LookupModulesResult<F, never>, undefined>
+): Generator<LookupModulesResult<F, object>, undefined>
 
 export function lookupModules<
     F extends O extends BaseLookupModulesOptions<true>
@@ -139,7 +139,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
  */
 export function lookupModule<F extends Filter>(
     filter: F,
-): LookupModulesResult<F, never> | []
+): LookupModulesResult<F, object> | []
 
 export function lookupModule<F extends Filter, O extends LookupModulesOptions>(
     filter: F,
