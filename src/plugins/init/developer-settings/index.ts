@@ -47,7 +47,7 @@ registerPlugin<Storage>(
 
             Promise.all([import('./react-devtools'), api.storage.get()]).then(
                 ([rdt, settings]) => {
-                    if (settings.devtools.autoConnect) rdt.connectToDevTools()
+                    if (settings.devtools.autoConnect) rdt.connect()
                 },
             )
         },

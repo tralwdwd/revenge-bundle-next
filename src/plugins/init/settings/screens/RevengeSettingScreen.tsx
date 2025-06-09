@@ -1,6 +1,6 @@
 import { Design } from '@revenge-mod/discord/design'
 import { SettingListRenderer } from '@revenge-mod/discord/modules/settings/renderer'
-import { MobileSetting } from '../constants'
+import { Setting } from '../constants'
 
 export default function RevengeSettingScreen() {
     return (
@@ -9,9 +9,9 @@ export default function RevengeSettingScreen() {
                 {
                     label: 'Revenge',
                     settings: [
-                        MobileSetting.REVENGE_VERSION,
-                        MobileSetting.REVENGE_DISCORD_SERVER,
-                        MobileSetting.REVENGE_GITHUB_ORGANIZATION,
+                        Setting.RevengeVersion,
+                        Setting.RevengeDiscord,
+                        Setting.RevengeGitHub,
                     ],
                     subLabel: (
                         <>
@@ -31,14 +31,14 @@ export default function RevengeSettingScreen() {
                 {
                     label: 'Versions',
                     settings: [
-                        MobileSetting.REACT_VERSION,
-                        MobileSetting.REACT_NATIVE_VERSION,
-                        MobileSetting.HERMES_VERSION,
+                        Setting.ReactVersion,
+                        Setting.ReactNativeVersion,
+                        Setting.HermesVersion,
                     ],
                 },
                 {
                     label: 'Actions',
-                    settings: [MobileSetting.RELOAD_APP],
+                    settings: [Setting.Reload],
                 },
             ]}
         />

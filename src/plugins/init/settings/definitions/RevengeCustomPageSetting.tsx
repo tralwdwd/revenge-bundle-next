@@ -1,4 +1,4 @@
-import { MobileSetting, UserSettingsSections } from '../constants'
+import { RouteNames, Setting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const RevengeCustomPageSetting: SettingsItem = {
@@ -7,7 +7,7 @@ const RevengeCustomPageSetting: SettingsItem = {
     type: 'route',
     unsearchable: true,
     screen: {
-        route: UserSettingsSections[MobileSetting.REVENGE_CUSTOM_PAGE],
+        route: RouteNames[Setting.RevengeCustomPage],
         getComponent: () =>
             require('../screens/RevengeCustomPageScreen').default,
     },

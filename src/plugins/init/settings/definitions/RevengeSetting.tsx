@@ -1,6 +1,6 @@
 import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import RevengeIcon from '~assets/RevengeIcon'
-import { MobileSetting, UserSettingsSections } from '../constants'
+import { RouteNames, Setting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const RevengeSetting: SettingsItem = {
@@ -11,7 +11,7 @@ const RevengeSetting: SettingsItem = {
     useTrailing: () =>
         `${__BUILD_VERSION__}-${__BUILD_COMMIT__}-${__BUILD_BRANCH__}`,
     screen: {
-        route: UserSettingsSections[MobileSetting.REVENGE],
+        route: RouteNames[Setting.Revenge],
         getComponent: () => require('../screens/RevengeSettingScreen').default,
     },
 }

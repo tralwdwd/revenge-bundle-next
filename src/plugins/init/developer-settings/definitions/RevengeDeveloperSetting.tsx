@@ -1,5 +1,5 @@
 import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
-import { MobileSetting, UserSettingsSections } from '../constants'
+import { RouteNames, Setting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const RevengeDeveloperSetting: SettingsItem = {
@@ -8,7 +8,7 @@ const RevengeDeveloperSetting: SettingsItem = {
     IconComponent: () => <TableRowAssetIcon name="WrenchIcon" />,
     title: () => 'Developer',
     screen: {
-        route: UserSettingsSections[MobileSetting.REVENGE_DEVELOPER],
+        route: RouteNames[Setting.RevengeDeveloper],
         getComponent: () =>
             require('../screens/RevengeDeveloperSettingScreen').default,
     },

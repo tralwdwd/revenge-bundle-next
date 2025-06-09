@@ -5,16 +5,16 @@ import { useReRender } from '@revenge-mod/utils/react'
 import { useEffect } from 'react'
 import { api } from '.'
 
-export const DevToolsContext: {
+export const RDTContext: {
     ws: WebSocket | undefined
-    address: string
-    open: boolean
-    available: boolean
+    addr: string
+    con: boolean
+    active: boolean
 } = {
-    available: Boolean(globalThis.__REACT_DEVTOOLS__),
+    active: Boolean(globalThis.__REACT_DEVTOOLS__),
     ws: undefined,
-    address: 'localhost:8097',
-    open: false,
+    addr: 'localhost:8097',
+    con: false,
 }
 
 type Subscription = (event: 1 | 2 | 3, err?: unknown) => void
@@ -41,15 +41,13 @@ subscriptions.add((e, err) => {
     }
 })
 
-export function connectToDevTools() {
-    if (!DevToolsContext.available || DevToolsContext.ws) return
+export function connect() {
+    if (!RDTContext.active || RDTContext.ws) return
 
-    const websocket = (DevToolsContext.ws = new WebSocket(
-        `ws://${DevToolsContext.address}`,
-    ))
+    const websocket = (RDTContext.ws = new WebSocket(`ws://${RDTContext.addr}`))
 
     websocket.addEventListener('open', () => {
-        DevToolsContext.open = true
+        RDTContext.con = true
         for (const sub of subscriptions) sub(1)
     })
 
@@ -69,15 +67,15 @@ export function connectToDevTools() {
 }
 
 function cleanup() {
-    DevToolsContext.open = false
-    DevToolsContext.ws = undefined
+    RDTContext.con = false
+    RDTContext.ws = undefined
 }
 
-export function disconnectFromDevTools() {
-    if (DevToolsContext.ws) DevToolsContext.ws.close()
+export function disconnect() {
+    if (RDTContext.ws) RDTContext.ws.close()
 }
 
-export function useIsDevToolsOpen() {
+export function useIsConnected() {
     const rerender = useReRender()
 
     useEffect(() => {
@@ -89,5 +87,5 @@ export function useIsDevToolsOpen() {
         }
     }, [rerender])
 
-    return DevToolsContext.open
+    return RDTContext.con
 }

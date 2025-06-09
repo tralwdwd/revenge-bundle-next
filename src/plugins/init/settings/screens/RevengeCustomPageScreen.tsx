@@ -1,14 +1,14 @@
 import { useEffect } from 'react'
 import type { StackScreenProps } from '@react-navigation/stack'
 import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
-import type { MobileSetting, UserSettingsSections } from '../constants'
+import type { RouteNames, Setting } from '../constants'
 
 export default function RevengeCustomPageScreen({
     route,
     navigation,
 }: StackScreenProps<
     ReactNavigationParamList,
-    (typeof UserSettingsSections)[(typeof MobileSetting)['REVENGE_CUSTOM_PAGE']]
+    (typeof RouteNames)[(typeof Setting)['RevengeCustomPage']]
 >) {
     const { render: PageComponent, options } = route.params
 

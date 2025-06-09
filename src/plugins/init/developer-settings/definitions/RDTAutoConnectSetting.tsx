@@ -1,16 +1,16 @@
 import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import { api } from '..'
-import { MobileSetting } from '../constants'
-import { DevToolsContext } from '../react-devtools'
+import { Setting } from '../constants'
+import { RDTContext } from '../react-devtools'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
-const ReactDevToolsAutoConnectSetting: SettingsItem = {
-    parent: MobileSetting.REVENGE_DEVELOPER,
+const RDTAutoConnectSetting: SettingsItem = {
+    parent: Setting.RevengeDeveloper,
     IconComponent: () => <TableRowAssetIcon name="LinkIcon" />,
     title: () => 'Auto-connect to React DevTools',
     useDescription: () =>
         'Automatically connect to React DevTools during startup.',
-    usePredicate: () => DevToolsContext.available,
+    usePredicate: () => RDTContext.active,
     useValue: () =>
         api.storage.use(s => s.devtools?.autoConnect !== undefined)!.devtools
             .autoConnect,
@@ -18,4 +18,4 @@ const ReactDevToolsAutoConnectSetting: SettingsItem = {
     type: 'toggle',
 }
 
-export default ReactDevToolsAutoConnectSetting
+export default RDTAutoConnectSetting

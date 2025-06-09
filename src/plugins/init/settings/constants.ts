@@ -1,30 +1,28 @@
-export const MobileSetting = {
+export const Setting = {
     // MAIN SETTINGS
 
-    REVENGE: 'REVENGE',
-    REVENGE_PLUGINS: 'REVENGE_PLUGINS',
-    REVENGE_THEMES: 'REVENGE_THEMES',
-    REVENGE_FONTS: 'REVENGE_FONTS',
-    REVENGE_CUSTOM_PAGE: 'REVENGE_CUSTOM_PAGE',
+    Revenge: 'Revenge',
+    RevengePlugins: 'RevengePlugins',
+    RevengeThemes: 'RevengeThemes',
+    RevengeFonts: 'RevengeFonts',
+    RevengeCustomPage: 'RevengeCustomPage',
 
     // SUBSETTINGS
 
-    REVENGE_DISCORD_SERVER: 'REVENGE_DISCORD_SERVER',
-    REVENGE_GITHUB_ORGANIZATION: 'REVENGE_GITHUB_ORGANIZATION',
-    RELOAD_APP: 'RELOAD_APP',
+    RevengeDiscord: 'RevengeDiscord',
+    RevengeGitHub: 'RevengeGitHub',
+    Reload: 'Reload',
 
-    REVENGE_VERSION: 'REVENGE_VERSION',
-    REACT_VERSION: 'REACT_VERSION',
-    REACT_NATIVE_VERSION: 'REACT_NATIVE_VERSION',
-    HERMES_VERSION: 'HERMES_VERSION',
-
-    REVENGE_NOT_IMPLEMENTED: 'REVENGE_NOT_IMPLEMENTED',
+    RevengeVersion: 'RevengeVersion',
+    ReactVersion: 'ReactVersion',
+    ReactNativeVersion: 'ReactNativeVersion',
+    HermesVersion: 'HermesVersion',
 } as const
 
-export const UserSettingsSections = {
-    [MobileSetting.REVENGE]: 'Revenge',
-    [MobileSetting.REVENGE_PLUGINS]: 'Revenge Plugins',
-    [MobileSetting.REVENGE_THEMES]: 'Revenge Themes',
-    [MobileSetting.REVENGE_FONTS]: 'Revenge Fonts',
-    [MobileSetting.REVENGE_CUSTOM_PAGE]: 'Revenge Custom Page',
+export const RouteNames = {
+    [Setting.Revenge]: 'Revenge',
+    [Setting.RevengePlugins]: 'Revenge Plugins',
+    [Setting.RevengeThemes]: 'Revenge Themes',
+    [Setting.RevengeFonts]: 'Revenge Fonts',
+    [Setting.RevengeCustomPage]: 'Revenge Custom Page',
 } as const

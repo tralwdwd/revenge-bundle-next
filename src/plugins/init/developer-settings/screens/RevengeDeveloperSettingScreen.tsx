@@ -4,8 +4,8 @@ import { SettingListRenderer } from '@revenge-mod/discord/modules/settings/rende
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 import { View } from 'react-native'
 import { api } from '..'
-import { MobileSetting } from '../constants'
-import { DevToolsContext, useIsDevToolsOpen } from '../react-devtools'
+import { Setting } from '../constants'
+import { RDTContext, useIsConnected } from '../react-devtools'
 
 const CircleCheckIcon = lookupGeneratedIconComponent(
     'CircleCheckIcon',
@@ -17,7 +17,7 @@ const CircleCheckIcon = lookupGeneratedIconComponent(
 export default function RevengeDeveloperSettingScreen() {
     return (
         <Design.Stack spacing={0} style={{ flexGrow: 1 }}>
-            {globalThis.__REACT_DEVTOOLS__ && <ReactDevToolsAddressSetting />}
+            {globalThis.__REACT_DEVTOOLS__ && <RDTAddrSetting />}
             <SettingListRenderer.SettingsList
                 sections={[
                     {
@@ -25,18 +25,15 @@ export default function RevengeDeveloperSettingScreen() {
                     },
                     {
                         settings: [
-                            MobileSetting.REACT_DEVTOOLS_VERSION,
-                            MobileSetting.REACT_DEVTOOLS_AUTO_CONNECT,
-                            MobileSetting.REACT_DEVTOOLS_CONNECT,
-                            MobileSetting.REACT_DEVTOOLS_DISCONNECT,
+                            Setting.RDTVersion,
+                            Setting.RDTAutoConnect,
+                            Setting.RDTConnect,
+                            Setting.RDTDisconnect,
                         ],
                     },
                     {
                         label: 'Tools',
-                        settings: [
-                            MobileSetting.EVALUATE_JAVASCRIPT,
-                            MobileSetting.ASSET_BROWSER,
-                        ],
+                        settings: [Setting.EvalJS, Setting.AssetBrowser],
                     },
                 ]}
             />
@@ -44,16 +41,14 @@ export default function RevengeDeveloperSettingScreen() {
     )
 }
 
-export function ReactDevToolsAddressSetting() {
-    const open = useIsDevToolsOpen()
+export function RDTAddrSetting() {
+    const open = useIsConnected()
     const settings = api.storage.use(s => s.devtools?.address)
 
     return (
         <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
             <Design.TextInput
-                defaultValue={
-                    settings?.devtools.address ?? DevToolsContext.address
-                }
+                defaultValue={settings?.devtools.address ?? RDTContext.addr}
                 editable={!open}
                 isDisabled={open}
                 label="React DevTools"
@@ -62,7 +57,7 @@ export function ReactDevToolsAddressSetting() {
                     api.storage
                         .set({
                             devtools: {
-                                address: DevToolsContext.address,
+                                address: RDTContext.addr,
                             },
                         })
                         .then(() => {
@@ -73,7 +68,7 @@ export function ReactDevToolsAddressSetting() {
                             })
                         })
                 }}
-                onChange={text => (DevToolsContext.address = text)}
+                onChange={text => (RDTContext.addr = text)}
                 returnKeyType="done"
             />
         </View>

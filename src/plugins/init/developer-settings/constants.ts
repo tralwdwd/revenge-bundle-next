@@ -1,19 +1,19 @@
-export const MobileSetting = {
+export const Setting = {
     // MAIN SETTINGS
 
-    REVENGE_DEVELOPER: 'REVENGE_DEVELOPER',
+    RevengeDeveloper: 'RevengeDeveloper',
 
     // SUBSETTINGS
 
-    REACT_DEVTOOLS_VERSION: 'REACT_DEVTOOLS_VERSION',
-    REACT_DEVTOOLS_AUTO_CONNECT: 'REACT_DEVTOOLS_AUTO_CONNECT',
-    REACT_DEVTOOLS_CONNECT: 'REACT_DEVTOOLS_CONNECT',
-    REACT_DEVTOOLS_DISCONNECT: 'REACT_DEVTOOLS_DISCONNECT',
-    EVALUATE_JAVASCRIPT: 'EVALUATE_JAVASCRIPT',
-    ASSET_BROWSER: 'ASSET_BROWSER',
+    RDTVersion: 'RDTVersion',
+    RDTAutoConnect: 'RDTAutoConnect',
+    RDTConnect: 'RDTConnect',
+    RDTDisconnect: 'RDTDisconnect',
+    EvalJS: 'EvalJS',
+    AssetBrowser: 'AssetBrowser',
 } as const
 
-export const UserSettingsSections = {
-    [MobileSetting.REVENGE_DEVELOPER]: 'Revenge Developer',
-    [MobileSetting.ASSET_BROWSER]: 'Asset Browser',
+export const RouteNames = {
+    [Setting.RevengeDeveloper]: 'Revenge Developer',
+    [Setting.AssetBrowser]: 'Asset Browser',
 } as const

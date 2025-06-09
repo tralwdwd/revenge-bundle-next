@@ -5,18 +5,17 @@ import { nodeUtil } from '@revenge-mod/externals/browserify'
 import { getErrorStack } from '@revenge-mod/utils/errors'
 import { useRef, useState } from 'react'
 import { api } from '..'
-import { MobileSetting } from '../constants'
+import { Setting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const ALERT_KEY = 'evaluate-javascript'
 
-const EvaluateJavaScriptSetting: SettingsItem = {
-    parent: MobileSetting.REVENGE_DEVELOPER,
+const EvalJSSetting: SettingsItem = {
+    parent: Setting.RevengeDeveloper,
     IconComponent: () => <TableRowAssetIcon name="FileIcon" />,
     title: () => 'Evaluate JavaScript',
     useDescription: () => 'Runs a JavaScript code snippet.',
-    onPress: () =>
-        AlertActionCreators.openAlert(ALERT_KEY, <EvaluateJavaScriptAlert />),
+    onPress: () => AlertActionCreators.openAlert(ALERT_KEY, <EvalJSAlert />),
     type: 'pressable',
 }
 
@@ -33,7 +32,7 @@ const {
     TextArea,
 } = Design
 
-function EvaluateJavaScriptAlert() {
+function EvalJSAlert() {
     const code = useRef('')
     const [awaitResult, setAwaitResult] = useState(true)
     const [showHidden, setShowHidden] = useState(true)
@@ -141,4 +140,4 @@ function EvaluateJavaScriptAlert() {
     )
 }
 
-export default EvaluateJavaScriptSetting
+export default EvalJSSetting

@@ -1,14 +1,14 @@
 import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
-import { MobileSetting, UserSettingsSections } from '../constants'
+import { RouteNames, Setting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const AssetBrowserSetting: SettingsItem = {
-    parent: MobileSetting.REVENGE_DEVELOPER,
+    parent: Setting.RevengeDeveloper,
     type: 'route',
     IconComponent: () => <TableRowAssetIcon name="ImageIcon" />,
     title: () => 'Asset Browser',
     screen: {
-        route: UserSettingsSections[MobileSetting.ASSET_BROWSER],
+        route: RouteNames[Setting.AssetBrowser],
         getComponent: () =>
             require('../screens/AssetBrowserSettingScreen').default,
     },

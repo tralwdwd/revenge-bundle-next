@@ -3,28 +3,26 @@ import {
     registerSettingsItems,
 } from '@revenge-mod/discord/modules/settings'
 import { api } from '.'
-import { MobileSetting } from './constants'
+import { Setting } from './constants'
 import AssetBrowserSetting from './definitions/AssetBrowserSetting'
-import EvaluateJavaScriptSetting from './definitions/EvaluateJavaScriptSetting'
-import ReactDevToolsAutoConnectSetting from './definitions/ReactDevToolsAutoConnectSetting'
-import ReactDevToolsConnectSetting from './definitions/ReactDevToolsConnectSetting'
-import ReactDevToolsDisconnectSetting from './definitions/ReactDevToolsDisconnectSetting'
-import ReactDevToolsVersionSetting from './definitions/ReactDevToolsVersionSetting'
+import EvalJSSetting from './definitions/EvalJSSetting'
+import RDTAutoConnectSetting from './definitions/RDTAutoConnectSetting'
+import RDTConnectSetting from './definitions/RDTConnectSetting'
+import RDTDisconnectSetting from './definitions/RDTDisconnectSetting'
+import RDTVersionSetting from './definitions/RDTVersionSetting'
 import RevengeDeveloperSetting from './definitions/RevengeDeveloperSetting'
 
 export function register() {
     api.cleanup(
         registerSettingsItems({
-            [MobileSetting.REVENGE_DEVELOPER]: RevengeDeveloperSetting,
-            [MobileSetting.REACT_DEVTOOLS_VERSION]: ReactDevToolsVersionSetting,
-            [MobileSetting.REACT_DEVTOOLS_AUTO_CONNECT]:
-                ReactDevToolsAutoConnectSetting,
-            [MobileSetting.REACT_DEVTOOLS_CONNECT]: ReactDevToolsConnectSetting,
-            [MobileSetting.REACT_DEVTOOLS_DISCONNECT]:
-                ReactDevToolsDisconnectSetting,
-            [MobileSetting.EVALUATE_JAVASCRIPT]: EvaluateJavaScriptSetting,
-            [MobileSetting.ASSET_BROWSER]: AssetBrowserSetting,
+            [Setting.RevengeDeveloper]: RevengeDeveloperSetting,
+            [Setting.RDTVersion]: RDTVersionSetting,
+            [Setting.RDTAutoConnect]: RDTAutoConnectSetting,
+            [Setting.RDTConnect]: RDTConnectSetting,
+            [Setting.RDTDisconnect]: RDTDisconnectSetting,
+            [Setting.EvalJS]: EvalJSSetting,
+            [Setting.AssetBrowser]: AssetBrowserSetting,
         }),
-        addSettingsItemToSection('REVENGE', MobileSetting.REVENGE_DEVELOPER),
+        addSettingsItemToSection('REVENGE', Setting.RevengeDeveloper),
     )
 }

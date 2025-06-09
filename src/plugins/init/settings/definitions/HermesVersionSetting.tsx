@@ -1,12 +1,12 @@
 import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
-import { MobileSetting } from '../constants'
+import { Setting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 // @ts-expect-error
 const props = HermesInternal.getRuntimeProperties()
 
 const HermesVersionSetting: SettingsItem = {
-    parent: MobileSetting.REVENGE,
+    parent: Setting.Revenge,
     IconComponent: () => <TableRowAssetIcon name="TranscriptOutlineIcon" />,
     title: () => 'Hermes',
     useDescription: () => `${props['Bytecode Version']} (${props.Build})`,
