@@ -9,3 +9,6 @@ export type LogicalOr<T1, T2> = T1 extends true
 export type DeepPartial<T> = {
     [K in keyof T]?: T[K] extends AnyObject ? DeepPartial<T[K]> : T[K]
 }
+export type ExtractPredicate<T> = T extends (arg: any) => arg is infer R
+    ? R
+    : never
