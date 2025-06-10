@@ -4,6 +4,7 @@ import Page from '@revenge-mod/components/Page'
 import SearchInput from '@revenge-mod/components/SearchInput'
 import { Tokens } from '@revenge-mod/discord/common'
 import { Design } from '@revenge-mod/discord/design'
+import { RootNavigationRef } from '@revenge-mod/discord/modules/main_tabs_v2'
 import { FlashList } from '@revenge-mod/externals/shopify'
 import {
     _metas,
@@ -17,9 +18,11 @@ import {
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { debounce } from '@revenge-mod/utils/callbacks'
 import { useReRender } from '@revenge-mod/utils/react'
-import { useCallback, useMemo, useState } from 'react'
+import { createElement, useCallback, useMemo, useState } from 'react'
 import { Image, useWindowDimensions } from 'react-native'
+import { RouteNames, Setting } from '../constants'
 import type { InternalPlugin } from '@revenge-mod/plugins/_'
+import type { PluginApi } from '@revenge-mod/plugins/types'
 
 const { Card, Text, Stack } = Design
 
@@ -141,6 +144,14 @@ function InstalledPluginCard({
                     />
                     <Text variant="heading-lg/semibold">{name}</Text>
                 </Stack>
+                {plugin.SettingsComponent && (
+                    <Design.IconButton
+                        size="sm"
+                        variant="secondary"
+                        icon={getAssetIdByName('SettingsIcon')!}
+                        onPress={() => navigatePluginSettings(plugin)}
+                    />
+                )}
                 <FormSwitch
                     disabled={essential}
                     // biome-ignore lint/complexity/useArrowFunction: Async arrows are not supported
@@ -175,4 +186,22 @@ function InstalledPluginCard({
             </Stack>
         </Card>
     )
+}
+
+// TODO(plugins/settings): Register a custom route instead, so plugin "settings" can actually be pinned and navigated to without hassle.
+// This would require us to implement the event-based plugin management system first, so we can listen to plugin enable/disable events and update the settings accordingly.
+export function navigatePluginSettings(plugin: InternalPlugin) {
+    const [api] = _metas.get(plugin.manifest.id)!
+    const navigation = RootNavigationRef.getRootNavigationRef()
+    if (!navigation.isReady()) return
+
+    navigation.navigate(RouteNames[Setting.RevengeCustomPage], {
+        render: () =>
+            createElement(plugin.SettingsComponent!, {
+                api: api as PluginApi,
+            }),
+        options: {
+            title: plugin.manifest.name,
+        },
+    })
 }
