@@ -2,6 +2,7 @@ import { getAssetIdByName } from '@revenge-mod/assets'
 import FormSwitch from '@revenge-mod/components/FormSwitch'
 import Page from '@revenge-mod/components/Page'
 import SearchInput from '@revenge-mod/components/SearchInput'
+import { ActionSheetActionCreators } from '@revenge-mod/discord/actions'
 import { Tokens } from '@revenge-mod/discord/common'
 import { Stores } from '@revenge-mod/discord/common/flux'
 import { Design } from '@revenge-mod/discord/design'
@@ -20,17 +21,34 @@ import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { debounce } from '@revenge-mod/utils/callbacks'
 import { useReRender } from '@revenge-mod/utils/react'
 import { createElement, useCallback, useMemo, useState } from 'react'
-import { Image, useWindowDimensions } from 'react-native'
+import { Image, StyleSheet, useWindowDimensions, View } from 'react-native'
 import { RouteNames, Setting } from '../constants'
 import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
 import type { InternalPlugin } from '@revenge-mod/plugins/_'
 import type { PluginApi } from '@revenge-mod/plugins/types'
+import type { FilterAndSortActionSheetProps } from '../components/FilterAndSortActionSheet'
 
-const { Card, Text, Stack } = Design
+const { Card, Text, Stack, IconButton } = Design
+
+const FilterAndSortActionSheetKey = 'filter-and-sort-plugins'
+
+const Sorts = {
+    'Name (A-Z)': (a, b) => a.manifest.name.localeCompare(b.manifest.name),
+    'Name (Z-A)': (a, b) => b.manifest.name.localeCompare(a.manifest.name),
+    'Enabled first': (a, b) =>
+        Number(Boolean(b.flags & PluginFlags.Enabled)) -
+        Number(a.flags & PluginFlags.Enabled),
+    'Disabled first': (a, b) =>
+        Number(a.flags & PluginFlags.Enabled) -
+        Number(b.flags & PluginFlags.Enabled),
+} as const satisfies FilterAndSortActionSheetProps<string>['sorts']
+
+const DefaultSort: keyof typeof Sorts = 'Name (A-Z)'
 
 export default function RevengePluginsSettingScreen() {
     const [search, setSearch] = useState('')
     const debouncedSetSearch = useCallback(debounce(setSearch, 100), [])
+    const [sort, setSort] = useState(DefaultSort)
 
     const { width } = useWindowDimensions()
     const numColumns = Math.floor((width - 16) / 448)
@@ -45,24 +63,51 @@ export default function RevengePluginsSettingScreen() {
 
     const filteredPlugins = useMemo(
         () =>
-            plugins.filter(([plugin]) => {
-                const { name, description, author } = plugin.manifest
-                const query = search.toLowerCase()
-                return (
-                    name.toLowerCase().includes(query) ||
-                    description.toLowerCase().includes(query) ||
-                    author.toLowerCase().includes(query)
-                )
-            }),
-        [plugins, search],
+            plugins
+                .filter(([plugin]) => {
+                    const { name, description, author } = plugin.manifest
+                    const query = search.toLowerCase()
+                    return (
+                        name.toLowerCase().includes(query) ||
+                        description.toLowerCase().includes(query) ||
+                        author.toLowerCase().includes(query)
+                    )
+                })
+                .slice()
+                .sort(([a], [b]) => Sorts[sort](a, b)),
+        [plugins, search, sort],
     )
 
     return (
         <Page spacing={16}>
-            <SearchInput
-                onChange={(v: string) => debouncedSetSearch(v)}
-                size="md"
-            />
+            <Design.Stack direction="horizontal">
+                <View style={styles.flex}>
+                    <SearchInput
+                        onChange={(v: string) => debouncedSetSearch(v)}
+                        size="md"
+                    />
+                </View>
+                <IconButton
+                    icon={getAssetIdByName('ArrowsUpDownIcon')!}
+                    variant="tertiary"
+                    onPress={() =>
+                        ActionSheetActionCreators.openLazy(
+                            import('../components/FilterAndSortActionSheet'),
+                            FilterAndSortActionSheetKey,
+                            {
+                                sorts: Sorts,
+                                selectedSort: sort,
+                                onSelectSort: key => {
+                                    setSort(key as keyof typeof Sorts)
+                                    ActionSheetActionCreators.hideActionSheet(
+                                        FilterAndSortActionSheetKey,
+                                    )
+                                },
+                            },
+                        )
+                    }
+                />
+            </Design.Stack>
             <FlashList.MasonryFlashList
                 data={filteredPlugins}
                 estimatedItemSize={108}
@@ -79,6 +124,12 @@ export default function RevengePluginsSettingScreen() {
         </Page>
     )
 }
+
+const styles = StyleSheet.create({
+    flex: {
+        flex: 1,
+    },
+})
 
 const usePluginCardStyles = Design.createStyles({
     icon: {
@@ -102,12 +153,6 @@ const usePluginCardStyles = Design.createStyles({
     alignedContainer: {
         paddingLeft: 28,
     },
-    grow: {
-        flexGrow: 1,
-    },
-    autoSize: {
-        flex: 1,
-    },
 })
 
 function InstalledPluginCard({
@@ -127,22 +172,22 @@ function InstalledPluginCard({
     const reRender = useReRender()
     const essential = Boolean(iflags & InternalPluginFlags.Essential)
     const enabled = Boolean(flags & PluginFlags.Enabled)
-    const styles = usePluginCardStyles()
+    const styles_ = usePluginCardStyles()
 
     return (
-        <Card style={[styles.card, rightGap && styles.rightGap]}>
+        <Card style={[styles_.card, rightGap && styles_.rightGap]}>
             <Stack
                 direction="horizontal"
-                style={[styles.grow, styles.topContainer]}
+                style={[styles.flex, styles_.topContainer]}
             >
                 <Stack
                     direction="horizontal"
                     spacing={8}
-                    style={[styles.topContainer, styles.autoSize]}
+                    style={[styles_.topContainer, styles.flex]}
                 >
                     <Image
                         source={getAssetIdByName(icon ?? 'PuzzlePieceIcon')!}
-                        style={styles.icon}
+                        style={styles_.icon}
                     />
                     <Text variant="heading-lg/semibold">{name}</Text>
                 </Stack>
@@ -167,6 +212,10 @@ function InstalledPluginCard({
 
                         reRender()
 
+                        // TODO(plugins/settings): handle sorting after plugin enabled/disabled
+                        // make an event based system for this, so we can register a listener for when plugins are disabled or enabled
+                        // and sort the list again afterwards
+
                         // TODO(plugins/settings): show ReloadRequired modal
                         // make an event based system for this, so we can register a listener for when plugins are disabled
                         // and check its flags afterwards
@@ -174,15 +223,15 @@ function InstalledPluginCard({
                     value={enabled}
                 />
             </Stack>
-            <Stack spacing={4} style={[styles.alignedContainer, styles.grow]}>
+            <Stack spacing={4} style={[styles_.alignedContainer, styles.flex]}>
                 <Text
                     color="text-muted"
-                    style={styles.grow}
+                    style={styles.flex}
                     variant="heading-md/medium"
                 >
                     by {author}
                 </Text>
-                <Text style={styles.grow} variant="text-md/medium">
+                <Text style={styles.flex} variant="text-md/medium">
                     {description}
                 </Text>
             </Stack>
