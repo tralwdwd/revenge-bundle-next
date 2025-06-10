@@ -3,6 +3,7 @@ import FormSwitch from '@revenge-mod/components/FormSwitch'
 import Page from '@revenge-mod/components/Page'
 import SearchInput from '@revenge-mod/components/SearchInput'
 import { Tokens } from '@revenge-mod/discord/common'
+import { Stores } from '@revenge-mod/discord/common/flux'
 import { Design } from '@revenge-mod/discord/design'
 import { RootNavigationRef } from '@revenge-mod/discord/modules/main_tabs_v2'
 import { FlashList } from '@revenge-mod/externals/shopify'
@@ -21,6 +22,7 @@ import { useReRender } from '@revenge-mod/utils/react'
 import { createElement, useCallback, useMemo, useState } from 'react'
 import { Image, useWindowDimensions } from 'react-native'
 import { RouteNames, Setting } from '../constants'
+import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
 import type { InternalPlugin } from '@revenge-mod/plugins/_'
 import type { PluginApi } from '@revenge-mod/plugins/types'
 
@@ -192,7 +194,8 @@ function InstalledPluginCard({
 // This would require us to implement the event-based plugin management system first, so we can listen to plugin enable/disable events and update the settings accordingly.
 export function navigatePluginSettings(plugin: InternalPlugin) {
     const [api] = _metas.get(plugin.manifest.id)!
-    const navigation = RootNavigationRef.getRootNavigationRef()
+    const navigation =
+        RootNavigationRef.getRootNavigationRef<ReactNavigationParamList>()
     if (!navigation.isReady()) return
 
     navigation.navigate(RouteNames[Setting.RevengeCustomPage], {
@@ -200,8 +203,34 @@ export function navigatePluginSettings(plugin: InternalPlugin) {
             createElement(plugin.SettingsComponent!, {
                 api: api as PluginApi,
             }),
-        options: {
-            title: plugin.manifest.name,
-        },
+        options: plugin.manifest.icon
+            ? {
+                  headerTitle: () => (
+                      <Design.NavigatorHeader
+                          icon={
+                              <Image
+                                  style={{
+                                      width: 24,
+                                      height: 24,
+                                      marginEnd: 8,
+                                      tintColor:
+                                          Tokens.default.internal.resolveSemanticColor(
+                                              Stores.ThemeStore.theme,
+                                              Tokens.default.colors
+                                                  .HEADER_PRIMARY,
+                                          ),
+                                  }}
+                                  source={getAssetIdByName(
+                                      plugin.manifest.icon!,
+                                  )}
+                              />
+                          }
+                          title={plugin.manifest.name}
+                      />
+                  ),
+              }
+            : {
+                  title: plugin.manifest.name,
+              },
     })
 }
