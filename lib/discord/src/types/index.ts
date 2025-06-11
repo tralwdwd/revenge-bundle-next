@@ -6,6 +6,7 @@ import type {
     TextInputProps as RNTextInputProps,
     TextProps as RNTextProps,
     TextStyle,
+    View,
     ViewProps,
     ViewStyle,
 } from 'react-native'
@@ -107,7 +108,7 @@ export namespace DiscordModules {
     export interface AppStartPerformance {
         mark(...args: AppStartPerformance.MarkArgs): void
         markAndLog(
-            logger: InstanceType<DiscordModules.Logger>,
+            logger: InstanceType<Logger>,
             ...args: AppStartPerformance.MarkArgs
         ): void
         [index: string]: unknown
@@ -537,6 +538,13 @@ export namespace DiscordModules {
         }
 
         export type NavigatorHeader = FC<NavigatorHeaderProps>
+
+        export interface LayerScopeProps {
+            children?: ReactNode
+            zIndex?: number
+        }
+
+        export type LayerScope = FC<LayerScopeProps>
     }
 
     export namespace Modules {
@@ -566,7 +574,7 @@ export namespace DiscordModules {
                 title: () => string
                 parent: string | null
                 unsearchable?: boolean
-                variant?: DiscordModules.Components.TableRowProps['variant']
+                variant?: Components.TableRowProps['variant']
                 IconComponent?: () => ReactNode
                 usePredicate?: () => boolean
                 useTrailing?: () => ReactNode
