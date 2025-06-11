@@ -146,31 +146,6 @@ export namespace DiscordModules {
         }
     }
 
-    export namespace Styles {
-        export type TextType = 'heading' | 'text'
-        export type BasicTextSize = 'sm' | 'md' | 'lg'
-        export type BasicTextSizeWithExtraLarges = BasicTextSize | 'xl' | 'xxl'
-        export type TextSize = BasicTextSizeWithExtraLarges | 'xs' | 'xxs'
-        export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
-        export type TextWeightWithExtraBold = TextWeight | 'extrabold'
-        export type RedesignTextCategory = 'message-preview' | 'channel-title'
-
-        export type TextVariant =
-            | `heading-${BasicTextSizeWithExtraLarges}/${TextWeightWithExtraBold}`
-            | `text-${TextSize}/${TextWeight}`
-            | `display-${BasicTextSize}`
-            | `redesign/${RedesignTextCategory}/${TextWeight}`
-            | 'redesign/heading-18/bold'
-            | 'eyebrow'
-
-        export type TextStyleSheet = Record<TextVariant, RNTextProps>
-        export type CreateStylesFunction = <
-            const S extends Record<string, TextStyle | ViewStyle | ImageStyle>,
-        >(
-            styles: S,
-        ) => () => S
-    }
-
     export namespace Actions {
         export interface AlertActionCreators {
             openAlert(key: string, alert: JSX.Element): void
@@ -226,7 +201,54 @@ export namespace DiscordModules {
     }
 
     export namespace Components {
-        export interface BaseButtonProps extends PressableProps {
+        export namespace Styles {
+            export type TextType = 'heading' | 'text'
+            export type BasicTextSize = 'sm' | 'md' | 'lg'
+            export type BasicTextSizeWithExtraLarges =
+                | BasicTextSize
+                | 'xl'
+                | 'xxl'
+            export type TextSize = BasicTextSizeWithExtraLarges | 'xs' | 'xxs'
+            export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
+            export type TextWeightWithExtraBold = TextWeight | 'extrabold'
+            export type RedesignTextCategory =
+                | 'message-preview'
+                | 'channel-title'
+
+            export type TextVariant =
+                | `heading-${BasicTextSizeWithExtraLarges}/${TextWeightWithExtraBold}`
+                | `text-${TextSize}/${TextWeight}`
+                | `display-${BasicTextSize}`
+                | `redesign/${RedesignTextCategory}/${TextWeight}`
+                | 'redesign/heading-18/bold'
+                | 'eyebrow'
+
+            export type TextStyleSheet = Record<TextVariant, RNTextProps>
+            export type CreateStylesFunction = <
+                const S extends Record<
+                    string,
+                    TextStyle | ViewStyle | ImageStyle
+                >,
+            >(
+                styles: S,
+            ) => () => S
+        }
+
+        export type UseTooltipFunction = (
+            ref: React.MutableRefObject<View | null>,
+            props: UseTooltipFunctionProps,
+        ) => unknown
+
+        export interface UseTooltipFunctionProps {
+            label: string
+            position?: 'top' | 'bottom'
+            visible?: boolean
+            onPress?: () => void
+        }
+
+        export interface BaseButtonProps
+            extends PressableProps,
+                React.RefAttributes<View> {
             disabled?: boolean
             size?: ButtonSize
             variant?:
@@ -499,7 +521,7 @@ export namespace DiscordModules {
         }
 
         export interface TextProps extends RNTextProps {
-            variant?: DiscordModules.Styles.TextVariant
+            variant?: Styles.TextVariant
             color?: string
             style?: TextStyle
             lineClamp?: number
