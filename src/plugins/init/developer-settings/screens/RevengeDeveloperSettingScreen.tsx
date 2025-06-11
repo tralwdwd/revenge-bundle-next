@@ -16,7 +16,7 @@ const CircleCheckIcon = lookupGeneratedIconComponent(
 // TODO(plugins/settings): debug bridge
 export default function RevengeDeveloperSettingScreen() {
     return (
-        <Design.Stack spacing={0} style={{ flexGrow: 1 }}>
+        <Design.Stack spacing={0} style={{ flex: 1 }}>
             {globalThis.__REACT_DEVTOOLS__ && <RDTAddrSetting />}
             <SettingListRenderer.SettingsList
                 sections={[

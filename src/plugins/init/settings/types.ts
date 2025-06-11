@@ -13,4 +13,8 @@ type RevengeSettingsParamList = {
         render: ComponentType
         options?: StackNavigationOptions
     }
+} & {
+    [K in (typeof RouteNames)[(typeof Setting)['RevengePlugins']]]: {
+        sort?: string
+    }
 }
