@@ -7,6 +7,7 @@ declare global {
     const __BUILD_VERSION__: string
 
     const __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: boolean
+    const __BUILD_FLAG_DEBUG_MODULE_LOOKUPS: boolean
 
     // CommonJS modules, we don't want to depend on @types/node
     const module: {
