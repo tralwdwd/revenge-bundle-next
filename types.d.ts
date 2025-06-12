@@ -8,6 +8,7 @@ declare global {
 
     const __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: boolean
     const __BUILD_FLAG_DEBUG_MODULE_LOOKUPS: boolean
+    const __BUILD_FLAG_DEBUG_PROXIFIED_VALUES: boolean
 
     // CommonJS modules, we don't want to depend on @types/node
     const module: {
