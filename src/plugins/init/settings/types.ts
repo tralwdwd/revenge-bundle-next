@@ -16,5 +16,8 @@ type RevengeSettingsParamList = {
 } & {
     [K in (typeof RouteNames)[(typeof Setting)['RevengePlugins']]]: {
         sort?: string
+        filter?: string[]
+        matchAll?: boolean
+        reverse?: boolean
     }
 }
