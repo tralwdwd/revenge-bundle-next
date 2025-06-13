@@ -40,5 +40,8 @@
   ],
   "dependencies": {
     "react-native-click-outside": "^0.1.1"
+  },
+  "patchedDependencies": {
+    "react-native-click-outside@0.1.1": "patches/react-native-click-outside@0.1.1.patch"
   }
 }
