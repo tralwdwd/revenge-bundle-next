@@ -4,5 +4,12 @@ export function getErrorStack(e: unknown) {
 
 export function getCurrentStack() {
     const { stack } = new Error()
-    return stack!.split('\n').slice(2).join('\n')
+
+    let newlineCount = 0
+
+    for (let i = 0; i < stack!.length; i++)
+        if (stack![i] === '\n' && newlineCount++ === 1)
+            return stack!.slice(i + 1)
+
+    return stack!.slice(stack!.indexOf('\n') + 1)
 }
