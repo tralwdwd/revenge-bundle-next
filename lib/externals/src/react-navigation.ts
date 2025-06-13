@@ -2,14 +2,13 @@ import {
     byDependencies,
     byName,
     byProps,
-    every,
-    looseDeps,
     preferExports,
-    relativeDep,
 } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import { ReactJsxRuntimeModuleId, ReactModuleId } from '@revenge-mod/react'
 import { proxify } from '@revenge-mod/utils/proxy'
+
+const { loose, relative } = byDependencies
 
 const [, _createClassModuleId] = lookupModule(byName('_createClass'))
 const [, _classCallCheckModuleId] = lookupModule(byName('_classCallCheck'))
@@ -21,9 +20,9 @@ export let ReactNavigationNative: typeof import('@react-navigation/native') =
                 preferExports(
                     byProps<typeof ReactNavigationNative>('useLinkTo'),
                     byDependencies(
-                        looseDeps([
+                        loose([
                             [],
-                            looseDeps([
+                            loose([
                                 [_createClassModuleId, _classCallCheckModuleId],
                             ]),
                         ]),
@@ -49,23 +48,19 @@ export let ReactNavigationStack: typeof import('@react-navigation/stack') =
                     byProps<typeof ReactNavigationStack>(
                         'createStackNavigator',
                     ),
-                    every(
-                        byDependencies(
-                            looseDeps([
-                                looseDeps([
+                    byDependencies(
+                        loose([
+                            relative.withDependencies(
+                                loose([
                                     [[]],
                                     ReactModuleId,
                                     ReactJsxRuntimeModuleId,
                                 ]),
-                            ]),
-                        ),
-                        byDependencies(
-                            looseDeps([
-                                relativeDep(1),
-                                undefined,
-                                relativeDep(3),
-                            ]),
-                        ),
+                                1,
+                            ),
+                            undefined,
+                            relative(3),
+                        ]),
                     ),
                 ),
                 {

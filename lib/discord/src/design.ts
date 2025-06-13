@@ -2,9 +2,7 @@ import {
     byDependencies,
     byProps,
     bySingleProp,
-    looseDeps,
     preferExports,
-    relativeDep,
 } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import {
@@ -15,6 +13,8 @@ import {
 import { proxify } from '@revenge-mod/utils/proxy'
 import type { DiscordModules } from './types'
 
+const { loose, relative } = byDependencies
+
 // design/native.tsx
 export let Design: Design = proxify(
     () => {
@@ -24,11 +24,11 @@ export let Design: Design = proxify(
             preferExports(
                 byProps<Design>('TableRow', 'Button'),
                 byDependencies(
-                    looseDeps([
-                        relativeDep(1),
+                    loose([
+                        relative(1),
                         undefined,
-                        relativeDep(2),
-                        relativeDep(3),
+                        relative(2),
+                        relative(3),
                         2,
                     ]),
                 ),
@@ -58,7 +58,7 @@ export let FormSwitch: DiscordModules.Components.FormSwitch = proxify(() => {
                 'FormSwitch',
             ),
             byDependencies([
-                [relativeDep(1), relativeDep(2), undefined, relativeDep(3)],
+                [relative(1), relative(2), undefined, relative(3)],
                 ReactModuleId,
                 ReactNativeModuleId,
                 ReactJsxRuntimeModuleId,
@@ -69,8 +69,8 @@ export let FormSwitch: DiscordModules.Components.FormSwitch = proxify(() => {
                 undefined,
                 undefined,
                 undefined,
-                relativeDep(1),
-                relativeDep(2),
+                relative(1),
+                relative(2),
                 2,
             ]),
         ),

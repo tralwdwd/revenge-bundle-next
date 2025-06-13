@@ -3,7 +3,6 @@ import {
     byProps,
     createFilterGenerator,
     preferExports,
-    relativeDep,
 } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
@@ -12,13 +11,15 @@ import type { Filter } from '@revenge-mod/modules/finders/filters'
 import type { Metro } from '@revenge-mod/modules/types'
 import type { DiscordModules } from '../types'
 
+const { relative } = byDependencies
+
 // ../discord_common/js/packages/flux
 
 export const [Dispatcher, DispatcherModuleId] = lookupModule(
     preferExports(
         byProps<DiscordModules.Flux.Dispatcher>('_interceptors'),
         byDependencies([
-            relativeDep(1),
+            relative(1),
             undefined,
             undefined,
             undefined,

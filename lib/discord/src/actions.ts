@@ -3,7 +3,6 @@ import {
     byProps,
     every,
     preferExports,
-    relativeDep,
     withoutProps,
 } from '@revenge-mod/modules/finders/filters'
 import {
@@ -19,6 +18,8 @@ import { proxify } from '@revenge-mod/utils/proxy'
 import { DispatcherModuleId } from './common/flux'
 import type { DiscordModules } from './types'
 
+const { relative } = byDependencies
+
 export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCreators =
     proxify(
         () => {
@@ -33,8 +34,8 @@ export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCr
                         ReactModuleId,
                         ReactJsxRuntimeModuleId,
                         DispatcherModuleId,
-                        relativeDep(1),
-                        relativeDep(2),
+                        relative(1),
+                        relative(2),
                         2,
                     ]),
                 ),
@@ -59,7 +60,7 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators =
                         'openAlert',
                     ),
                     byDependencies([
-                        [[], relativeDep(1)],
+                        [[], relative(1)],
                         [ReactNativeModuleId, 2],
                         2,
                     ]),

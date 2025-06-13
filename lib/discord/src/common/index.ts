@@ -2,10 +2,7 @@ import {
     byDependencies,
     byName,
     byProps,
-    every,
-    looseDeps,
     preferExports,
-    relativeDep,
 } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import { proxify } from '@revenge-mod/utils/proxy'
@@ -14,6 +11,8 @@ import type { DiscordModules } from '../types'
 
 export { AppStartPerformance } from '../preinit'
 export * as Flux from './flux'
+
+const { loose, relative } = byDependencies
 
 // ../discord_common/js/shared/Logger.tsx
 export const [Logger] = lookupModule(
@@ -33,22 +32,18 @@ export let Constants: DiscordModules.Constants = proxify(
         const [module] = lookupModule(
             preferExports(
                 byProps<DiscordModules.Constants>('ME'),
-                every(
-                    // ID:   1236
-                    // Deps: 26, 1237, 1238, 1239, 1240, ...
-                    // Every module has only one dependency, which is the import tracker
-                    byDependencies(
-                        looseDeps([
-                            undefined,
-                            relativeDep(1),
-                            relativeDep(2),
-                            relativeDep(3),
-                            relativeDep(4),
-                        ]),
-                    ),
-                    byDependencies(
-                        looseDeps(new Array(5).fill(OnlyImportTrackerDep)),
-                    ),
+
+                // ID:   1236
+                // Deps: 26, 1237, 1238, 1239, 1240, ...
+                // Every module has only one dependency, which is the import tracker
+                byDependencies(
+                    loose([
+                        undefined,
+                        relative.withDependencies(OnlyImportTrackerDep, 1),
+                        relative.withDependencies(OnlyImportTrackerDep, 2),
+                        relative.withDependencies(OnlyImportTrackerDep, 3),
+                        relative.withDependencies(OnlyImportTrackerDep, 4),
+                    ]),
                 ),
             ),
         )
