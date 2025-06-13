@@ -33,7 +33,7 @@ registerPlugin(
                         store.initialize()
                         unpatch()
 
-                        setImmediate(() => refreshSettingsOverviewScreen(true))
+                        setTimeout(() => refreshSettingsOverviewScreen(true))
                     },
                 )
             }
