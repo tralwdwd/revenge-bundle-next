@@ -12,7 +12,7 @@ import { FlashList } from '@revenge-mod/externals/shopify'
 import { debounce } from '@revenge-mod/utils/callbacks'
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 import { useCallback, useMemo, useState } from 'react'
-import { Image, StyleSheet } from 'react-native'
+import { Image, StyleSheet, useWindowDimensions } from 'react-native'
 import type { Asset, AssetId } from '@revenge-mod/assets/types'
 import type { Metro } from '@revenge-mod/modules/types'
 
@@ -28,6 +28,7 @@ const UndisplayableFallback = {
 }
 
 export default function AssetBrowserSettingScreen() {
+    const { width, height } = useWindowDimensions()
     const [search, setSearch] = useState('')
     const debouncedSetSearch = useCallback(debounce(setSearch, 100), [])
     const assets = useMemo(() => [...getAssets()], [])
@@ -51,6 +52,8 @@ export default function AssetBrowserSettingScreen() {
             <FlashList.FlashList
                 data={filteredAssets}
                 contentContainerStyle={styles.listContainer}
+                fadingEdgeLength={32}
+                estimatedListSize={{ width: width - 32, height: height - 160 }}
                 estimatedItemSize={80}
                 keyExtractor={asset =>
                     asset.id
