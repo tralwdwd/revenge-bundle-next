@@ -107,10 +107,7 @@ export namespace DiscordModules {
 
     export interface AppStartPerformance {
         mark(...args: AppStartPerformance.MarkArgs): void
-        markAndLog(
-            logger: InstanceType<Logger>,
-            ...args: AppStartPerformance.MarkArgs
-        ): void
+        markAndLog(logger: Logger, ...args: AppStartPerformance.MarkArgs): void
         [index: string]: unknown
     }
 
@@ -129,21 +126,19 @@ export namespace DiscordModules {
      *
      * Logs will be shown in the **Debug Logs** section in settings.
      */
-    export interface Logger {
-        new (
-            tag: string,
-        ): {
-            logDangerously(...args: unknown[]): void
-            log(...args: unknown[]): void
-            error(...args: unknown[]): void
-            warn(...args: unknown[]): void
-            info(...args: unknown[]): void
-            time(...args: unknown[]): void
-            trace(...args: unknown[]): void
-            fileOnly(...args: unknown[]): void
-            verboseDangerously(...args: unknown[]): void
-            verbose(...args: unknown[]): void
-        }
+    export declare class Logger {
+        constructor(tag: string)
+
+        logDangerously(...args: unknown[]): void
+        log(...args: unknown[]): void
+        error(...args: unknown[]): void
+        warn(...args: unknown[]): void
+        info(...args: unknown[]): void
+        time(...args: unknown[]): void
+        trace(...args: unknown[]): void
+        fileOnly(...args: unknown[]): void
+        verboseDangerously(...args: unknown[]): void
+        verbose(...args: unknown[]): void
     }
 
     export namespace Actions {

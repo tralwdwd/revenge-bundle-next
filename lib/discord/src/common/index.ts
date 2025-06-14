@@ -16,8 +16,8 @@ const { loose, relative } = byDependencies
 
 // ../discord_common/js/shared/Logger.tsx
 export const [Logger] = lookupModule(
-    byName<DiscordModules.Logger>('Logger'),
-) as [DiscordModules.Logger, Metro.ModuleID]
+    byName<typeof DiscordModules.Logger>('Logger'),
+) as [typeof DiscordModules.Logger, Metro.ModuleID]
 
 // ../discord_common/js/packages/tokens/native.tsx
 export const [Tokens, TokensModuleId] = lookupModule(byProps('RawColor')) as [
