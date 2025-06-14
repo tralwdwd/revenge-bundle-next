@@ -10,7 +10,7 @@ import type { Metro } from '@revenge-mod/modules/types'
 import type { DiscordModules } from '../types'
 
 export { AppStartPerformance } from '../preinit'
-export * as Flux from './flux'
+export * as flux from './flux'
 export * as utils from './utils'
 
 const { loose, relative } = byDependencies
