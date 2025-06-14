@@ -11,6 +11,7 @@ import type { DiscordModules } from '../types'
 
 export { AppStartPerformance } from '../preinit'
 export * as Flux from './flux'
+export * as utils from './utils'
 
 const { loose, relative } = byDependencies
 

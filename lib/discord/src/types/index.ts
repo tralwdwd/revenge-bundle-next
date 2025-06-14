@@ -1,3 +1,4 @@
+import { EventEmitter } from 'node:events'
 import type { ComponentProps, ComponentType, FC, ReactNode } from 'react'
 import type {
     ImageSourcePropType,
@@ -625,5 +626,17 @@ export namespace DiscordModules {
                 | RouteSettingsItem
                 | StaticSettingsItem
         }
+    }
+
+    export namespace Utils {
+        export namespace TypedEventEmitter {
+            export type DefaultEventMap = [never]
+            export type EventMap<T> = Record<keyof T, any[]> | DefaultEventMap
+        }
+
+        export class TypedEventEmitter<
+            T extends
+                TypedEventEmitter.EventMap<T> = TypedEventEmitter.DefaultEventMap,
+        > extends EventEmitter<T> {}
     }
 }

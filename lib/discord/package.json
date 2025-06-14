@@ -15,6 +15,9 @@
     "./common/flux": {
       "default": "./src/common/flux.ts"
     },
+    "./common/utils": {
+      "default": "./src/common/utils.ts"
+    },
     "./design": {
       "default": "./src/design.ts"
     },
