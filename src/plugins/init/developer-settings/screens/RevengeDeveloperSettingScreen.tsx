@@ -54,21 +54,21 @@ export function RDTAddrSetting() {
                 isDisabled={open}
                 label="React DevTools"
                 leadingText="ws://"
-                onBlur={() => {
+                onBlur={() =>
                     api.storage
                         .set({
                             devtools: {
                                 address: RDTContext.addr,
                             },
                         })
-                        .then(() => {
+                        .then(() =>
                             ToastActionCreators.open({
                                 IconComponent: CircleCheckIcon,
                                 key: 'REACT_DEVTOOLS_ADDRESS_SAVED',
                                 content: 'Address saved',
-                            })
-                        })
-                }}
+                            }),
+                        )
+                }
                 onChange={text => (RDTContext.addr = text)}
                 returnKeyType="done"
             />

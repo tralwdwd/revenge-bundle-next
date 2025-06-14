@@ -7,10 +7,7 @@ const RDTConnectSetting: SettingsItem = {
     parent: Setting.RevengeDeveloper,
     IconComponent: () => <TableRowAssetIcon name="LinkIcon" />,
     title: () => 'Connect to React DevTools',
-    usePredicate: () => {
-        const dtOpen = useIsConnected()
-        return RDTContext.active && !dtOpen
-    },
+    usePredicate: () => useIsConnected() && RDTContext.active,
     onPress: connect,
     type: 'pressable',
 }

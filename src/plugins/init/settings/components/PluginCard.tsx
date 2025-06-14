@@ -49,15 +49,17 @@ export function InstalledPluginCard({
     const enabled = Boolean(flags & PluginFlags.Enabled)
     const styles_ = usePluginCardStyles()
 
-    const settingsRef = useClickOutside<View>(() => {
-        if (enableTooltipTarget.current === settingsRef.current)
-            setEnablePluginTooltipVisible?.(false)
-    })
+    const settingsRef = useClickOutside<View>(
+        () =>
+            enableTooltipTarget.current === settingsRef.current &&
+            setEnablePluginTooltipVisible?.(false),
+    )
 
-    const switchRef = useClickOutside<View>(() => {
-        if (essentialTooltipTarget.current === switchRef.current)
-            setEssentialPluginTooltipVisible?.(false)
-    })
+    const switchRef = useClickOutside<View>(
+        () =>
+            essentialTooltipTarget.current === switchRef.current &&
+            setEssentialPluginTooltipVisible?.(false),
+    )
 
     return (
         <Card style={[styles_.card, styles.grow, rightGap && styles_.rightGap]}>

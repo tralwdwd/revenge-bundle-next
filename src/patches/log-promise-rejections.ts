@@ -15,12 +15,11 @@ const ErrorTypeWhitelist = [ReferenceError, TypeError, RangeError]
 Promise._m = (promise, err) => {
     if (err)
         setTimeout(
-            () => {
-                if (promise._h === 0)
-                    logger.error(
-                        `Unhandled promise rejection: ${getErrorStack(err)}`,
-                    )
-            },
+            () =>
+                promise._h === 0 &&
+                logger.error(
+                    `Unhandled promise rejection: ${getErrorStack(err)}`,
+                ),
             ErrorTypeWhitelist.some(it => err instanceof it) ? 0 : 2000,
             // The time is completely arbitary. I've picked what Hermes chose.
         )
