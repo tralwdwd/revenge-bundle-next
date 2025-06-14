@@ -68,7 +68,9 @@ export function registerSettingsItem(key: string, item: SettingsItem) {
 export function registerSettingsItems(record: Record<string, SettingsItem>) {
     Object.assign(_data[1], record)
     return () => {
-        for (const key in record) delete _data[1][key]
+        let ret = true
+        for (const key in record) ret &&= delete _data[1][key]
+        return ret
     }
 }
 
