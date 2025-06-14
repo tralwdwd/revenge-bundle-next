@@ -3,6 +3,7 @@ import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { instead } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
+import { noop } from '@revenge-mod/utils/callbacks'
 
 // TODO(plugins/no-track): Block Sentry native-side
 registerPlugin(
@@ -14,7 +15,10 @@ registerPlugin(
         icon: 'AnalyticsIcon',
     },
     {
-        preInit({ cleanup }) {
+        preInit({ cleanup, plugin }) {
+            if (plugin.flags & PluginFlags.EnabledLate)
+                plugin.flags |= PluginFlags.ReloadRequired
+
             // modules/errors/native/SentryInitUtils.tsx
             const unsubSIU = waitForModules(
                 byProps('initSentry'),
@@ -22,8 +26,7 @@ registerPlugin(
                     unsubSIU()
 
                     console.log('Patching SentryInitUtils...')
-                    cleanup(instead(SentryInitUtils, 'initSentry', () => {}))
-                    cleanup(() => SentryInitUtils.initSentry())
+                    cleanup(instead(SentryInitUtils, 'initSentry', noop))
                 },
             )
         },
@@ -41,10 +44,8 @@ registerPlugin(
                     unsubAU()
 
                     logger.info('Patching AnalyticsUtils...')
-                    cleanup(instead(AnalyticsUtils.default, 'track', () => {}))
-                    cleanup(
-                        instead(AnalyticsUtils, 'trackNetworkAction', () => {}),
-                    )
+                    cleanup(instead(AnalyticsUtils.default, 'track', noop))
+                    cleanup(instead(AnalyticsUtils, 'trackNetworkAction', noop))
 
                     for (const key in AnalyticsUtils.default
                         .AnalyticsActionHandlers)
@@ -52,7 +53,7 @@ registerPlugin(
                             instead(
                                 AnalyticsUtils.default.AnalyticsActionHandlers,
                                 key,
-                                () => {},
+                                noop,
                             ),
                         )
                 },
@@ -68,18 +69,16 @@ registerPlugin(
 
                     logger.info('Patching useTrackImpression...')
                     cleanup(
-                        instead(
-                            useTrackImpression,
-                            'trackImpression',
-                            () => {},
-                        ),
+                        instead(useTrackImpression, 'trackImpression', noop),
                     )
-                    cleanup(instead(useTrackImpression, 'default', () => {}))
+                    cleanup(instead(useTrackImpression, 'default', noop))
                 },
             )
         },
+        stop({ plugin }) {
+            plugin.flags |= PluginFlags.ReloadRequired
+        },
     },
     PluginFlags.Enabled,
-    // TODO(plugins/no-track): is it essential?
-    InternalPluginFlags.Internal | InternalPluginFlags.Essential,
+    InternalPluginFlags.Internal,
 )
