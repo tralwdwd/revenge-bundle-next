@@ -19,6 +19,7 @@ import {
     EssentialPluginTooltipProvider,
     resetTooltips,
 } from '../components/TooltipProvider'
+import { useUpdateOnPluginStatesChange } from '../definitions/RevengePluginsSetting'
 import type { RouteProp } from '@react-navigation/core'
 import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
 import type { InternalPlugin } from '@revenge-mod/plugins/_'
@@ -81,6 +82,8 @@ const Sorts = {
 } satisfies FilterAndSortActionSheetProps['sorts']
 
 function Screen() {
+    useUpdateOnPluginStatesChange()
+
     const navigation = ReactNavigationNative.useNavigation()
     const route =
         ReactNavigationNative.useRoute<
@@ -110,32 +113,28 @@ function Screen() {
         [],
     )
 
-    const plugins = useMemo(
-        () =>
-            allPlugins
-                .filter(([plugin, iflags]) => {
-                    if (filter.length === 0) return true
-                    if (matchAll)
-                        return filter.every(f => Filters[f][1](plugin, iflags))
+    const plugins = allPlugins
+        .filter(([plugin, iflags]) => {
+            if (filter.length === 0) return true
+            if (matchAll)
+                return filter.every(f => Filters[f][1](plugin, iflags))
 
-                    return filter.some(f => Filters[f][1](plugin, iflags))
-                })
-                .filter(([plugin]) => {
-                    const { name, description, author } = plugin.manifest
-                    const query = search.toLowerCase()
-                    return (
-                        name.toLowerCase().includes(query) ||
-                        description.toLowerCase().includes(query) ||
-                        author.toLowerCase().includes(query)
-                    )
-                })
-                .sort(([a], [b]) => {
-                    const result = Sorts[sort as keyof typeof Sorts][1](a, b)
-                    if (reverse) return -result
-                    return result
-                }),
-        [search, sort, reverse, filter, matchAll, allPlugins],
-    )
+            return filter.some(f => Filters[f][1](plugin, iflags))
+        })
+        .filter(([plugin]) => {
+            const { name, description, author } = plugin.manifest
+            const query = search.toLowerCase()
+            return (
+                name.toLowerCase().includes(query) ||
+                description.toLowerCase().includes(query) ||
+                author.toLowerCase().includes(query)
+            )
+        })
+        .sort(([a], [b]) => {
+            const result = Sorts[sort as keyof typeof Sorts][1](a, b)
+            if (reverse) return -result
+            return result
+        })
 
     return (
         <>

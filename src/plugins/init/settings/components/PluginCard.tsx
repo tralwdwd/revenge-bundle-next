@@ -4,6 +4,7 @@ import FormSwitch from '@revenge-mod/components/FormSwitch'
 import { Tokens } from '@revenge-mod/discord/common'
 import { Design } from '@revenge-mod/discord/design'
 import {
+    _emitter,
     enablePlugin,
     InternalPluginFlags,
     initPlugin,
@@ -12,6 +13,7 @@ import {
 } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { useReRender } from '@revenge-mod/utils/react'
+import { useEffect } from 'react'
 import { Image, Pressable } from 'react-native'
 import { useClickOutside } from 'react-native-click-outside'
 import { navigatePluginSettings } from '../utils'
@@ -40,11 +42,25 @@ export function InstalledPluginCard({
     rightGap?: boolean
 }) {
     const {
-        manifest: { name, description, author, icon },
+        manifest: { id, name, description, author, icon },
         flags,
     } = plugin
 
+    // Re-render on plugin enable/disable
     const reRender = useReRender()
+    useEffect(() => {
+        const listener = (p: InternalPlugin) =>
+            id === p.manifest.id && reRender()
+
+        _emitter.on('disabled', listener)
+        _emitter.on('enabled', listener)
+
+        return () => {
+            _emitter.off('disabled', listener)
+            _emitter.off('enabled', listener)
+        }
+    })
+
     const essential = Boolean(iflags & InternalPluginFlags.Essential)
     const enabled = Boolean(flags & PluginFlags.Enabled)
     const styles_ = usePluginCardStyles()
@@ -122,13 +138,6 @@ export function InstalledPluginCard({
                                 await initPlugin(plugin)
                                 await startPlugin(plugin)
                             } else await plugin.disable()
-
-                            reRender()
-
-                            // TODO(plugins/settings): handle sorting after plugin enabled/disabled
-                            // TODO(plugins/settings): show ReloadRequired modal
-                            // make an event based system for this, so we can register a listener for when plugins are disabled
-                            // and update the UI accordingly
                         }}
                         value={enabled}
                     />

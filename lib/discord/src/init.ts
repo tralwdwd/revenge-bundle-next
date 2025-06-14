@@ -1,4 +1,4 @@
-import { _initExts, _uapi } from '@revenge-mod/plugins/_'
+import { _emitter, _uapi } from '@revenge-mod/plugins/_'
 import { defineLazyProperty } from '@revenge-mod/utils/objects'
 import { Logger } from './common'
 import type { UnscopedInitPluginApi } from '@revenge-mod/plugins/types'
@@ -42,7 +42,7 @@ defineLazyProperty(discord, 'modules', () => {
     return modules
 })
 
-_initExts.push((api, { manifest: { id } }) =>
+_emitter.on('init', ({ manifest: { id } }, api) =>
     defineLazyProperty(
         api,
         'logger',
