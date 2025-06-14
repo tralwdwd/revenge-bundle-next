@@ -65,6 +65,9 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators =
                         2,
                     ]),
                 ),
+                {
+                    includeUninitialized: true,
+                },
             )
 
             if (module) return (AlertActionCreators = module)
