@@ -6,9 +6,6 @@
  */
 
 import { getErrorStack } from '@revenge-mod/utils/errors'
-import { createLogger } from '@revenge-mod/utils/logger'
-
-const logger = createLogger('revenge.promise-rejections')
 
 const ErrorTypeWhitelist = [ReferenceError, TypeError, RangeError]
 
@@ -17,8 +14,9 @@ Promise._m = (promise, err) => {
         setTimeout(
             () =>
                 promise._h === 0 &&
-                logger.error(
-                    `Unhandled promise rejection: ${getErrorStack(err)}`,
+                nativeLoggingHook(
+                    `\u001b[33mUnhandled promise rejection: ${getErrorStack(err)}\u001b[0m`,
+                    2,
                 ),
             ErrorTypeWhitelist.some(it => err instanceof it) ? 0 : 2000,
             // The time is completely arbitary. I've picked what Hermes chose.

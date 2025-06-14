@@ -1,5 +1,4 @@
 import { getCurrentStack } from '@revenge-mod/utils/errors'
-import { createLogger } from '@revenge-mod/utils/logger'
 import { _inits, _paths, _uninits } from '../metro/_internal'
 import { getInitializedModuleExports } from '../metro/utils'
 import { exportsFromFilterResultFlag, runFilter } from './_internal'
@@ -210,15 +209,16 @@ export function lookupModuleByImportedPath<T = any>(
     return [getInitializedModuleExports(id), id]
 }
 
-const logger = createLogger('revenge.modules.finders.lookup')
-
 /**
  * Warns the developer that the filter matched during exportsless comparison, but not during the full comparison.
  * This will cause modules to be initialized unnecessarily, and may cause issues.
  * @internal
  */
 function warnDeveloperAboutPartialFilterMatch(id: Metro.ModuleID, key: string) {
-    logger.wtf(`${key} matched module ${id} partially.\n${getCurrentStack()}`)
+    nativeLoggingHook(
+        `\u001b[33m${key} matched module ${id} partially.\n${getCurrentStack()}\u001b[0m`,
+        2,
+    )
 }
 
 const __blacklistedFunctions = __BUILD_FLAG_DEBUG_MODULE_LOOKUPS
@@ -239,5 +239,8 @@ async function warnDeveloperAboutNoFilterMatch(filter: Filter) {
     for (const func of __blacklistedFunctions)
         if (stack.includes((await func).name)) return
 
-    logger.wtf(`No module found for filter: ${filter.key}\n${stack}`)
+    nativeLoggingHook(
+        `\u001b[31mNo module found for filter: ${filter.key}\n${stack}\u001b[0m`,
+        2,
+    )
 }

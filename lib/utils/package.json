@@ -15,9 +15,6 @@
     "./generators": {
       "default": "./src/generators.ts"
     },
-    "./logger": {
-      "default": "./src/logger.ts"
-    },
     "./objects": {
       "default": "./src/objects.ts"
     },

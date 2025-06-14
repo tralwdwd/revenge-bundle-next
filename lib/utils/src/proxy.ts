@@ -4,7 +4,6 @@
  */
 
 import { getCurrentStack } from './errors'
-import { createLogger } from './logger'
 
 const _targets = new WeakMap<object, object>()
 
@@ -254,10 +253,9 @@ export function destructure<T extends object>(
     })
 }
 
-const logger = createLogger('revenge.utils.proxy')
-
 function warnDeveloperAboutNullishProxifiedValue() {
-    logger.wtf(
-        `Proxified value is nullish! The signal is may be invalid.\n${getCurrentStack()}`,
+    nativeLoggingHook(
+        `\u001b[33mProxified value is nullish! The signal is may be invalid.\n${getCurrentStack()}\u001b[0m`,
+        3,
     )
 }
