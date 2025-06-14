@@ -45,9 +45,7 @@ export let ReactNavigationStack: typeof import('@react-navigation/stack') =
         () => {
             const [module] = lookupModule(
                 preferExports(
-                    byProps<typeof ReactNavigationStack>(
-                        'createStackNavigator',
-                    ),
+                    byProps<typeof ReactNavigationStack>('StackView'),
                     byDependencies(
                         loose([
                             relative.withDependencies(
