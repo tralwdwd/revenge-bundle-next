@@ -155,7 +155,7 @@ export function proxify<T>(signal: () => T, options?: ProxifyOptions): T {
         options?.cache ?? false,
     ])
 
-    if (__BUILD_FLAG_DEBUG_PROXIFIED_VALUES) {
+    if (__BUILD_FLAG_DEBUG_PROXIFIED_VALUES__) {
         const v = unproxifyFromHint(hint)
         if (v == null) warnDeveloperAboutNullishProxifiedValue()
     }

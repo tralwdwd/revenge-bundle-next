@@ -16,14 +16,14 @@ declare global {
      * - Logs failed lookups with stack traces.
      * - Logs partial matches (matches exportless, but not with-exports).
      */
-    const __BUILD_FLAG_DEBUG_MODULE_LOOKUPS: boolean
+    const __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__: boolean
     /**
      * Whether to debug proxified values.
      *
      * - Immediately calls the signal to initialize the proxified value.
      * - Warns if the proxified value is nullish.
      */
-    const __BUILD_FLAG_DEBUG_PROXIFIED_VALUES: boolean
+    const __BUILD_FLAG_DEBUG_PROXIFIED_VALUES__: boolean
 
     // CommonJS modules, we don't want to depend on @types/node
     const module: {

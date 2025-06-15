@@ -125,11 +125,11 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
                         exportsFromFilterResultFlag(flag, exports, options),
                         id,
                     ]
-                } else if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS)
+                } else if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
                     warnDeveloperAboutPartialFilterMatch(id, filter.key)
             }
 
-    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS)
+    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
         if (warn) warnDeveloperAboutNoFilterMatch(filter)
 }
 
@@ -176,11 +176,11 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
                         exportsFromFilterResultFlag(flag, exports, options),
                         id,
                     ]
-                else if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS)
+                else if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
                     warnDeveloperAboutPartialFilterMatch(id, filter.key)
             }
 
-    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS)
+    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
         warnDeveloperAboutNoFilterMatch(filter)
 
     return []
@@ -221,7 +221,7 @@ function warnDeveloperAboutPartialFilterMatch(id: Metro.ModuleID, key: string) {
     )
 }
 
-const __blacklistedFunctions = __BUILD_FLAG_DEBUG_MODULE_LOOKUPS
+const __blacklistedFunctions = __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__
     ? [
           import('./get').then(m => m.getModule),
           import('@revenge-mod/utils/discord').then(
