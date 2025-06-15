@@ -13,15 +13,18 @@ const AssetsDir = `${import.meta.dir}/../src/assets`
 const GeneratedAssetsDir = `${import.meta.dir}/../dist/assets/generated`
 
 await rm(GeneratedAssetsDir, { recursive: true, force: true })
-    .then(() => {
-        console.debug(chalk.gray('\u{1F5BB} Deleted old generated assets'))
-    })
+    .then(() =>
+        console.debug(chalk.gray('\u{1F5BB} Deleted old generated assets')),
+    )
     .catch()
 
 // If this file is being run directly, build the project
 if (main === import.meta.filename) build()
 
-export default async function build(dev = false, log = true) {
+const Dev =
+    process.argv.includes('--dev') || process.env.NODE_ENV === 'development'
+
+export default async function build(dev = Dev, log = true) {
     const start = performance.now()
 
     if (log) console.info(chalk.gray('\u{1F5BB} Generating assets...'))
