@@ -18,11 +18,11 @@ await rm(GeneratedAssetsDir, { recursive: true, force: true })
     )
     .catch()
 
-// If this file is being run directly, build the project
-if (main === import.meta.filename) build()
-
 const Dev =
     process.argv.includes('--dev') || process.env.NODE_ENV === 'development'
+
+// If this file is being run directly, build the project
+if (main === import.meta.filename) build()
 
 export default async function build(dev = Dev, log = true) {
     const start = performance.now()
