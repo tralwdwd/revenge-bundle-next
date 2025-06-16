@@ -4,4 +4,6 @@ import type { UnscopedInitPluginApi } from '@revenge-mod/plugins/types'
 
 const uapi = _uapi as UnscopedInitPluginApi
 
-defineLazyProperty(uapi, 'components', () => require('.'))
+defineLazyProperty(uapi, 'components', () => {
+    return require('.')
+})
