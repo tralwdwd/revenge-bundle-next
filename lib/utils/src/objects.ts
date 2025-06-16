@@ -105,17 +105,48 @@ export function mergeDeep(target: AnyObject, source: AnyObject) {
  * @param target The target object to define the property on.
  * @param property The property key to define.
  * @param loader The function that will be called to load the property value when accessed.
+ * @return The target object with the lazy property defined.
  */
 export function defineLazyProperty<T extends object, K extends keyof T>(
     target: T,
     property: K,
     loader: () => T[K],
 ) {
-    Object.defineProperty(target, property, {
+    return Object.defineProperty(
+        target,
+        property,
+        lazyPropDesc<T, K>(property, loader),
+    )
+}
+
+/**
+ * Define multiple lazy properties on an object that will be loaded when accessed.
+ *
+ * @param target The target object to define the properties on.
+ * @param loaders An object where each key is a property name and the value is a function that returns the property value when accessed.
+ * @returns The target object with the lazy properties defined.
+ */
+export function defineLazyProperties<T extends object>(
+    target: T,
+    loaders: Partial<Record<keyof T, () => T[keyof T]>>,
+) {
+    const descs: PropertyDescriptorMap = {}
+
+    for (const key in loaders)
+        descs[key] = lazyPropDesc<T, keyof typeof loaders>(key, loaders[key]!)
+
+    return Object.defineProperties(target, descs)
+}
+
+function lazyPropDesc<T extends object, K extends keyof T>(
+    key: K,
+    loader: () => T[K],
+): PropertyDescriptor {
+    return {
         configurable: true,
-        get() {
-            delete target[property]
-            return (target[property] = loader())
+        get(this: T) {
+            delete this[key]
+            return (this[key] = loader())
         },
-    })
+    }
 }
