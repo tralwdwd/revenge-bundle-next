@@ -1,4 +1,5 @@
 import { ToastActionCreators } from '@revenge-mod/discord/actions'
+import { TypedEventEmitter } from '@revenge-mod/discord/common/utils'
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 import { getErrorStack } from '@revenge-mod/utils/errors'
 import { useReRender } from '@revenge-mod/utils/react'
@@ -17,8 +18,11 @@ export const RDTContext: {
     con: false,
 }
 
-type Subscription = (event: 1 | 2 | 3, err?: unknown) => void
-const subscriptions: Set<Subscription> = new Set()
+const events = new TypedEventEmitter<{
+    connect: []
+    disconnect: []
+    error: [unknown]
+}>()
 
 const CircleXIcon = lookupGeneratedIconComponent(
     'CircleXIcon',
@@ -26,43 +30,37 @@ const CircleXIcon = lookupGeneratedIconComponent(
     'CircleXIcon-primary',
 )
 
-subscriptions.add((e, err) => {
-    if (e === 3) {
-        const actualError =
-            (err as { message: string }).message ?? getErrorStack(err)
+export function connect() {
+    if (!RDTContext.active || RDTContext.ws) return
 
-        api.logger.error('React DevTools error:', actualError)
+    const ws = (RDTContext.ws = new WebSocket(`ws://${RDTContext.addr}`))
+
+    ws.addEventListener('open', () => {
+        RDTContext.con = true
+        events.emit('connect')
+    })
+
+    ws.addEventListener('close', () => {
+        cleanup()
+        events.emit('disconnect')
+    })
+
+    ws.addEventListener('error', e => {
+        cleanup()
+        events.emit('error', e)
+
+        const err = (e as { message: string }).message ?? getErrorStack(e)
+        api.logger.error('React DevTools error:', err)
 
         ToastActionCreators.open({
             key: 'REACT_DEVTOOLS_ERROR',
             IconComponent: CircleXIcon,
-            content: actualError,
+            content: err,
         })
-    }
-})
-
-export function connect() {
-    if (!RDTContext.active || RDTContext.ws) return
-
-    const websocket = (RDTContext.ws = new WebSocket(`ws://${RDTContext.addr}`))
-
-    websocket.addEventListener('open', () => {
-        RDTContext.con = true
-        for (const sub of subscriptions) sub(1)
-    })
-
-    websocket.addEventListener('close', () => {
-        cleanup()
-        for (const sub of subscriptions) sub(2)
-    })
-
-    websocket.addEventListener('error', e => {
-        cleanup()
-        for (const sub of subscriptions) sub(3, e)
     })
 
     __REACT_DEVTOOLS__!.exports.connectToDevTools({
-        websocket,
+        websocket: ws,
     })
 }
 
@@ -79,11 +77,12 @@ export function useIsConnected() {
     const rerender = useReRender()
 
     useEffect(() => {
-        const sub: Subscription = e => (e === 1 || e === 2) && rerender()
-        subscriptions.add(sub)
+        events.on('connect', rerender)
+        events.on('disconnect', rerender)
 
         return () => {
-            subscriptions.delete(sub)
+            events.off('connect', rerender)
+            events.off('disconnect', rerender)
         }
     }, [rerender])
 
