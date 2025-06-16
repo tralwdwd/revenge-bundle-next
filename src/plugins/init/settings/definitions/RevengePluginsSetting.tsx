@@ -50,10 +50,10 @@ export function useUpdateOnPluginStatesChange() {
 
 const { AlertActionButton, AlertModal, Text } = Design
 
-_emitter.on('started', showReloadRequiredAlert)
-_emitter.on('stopped', showReloadRequiredAlert)
+_emitter.on('started', showReloadRequiredAlertIfNeeded)
+_emitter.on('stopped', showReloadRequiredAlertIfNeeded)
 
-function showReloadRequiredAlert(plugin: InternalPlugin) {
+function showReloadRequiredAlertIfNeeded(plugin: InternalPlugin) {
     if (plugin.flags & PluginFlags.ReloadRequired) {
         AlertActionCreators.openAlert(
             'plugin-reload-required',

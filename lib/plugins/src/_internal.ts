@@ -158,8 +158,9 @@ export async function preInitPlugin(plugin: InternalPlugin) {
         manifest: { id },
         lifecycles,
     } = plugin
+    try {
+        if (!lifecycles.preInit) return
 
-    if (lifecycles.preInit) {
         const meta = _metas.get(id)!
         const [, promises] = meta
 
@@ -184,9 +185,9 @@ export async function preInitPlugin(plugin: InternalPlugin) {
             plugin.status &= ~Status.PreIniting
         } catch (e) {
             await handlePluginError(e, plugin)
-        } finally {
-            _emitter.emit('preInited', plugin)
         }
+    } finally {
+        _emitter.emit('preInited', plugin)
     }
 }
 
@@ -196,7 +197,9 @@ export async function initPlugin(plugin: InternalPlugin) {
         lifecycles,
     } = plugin
 
-    if (lifecycles.init) {
+    try {
+        if (!lifecycles.init) return
+
         const meta = _metas.get(id)!
         const [, promises, , apiLevel] = meta
 
@@ -222,9 +225,9 @@ export async function initPlugin(plugin: InternalPlugin) {
             plugin.status &= ~Status.Initing
         } catch (e) {
             await handlePluginError(e, plugin)
-        } finally {
-            _emitter.emit('inited', plugin)
         }
+    } finally {
+        _emitter.emit('inited', plugin)
     }
 }
 
@@ -234,7 +237,9 @@ export async function startPlugin(plugin: InternalPlugin) {
         lifecycles,
     } = plugin
 
-    if (lifecycles.start) {
+    try {
+        if (!lifecycles.start) return
+
         const meta = _metas.get(id)!
         const [, promises, , apiLevel] = meta
 
@@ -261,9 +266,9 @@ export async function startPlugin(plugin: InternalPlugin) {
             plugin.status &= ~Status.Starting
         } catch (e) {
             await handlePluginError(e, plugin)
-        } finally {
-            _emitter.emit('started', plugin)
         }
+    } finally {
+        _emitter.emit('started', plugin)
     }
 }
 
@@ -312,14 +317,15 @@ export async function stopPlugin(plugin: InternalPlugin) {
     plugin.status |= Status.Stopping
 
     try {
-        if (lifecycles.stop)
-            await Promise.race([
-                lifecycles.stop(meta[0] as PluginApi),
-                sleepReject(
-                    MaxWaitTime,
-                    'Plugin stop lifecycle timed out, force stopping',
-                ),
-            ])
+        if (!lifecycles.stop) return
+
+        await Promise.race([
+            lifecycles.stop(meta[0] as PluginApi),
+            sleepReject(
+                MaxWaitTime,
+                'Plugin stop lifecycle timed out, force stopping',
+            ),
+        ])
     } catch (e) {
         await handlePluginError(e, plugin)
     } finally {
