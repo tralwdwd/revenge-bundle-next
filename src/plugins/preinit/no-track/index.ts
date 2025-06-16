@@ -26,9 +26,11 @@ registerPlugin(
                     unsubSIU()
 
                     console.log('Patching SentryInitUtils...')
-                    cleanup(instead(SentryInitUtils, 'initSentry', noop))
+                    instead(SentryInitUtils, 'initSentry', noop)
                 },
             )
+
+            cleanup(unsubSIU)
         },
         init({ cleanup, logger }) {
             // utils/AnalyticsUtils.tsx
@@ -44,17 +46,15 @@ registerPlugin(
                     unsubAU()
 
                     logger.info('Patching AnalyticsUtils...')
-                    cleanup(instead(AnalyticsUtils.default, 'track', noop))
-                    cleanup(instead(AnalyticsUtils, 'trackNetworkAction', noop))
+                    instead(AnalyticsUtils.default, 'track', noop)
+                    instead(AnalyticsUtils, 'trackNetworkAction', noop)
 
                     for (const key in AnalyticsUtils.default
                         .AnalyticsActionHandlers)
-                        cleanup(
-                            instead(
-                                AnalyticsUtils.default.AnalyticsActionHandlers,
-                                key,
-                                noop,
-                            ),
+                        instead(
+                            AnalyticsUtils.default.AnalyticsActionHandlers,
+                            key,
+                            noop,
                         )
                 },
             )
@@ -68,12 +68,13 @@ registerPlugin(
                     unsubTI()
 
                     logger.info('Patching useTrackImpression...')
-                    cleanup(
-                        instead(useTrackImpression, 'trackImpression', noop),
-                    )
-                    cleanup(instead(useTrackImpression, 'default', noop))
+
+                    instead(useTrackImpression, 'trackImpression', noop)
+                    instead(useTrackImpression, 'default', noop)
                 },
             )
+
+            cleanup(unsubAU, unsubTI)
         },
         stop({ plugin }) {
             plugin.flags |= PluginFlags.ReloadRequired
