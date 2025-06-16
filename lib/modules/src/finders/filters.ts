@@ -341,7 +341,7 @@ function depCompare(
 
         if (Array.isArray(compare)) {
             // relative.withDependencies?
-            if (compare.r && !depShallowCompare(compare.r, id, root, id))
+            if (compare.r && !depShallowCompare(compare.r, id, root, parent))
                 return false
 
             if (depCompare(getModuleDependencies(id)!, compare, root, id))
