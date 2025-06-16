@@ -17,10 +17,6 @@ for (const plugin of _plugins.values())
 const unsub = onRunApplication(() => {
     unsub()
 
-    // TODO(plugins/start): init start APIs
-    // const UILibrary = require('@revenge-mod/ui')
-    // uapi.ui = UiLibrary
-
     for (const plugin of _plugins.values())
         if (plugin.flags & PluginFlags.Enabled) startPlugin(plugin)
 })

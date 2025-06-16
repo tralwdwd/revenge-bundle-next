@@ -1,16 +1,19 @@
-import type { Storage, StorageOptions } from '@revenge-mod/storage'
-import type { AnyObject } from '@revenge-mod/utils/types'
 import type { FunctionComponent } from 'react'
 import type { PluginApiModules } from './apis/modules'
 import type { PluginApiPlugins } from './apis/plugins'
 import type { PluginApiReact } from './apis/react'
 import type { PluginFlags, PluginStatus } from './constants'
 
+// biome-ignore lint/suspicious/noEmptyInterface: To be extended by actual extensions
+export interface PluginApiExtensionOptions {}
+
 /**
  * The unscoped plugin API (very limited). This API is available as a global for plugins.
  * Available in the `preInit` phase.
  */
-export interface UnscopedPreInitPluginApi {
+export interface UnscopedPreInitPluginApi<
+    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+> {
     modules: PluginApiModules
     patcher: typeof import('@revenge-mod/patcher')
     plugins: PluginApiPlugins
@@ -21,7 +24,9 @@ export interface UnscopedPreInitPluginApi {
  * The unscoped plugin API (limited). This API is available as a global for plugins.
  * Available in the `init` phase.
  */
-export interface UnscopedInitPluginApi extends UnscopedPreInitPluginApi {
+export interface UnscopedInitPluginApi<
+    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+> extends UnscopedPreInitPluginApi<O> {
     assets: typeof import('@revenge-mod/assets')
     react: PluginApiReact
 }
@@ -30,7 +35,9 @@ export interface UnscopedInitPluginApi extends UnscopedPreInitPluginApi {
  * The unscoped plugin API. This API is available as a global for plugins.
  * Available in the `start` and `stop` phase.
  */
-export interface UnscopedPluginApi extends UnscopedInitPluginApi {
+export interface UnscopedPluginApi<
+    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+> extends UnscopedInitPluginApi<O> {
     // ui: typeof import('@revenge-mod/ui')
 }
 
@@ -41,7 +48,9 @@ export type PluginCleanupApi = (...fns: PluginCleanup[]) => void
  * The plugin API (very limited).
  * Available in the `preInit` phase.
  */
-export interface PreInitPluginApi {
+export interface PreInitPluginApi<
+    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+> {
     unscoped: UnscopedPreInitPluginApi
     cleanup: PluginCleanupApi
     plugin: Plugin
@@ -51,26 +60,19 @@ export interface PreInitPluginApi {
  * The plugin API (limited).
  * Available in the `init` phase.
  */
-export interface InitPluginApi<S extends AnyObject = AnyObject>
-    extends PreInitPluginApi {
+export interface InitPluginApi<
+    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+> extends PreInitPluginApi<O> {
     unscoped: UnscopedInitPluginApi
-    /**
-     * The plugin storage.
-     *
-     * Note that the instance is only created when the plugin accesses the API.
-     * This is to prevent unnecessary storage instances from being created.
-     *
-     * To preload storage, simply call `api.storage.get()`.
-     */
-    storage: Storage<S>
 }
 
 /**
  * The plugin API.
  * Available in the `start` and `stop` phase.
  */
-export interface PluginApi<S extends AnyObject = AnyObject>
-    extends InitPluginApi<S> {
+export interface PluginApi<
+    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+> extends InitPluginApi<O> {
     unscoped: UnscopedPluginApi
 }
 
@@ -113,42 +115,46 @@ export interface PluginManifest {
     icon?: string
 }
 
-export interface PluginOptions<S extends AnyObject = AnyObject>
-    extends PluginLifecycles<S> {
-    SettingsComponent?: PluginSettingsComponent<S>
-    storage?: Omit<StorageOptions<S>, 'directory'>
+export interface PluginOptions<
+    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+> extends PluginLifecycles<O> {
+    SettingsComponent?: PluginSettingsComponent<O>
 }
 
-export interface PluginLifecycles<S extends AnyObject = AnyObject> {
+export interface PluginLifecycles<
+    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+> {
     /**
      * Runs as soon as possible with very limited APIs.
      * Before the index module (module 0)'s factory is run.
      *
      * @param api Plugin API (very limited).
      */
-    preInit?: (api: PreInitPluginApi) => any
+    preInit?: (api: PreInitPluginApi<O>) => any
     /**
      * Runs as soon as all important modules are initialized.
      * After the index module (module 0)'s factory is run.
      *
      * @param api Plugin API (limited).
      */
-    init?: (api: InitPluginApi<S>) => any
+    init?: (api: InitPluginApi<O>) => any
     /**
      * Runs when the plugin can be started with all APIs available.
      *
      * @param api Plugin API.
      */
-    start?: (api: PluginApi<S>) => any
+    start?: (api: PluginApi<O>) => any
     /**
      * Runs when the plugin is stopped.
      *
      * @param api Plugin API.
      */
-    stop?: (api: PluginApi<S>) => any
+    stop?: (api: PluginApi<O>) => any
 }
 
-export interface Plugin<S extends AnyObject = AnyObject> {
+export interface Plugin<
+    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+> {
     // TODO(plugins): support plugin bundles
     // /**
     //  * The plugin bundle this plugin belongs to.
@@ -161,7 +167,7 @@ export interface Plugin<S extends AnyObject = AnyObject> {
     /**
      * The plugin lifecycles.
      */
-    lifecycles: PluginLifecycles<S>
+    lifecycles: PluginLifecycles<O>
 
     /**
      * The plugin flags.
@@ -181,7 +187,7 @@ export interface Plugin<S extends AnyObject = AnyObject> {
     /**
      * The plugin settings page.
      */
-    SettingsComponent?: PluginSettingsComponent<S>
+    SettingsComponent?: PluginSettingsComponent<O>
 
     /**
      * Disable the plugin. This will also stop the plugin if it is running.
@@ -193,5 +199,6 @@ export interface Plugin<S extends AnyObject = AnyObject> {
     stop(): Promise<void>
 }
 
-export type PluginSettingsComponent<S extends AnyObject = AnyObject> =
-    FunctionComponent<{ api: PluginApi<S> }>
+export interface PluginSettingsComponent<
+    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+> extends FunctionComponent<{ api: PluginApi<O> }> {}

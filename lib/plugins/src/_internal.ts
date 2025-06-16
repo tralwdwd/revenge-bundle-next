@@ -1,19 +1,12 @@
 import { TypedEventEmitter } from '@revenge-mod/discord/common/utils'
-import { getStorage } from '@revenge-mod/storage'
-import { defineLazyProperty } from '@revenge-mod/utils/objects'
 import { allSettled, sleepReject } from '@revenge-mod/utils/promises'
 import { _uapi as uapi } from './apis'
-import {
-    PluginFlags as Flag,
-    PluginsStorageDirectory,
-    PluginStatus as Status,
-} from './constants'
-import type { StorageOptions } from '@revenge-mod/storage'
-import type { AnyObject } from '@revenge-mod/utils/types'
+import { PluginFlags as Flag, PluginStatus as Status } from './constants'
 import type {
     InitPluginApi,
     Plugin,
     PluginApi,
+    PluginApiExtensionOptions,
     PluginCleanup,
     PluginManifest,
     PluginOptions,
@@ -23,7 +16,7 @@ import type {
 export const _uapi = uapi
 
 export const _emitter = new TypedEventEmitter<{
-    register: [InternalPlugin]
+    register: [InternalPlugin, PluginOptions<any>]
     disabled: [InternalPlugin]
     enabled: [InternalPlugin]
     // Add preInit API extensions
@@ -50,9 +43,9 @@ export const _metas = new Map<
     ]
 >()
 
-export function registerPlugin<S extends AnyObject = AnyObject>(
+export function registerPlugin<E extends PluginApiExtensionOptions>(
     manifest: PluginManifest,
-    options: PluginOptions<S>,
+    options: PluginOptions<E>,
     flags: number,
     iflags: number,
 ) {
@@ -62,7 +55,6 @@ export function registerPlugin<S extends AnyObject = AnyObject>(
 
     const plugin: InternalPlugin = {
         _c: [],
-        _s: options.storage,
         errors: [],
         manifest,
         lifecycles: {
@@ -81,7 +73,7 @@ export function registerPlugin<S extends AnyObject = AnyObject>(
     _metas.set(manifest.id, [undefined, [], iflags, PluginApiLevel.None])
     _plugins.set(manifest.id, plugin)
 
-    _emitter.emit('register', plugin)
+    _emitter.emit('register', plugin, options)
 }
 
 function handlePluginError(e: unknown, plugin: InternalPlugin) {
@@ -118,26 +110,15 @@ function preparePluginPreInit(plugin: InternalPlugin) {
 
 function preparePluginInit(plugin: InternalPlugin) {
     const meta = _metas.get(plugin.manifest.id)!
-    const api = meta[0] as InitPluginApi
 
-    defineLazyProperty(api, 'storage', () =>
-        getStorage(`${PluginsStorageDirectory}/${plugin.manifest.id}.json`, {
-            ...plugin._s,
-            directory: 'documents',
-        }),
-    )
-
-    _emitter.emit('init', plugin, api)
+    _emitter.emit('init', plugin, meta[0] as InitPluginApi)
     meta[3] = PluginApiLevel.Init
 }
 
 function preparePluginStart(plugin: InternalPlugin) {
     const meta = _metas.get(plugin.manifest.id)!
 
-    const api = meta[0] as PluginApi
-    // api.settings = ...
-
-    _emitter.emit('start', plugin, api)
+    _emitter.emit('start', plugin, meta[0] as PluginApi)
     meta[3] = PluginApiLevel.Start
 }
 
@@ -381,8 +362,7 @@ export async function stopPlugin(plugin: InternalPlugin) {
     }
 }
 
-export interface InternalPlugin extends Plugin {
-    _s?: StorageOptions<AnyObject>
+export interface InternalPlugin extends Plugin<any> {
     _c: PluginCleanup[]
 }
 

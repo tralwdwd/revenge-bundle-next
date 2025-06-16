@@ -26,6 +26,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
         require('@revenge-mod/modules/preinit')
         require('@revenge-mod/react/preinit')
         require('@revenge-mod/assets/preinit')
+        require('@revenge-mod/storage/preinit')
         require('@revenge-mod/discord/preinit')
 
         // Run all preinit plugins
@@ -35,6 +36,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
         onModuleInitialized(IndexModuleId, function onIndexInitialized() {
             runCatching(() => {
                 // Initialize init libraries
+                require('@revenge-mod/storage/init')
                 require('@revenge-mod/externals/init')
                 require('@revenge-mod/discord/init')
                 require('@revenge-mod/components/init')

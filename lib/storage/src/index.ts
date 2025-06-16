@@ -108,7 +108,7 @@ export function getStorage<T extends AnyObject = AnyObject>(
     return storage
 }
 
-export interface StorageOptions<T> {
+export interface StorageOptions<T extends AnyObject = AnyObject> {
     /**
      * The directory of the storage file.
      */

@@ -21,7 +21,7 @@ const defaultStorage: Storage = {
     },
 }
 
-registerPlugin<Storage>(
+registerPlugin<{ storage: Storage }>(
     {
         id: 'revenge.settings.developer',
         name: 'Developer Settings',
@@ -57,4 +57,4 @@ registerPlugin<Storage>(
 )
 
 // Expose to EvaluateJavaScriptSetting
-export let api: PluginApi<Storage>
+export let api: PluginApi<{ storage: Storage }>

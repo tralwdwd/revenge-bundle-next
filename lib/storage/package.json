@@ -5,6 +5,12 @@
   "exports": {
     ".": {
       "default": "./src/index.ts"
+    },
+    "./preinit": {
+      "default": "./src/preinit.ts"
+    },
+    "./init": {
+      "default": "./src/init.ts"
     }
   }
 }
