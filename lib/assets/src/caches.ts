@@ -18,8 +18,7 @@ const CacheStorage = getStorage<Cache>(`revenge/assets.${Key}`, {
 })
 
 // TODO(lib/assets/caches): This loads way too late and requires native interop to load earlier
-// biome-ignore lint/complexity/useArrowFunction: Arrow functions are not supported
-export const cached = CacheStorage.get().then(async function (cache_) {
+export const cached = CacheStorage.get().then(cache_ => {
     const cached = cache_ !== cache
     // If we are not using the default value, merge it into the in-memory cache, then point the storage cache to the in-memory cache.
     if (cached) {
@@ -38,7 +37,7 @@ export interface Cache {
 
 const save = debounce(() => CacheStorage.set({}), 1000)
 
-export async function cacheAsset(asset: Asset, moduleId: Metro.ModuleID) {
+export function cacheAsset(asset: Asset, moduleId: Metro.ModuleID) {
     // Merge directly into the cache, only debouncing actual writes
     mergeDeep(cache, {
         [asset.name]: {
@@ -46,5 +45,5 @@ export async function cacheAsset(asset: Asset, moduleId: Metro.ModuleID) {
         },
     })
 
-    await save()
+    save()
 }
