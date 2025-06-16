@@ -3,19 +3,20 @@ import { AlertActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { nodeUtil } from '@revenge-mod/externals/browserify'
 import { getErrorStack } from '@revenge-mod/utils/errors'
+import { sleep } from '@revenge-mod/utils/promises'
 import { useRef, useState } from 'react'
 import { api } from '..'
 import { Setting } from '../constants'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
-const ALERT_KEY = 'evaluate-javascript'
+const AlertKey = 'evaluate-javascript'
 
 const EvalJSSetting: SettingsItem = {
     parent: Setting.RevengeDeveloper,
     IconComponent: () => <TableRowAssetIcon name="FileIcon" />,
     title: () => 'Evaluate JavaScript',
     useDescription: () => 'Runs a JavaScript code snippet.',
-    onPress: () => AlertActionCreators.openAlert(ALERT_KEY, <EvalJSAlert />),
+    onPress: () => AlertActionCreators.openAlert(AlertKey, <EvalJSAlert />),
     type: 'pressable',
 }
 
@@ -48,30 +49,29 @@ function EvalJSAlert() {
                         onPress={async function onPress() {
                             setLoading(true)
 
+                            const key = `_${Math.random()
+                                .toString(36)
+                                .substring(2, 15)}`
+
                             try {
                                 if (!api) {
                                     alert(
                                         'Unable to provide plugin API. Running snippet in a second...',
                                     )
-                                    await new Promise(rs =>
-                                        setTimeout(rs, 1000),
-                                    )
-                                } else {
-                                    // @ts-expect-error
-                                    globalThis.revenge = api.unscoped
-                                    // @ts-expect-error
-                                    globalThis.api = api
-                                }
 
-                                // Do a no-local-scope-access eval
-                                // biome-ignore lint/security/noGlobalEval: This is intentional
-                                const res = globalThis.eval?.(code.current)
+                                    await sleep(1000)
+                                }
+                                // @ts-expect-error
+                                else globalThis[key] = api
+
+                                const res = globalEvalWithSourceUrl(
+                                    `api=${key},{unscoped:revenge}=api;${code.current}`,
+                                    'Revenge:EvalJS',
+                                )
 
                                 alert(
                                     nodeUtil.inspect(
-                                        awaitResult && res instanceof Promise
-                                            ? await res
-                                            : res,
+                                        awaitResult ? await res : res,
                                         {
                                             depth: inspectDepth,
                                             showHidden,
@@ -80,17 +80,15 @@ function EvalJSAlert() {
                                 )
 
                                 // @ts-expect-error
-                                // biome-ignore lint/performance/noDelete: This is fine.
-                                delete globalThis.revenge, delete globalThis.api
+                                delete globalThis[key]
                             } catch (e) {
                                 alert(getErrorStack(e))
                             }
 
                             setLoading(false)
-                            AlertActionCreators.dismissAlert(ALERT_KEY)
+                            AlertActionCreators.dismissAlert(AlertKey)
                         }}
                         text="Evaluate"
-                        // Async arrow functions are not supported
                         variant="primary"
                     />
                     <AlertActionButton text="Cancel" variant="secondary" />
