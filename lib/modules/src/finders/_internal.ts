@@ -1,3 +1,5 @@
+import { getCurrentStack } from '@revenge-mod/utils/errors'
+import { cacheFilterResult } from '../caches'
 import { isModuleExportBad } from '../metro/utils'
 import type { If } from '@revenge-mod/utils/types'
 import type { Metro } from '../types'
@@ -73,27 +75,28 @@ export function runFilter(
 ): FilterResultFlag | undefined {
     if (exports === undefined) {
         if ((filter as Filter<any, false>)(id)) {
-            // TODO(modules/finders/caches)
-            return FilterResultFlags.Found
+            if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__) {
+                const flag = runFilter(filter, id, __r(id), options)
+                if (!flag) warnDeveloperAboutPartialFilterMatch(id, filter.key)
+                return flag
+            } else {
+                return runFilter(filter, id, __r(id), options)
+            }
         }
 
         return
     }
 
-    if (filter(id, exports)) {
-        // TODO(modules/finders/caches::namespace)
-        return FilterResultFlags.Namespace
-    }
+    if (filter(id, exports))
+        return cacheFilterResult(filter.key, id, FilterResultFlags.Namespace)
 
     const defaultExport = exports.default
     if (
         !options?.skipDefault &&
         !isModuleExportBad(defaultExport) &&
         filter(id, defaultExport)
-    ) {
-        // TODO(modules/finders/caches::default)
-        return FilterResultFlags.Default
-    }
+    )
+        return cacheFilterResult(filter.key, id, FilterResultFlags.Default)
 }
 
 export function exportsFromFilterResultFlag(
@@ -104,4 +107,16 @@ export function exportsFromFilterResultFlag(
     if (flag === FilterResultFlags.Default && !options?.returnNamespace)
         return exports.default
     return exports
+}
+
+/**
+ * Warns the developer that the filter matched during exportsless comparison, but not during the full comparison.
+ * This will cause modules to be initialized unnecessarily, and may cause issues.
+ * @internal
+ */
+function warnDeveloperAboutPartialFilterMatch(id: Metro.ModuleID, key: string) {
+    nativeLoggingHook(
+        `\u001b[33m${key} matched module ${id} partially.\n${getCurrentStack()}\u001b[0m`,
+        2,
+    )
 }

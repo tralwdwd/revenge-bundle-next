@@ -1,6 +1,11 @@
 import { getCurrentStack } from '@revenge-mod/utils/errors'
+import { proxify } from '@revenge-mod/utils/proxy'
+import { cache } from '../caches'
 import { _inits, _paths, _uninits } from '../metro/_internal'
-import { getInitializedModuleExports } from '../metro/utils'
+import {
+    getInitializedModuleExports,
+    isModuleInitialized,
+} from '../metro/utils'
 import { exportsFromFilterResultFlag, runFilter } from './_internal'
 import type { If } from '@revenge-mod/utils/types'
 import type { MaybeDefaultExportMatched, Metro } from '../types'
@@ -29,6 +34,10 @@ export interface BaseLookupModulesOptions<
      * @default false
      */
     includeUninitialized?: IncludeUninitialized
+    /**
+     * If the lookup is cached, whether to initialize the cached modules.
+     */
+    initializeCached?: boolean
 }
 
 export type LookupModulesOptions<
@@ -103,8 +112,37 @@ export function lookupModules<
 export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     let warn = true
 
+    const reg = cache[filter.key]
+    // Return early if previous lookup was a full lookup and no modules were found
+    if (reg === null) return
+
+    const cached = new Set<Metro.ModuleID>()
+
+    if (reg)
+        for (const sId in reg) {
+            const flag = reg[sId]
+            const id = Number(sId)
+            let exports: Metro.ModuleExports | undefined
+
+            if (!isModuleInitialized(id)) {
+                if (!(options?.initializeCached ?? true)) continue
+                exports = __r(id)
+            }
+
+            yield [
+                exportsFromFilterResultFlag(
+                    flag,
+                    (exports ??= getInitializedModuleExports(id)),
+                    options,
+                ),
+                id,
+            ]
+        }
+
     if (options?.includeInitialized ?? true)
         for (const id of _inits) {
+            if (cached.has(id)) continue
+
             const exports = getInitializedModuleExports(id)
             const flag = runFilter(filter, id, exports, options)
             if (flag) {
@@ -114,23 +152,27 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
         }
 
     if (options?.includeUninitialized)
-        for (const id of _uninits)
-            if (runFilter(filter, id)) {
-                // Run the filter again to ensure we have the correct exports
-                const exports = __r(id)
-                const flag = runFilter(filter, id, exports, options)
-                if (flag) {
-                    warn = false
-                    yield [
-                        exportsFromFilterResultFlag(flag, exports, options),
-                        id,
-                    ]
-                } else if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
-                    warnDeveloperAboutPartialFilterMatch(id, filter.key)
+        for (const id of _uninits) {
+            if (cached.has(id)) continue
+
+            const flag = runFilter(filter, id)
+            if (flag) {
+                warn = false
+                yield [
+                    exportsFromFilterResultFlag(
+                        flag,
+                        getInitializedModuleExports(id),
+                        options,
+                    ),
+                    id,
+                ]
             }
+        }
 
     if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
         if (warn) warnDeveloperAboutNoFilterMatch(filter)
+
+    cache[filter.key] = null // Full lookup, and still not found!
 }
 
 /**
@@ -157,6 +199,31 @@ export function lookupModule<F extends Filter, O extends LookupModulesOptions>(
 ): LookupModulesResult<F, O> | []
 
 export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
+    const reg = cache[filter.key]
+    // Return early if previous lookup was a full lookup and no modules were found
+    if (reg === null) return []
+
+    if (reg)
+        for (const sId in reg) {
+            const flag = reg[sId]
+            const id = Number(sId)
+            let exports: Metro.ModuleExports
+
+            if (!isModuleInitialized(id)) {
+                if (!(options?.initializeCached ?? true)) continue
+                exports = __r(id)
+            }
+
+            return [
+                exportsFromFilterResultFlag(
+                    flag,
+                    (exports ??= getInitializedModuleExports(id)),
+                    options,
+                ),
+                id,
+            ]
+        }
+
     if (options?.includeInitialized ?? true)
         for (const id of _inits) {
             const exports = getInitializedModuleExports(id)
@@ -166,22 +233,23 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
         }
 
     if (options?.includeUninitialized)
-        for (const id of _uninits)
-            if (runFilter(filter, id)) {
-                const exports = __r(id)
-                // Run the filter again to ensure we have the correct exports
-                const flag = runFilter(filter, id, exports, options)
-                if (flag)
-                    return [
-                        exportsFromFilterResultFlag(flag, exports, options),
-                        id,
-                    ]
-                else if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
-                    warnDeveloperAboutPartialFilterMatch(id, filter.key)
-            }
+        for (const id of _uninits) {
+            const flag = runFilter(filter, id)
+            if (flag)
+                return [
+                    exportsFromFilterResultFlag(
+                        flag,
+                        getInitializedModuleExports(id),
+                        options,
+                    ),
+                    id,
+                ]
+        }
 
     if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
         warnDeveloperAboutNoFilterMatch(filter)
+
+    cache[filter.key] = null // Full lookup, and still not found!
 
     return []
 }
@@ -209,35 +277,25 @@ export function lookupModuleByImportedPath<T = any>(
     return [getInitializedModuleExports(id), id]
 }
 
-/**
- * Warns the developer that the filter matched during exportsless comparison, but not during the full comparison.
- * This will cause modules to be initialized unnecessarily, and may cause issues.
- * @internal
- */
-function warnDeveloperAboutPartialFilterMatch(id: Metro.ModuleID, key: string) {
-    nativeLoggingHook(
-        `\u001b[33m${key} matched module ${id} partially.\n${getCurrentStack()}\u001b[0m`,
-        2,
-    )
-}
-
 const __blacklistedFunctions = __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__
-    ? [
-          import('./get').then(m => m.getModule),
-          import('@revenge-mod/utils/discord').then(
-              m => m.lookupGeneratedIconComponent,
-          ),
-      ]
+    ? proxify(
+          () => [
+              require('./get').getModule,
+              require('@revenge-mod/utils/discord')
+                  .lookupGeneratedIconComponent,
+          ],
+          { hint: [] },
+      )
     : []
 
 /**
  * Warns the developer that no module was found for the given filter.
  * This is useful for debugging purposes, especially when using filters that are expected to match a module.
  */
-async function warnDeveloperAboutNoFilterMatch(filter: Filter) {
+function warnDeveloperAboutNoFilterMatch(filter: Filter) {
     const stack = getCurrentStack()
     for (const func of __blacklistedFunctions)
-        if (stack.includes((await func).name)) return
+        if (stack.includes(func.name)) return
 
     nativeLoggingHook(
         `\u001b[31mNo module found for filter: ${filter.key}\n${stack}\u001b[0m`,
