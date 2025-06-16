@@ -5,14 +5,14 @@ import type { PluginApiReact } from './apis/react'
 import type { PluginFlags, PluginStatus } from './constants'
 
 // biome-ignore lint/suspicious/noEmptyInterface: To be extended by actual extensions
-export interface PluginApiExtensionOptions {}
+export interface PluginApiExtensionsOptions {}
 
 /**
  * The unscoped plugin API (very limited). This API is available as a global for plugins.
  * Available in the `preInit` phase.
  */
 export interface UnscopedPreInitPluginApi<
-    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+    O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
 > {
     modules: PluginApiModules
     patcher: typeof import('@revenge-mod/patcher')
@@ -25,7 +25,7 @@ export interface UnscopedPreInitPluginApi<
  * Available in the `init` phase.
  */
 export interface UnscopedInitPluginApi<
-    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+    O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
 > extends UnscopedPreInitPluginApi<O> {
     assets: typeof import('@revenge-mod/assets')
     react: PluginApiReact
@@ -36,7 +36,7 @@ export interface UnscopedInitPluginApi<
  * Available in the `start` and `stop` phase.
  */
 export interface UnscopedPluginApi<
-    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+    O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
 > extends UnscopedInitPluginApi<O> {
     // ui: typeof import('@revenge-mod/ui')
 }
@@ -49,7 +49,7 @@ export type PluginCleanupApi = (...fns: PluginCleanup[]) => void
  * Available in the `preInit` phase.
  */
 export interface PreInitPluginApi<
-    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+    O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
 > {
     unscoped: UnscopedPreInitPluginApi
     cleanup: PluginCleanupApi
@@ -61,7 +61,7 @@ export interface PreInitPluginApi<
  * Available in the `init` phase.
  */
 export interface InitPluginApi<
-    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+    O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
 > extends PreInitPluginApi<O> {
     unscoped: UnscopedInitPluginApi
 }
@@ -71,7 +71,7 @@ export interface InitPluginApi<
  * Available in the `start` and `stop` phase.
  */
 export interface PluginApi<
-    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+    O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
 > extends InitPluginApi<O> {
     unscoped: UnscopedPluginApi
 }
@@ -116,13 +116,13 @@ export interface PluginManifest {
 }
 
 export interface PluginOptions<
-    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+    O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
 > extends PluginLifecycles<O> {
     SettingsComponent?: PluginSettingsComponent<O>
 }
 
 export interface PluginLifecycles<
-    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+    O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
 > {
     /**
      * Runs as soon as possible with very limited APIs.
@@ -153,7 +153,7 @@ export interface PluginLifecycles<
 }
 
 export interface Plugin<
-    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+    O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
 > {
     // TODO(plugins): support plugin bundles
     // /**
@@ -200,5 +200,5 @@ export interface Plugin<
 }
 
 export interface PluginSettingsComponent<
-    O extends PluginApiExtensionOptions = PluginApiExtensionOptions,
+    O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
 > extends FunctionComponent<{ api: PluginApi<O> }> {}

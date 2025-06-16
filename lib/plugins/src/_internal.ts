@@ -6,7 +6,7 @@ import type {
     InitPluginApi,
     Plugin,
     PluginApi,
-    PluginApiExtensionOptions,
+    PluginApiExtensionsOptions,
     PluginCleanup,
     PluginManifest,
     PluginOptions,
@@ -43,9 +43,9 @@ export const _metas = new Map<
     ]
 >()
 
-export function registerPlugin<E extends PluginApiExtensionOptions>(
+export function registerPlugin<O extends PluginApiExtensionsOptions>(
     manifest: PluginManifest,
-    options: PluginOptions<E>,
+    options: PluginOptions<O>,
     flags: number,
     iflags: number,
 ) {

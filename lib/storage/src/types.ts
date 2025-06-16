@@ -1,5 +1,5 @@
 import type {
-    PluginApiExtensionOptions,
+    PluginApiExtensionsOptions,
     PluginManifest,
     PluginOptions,
 } from '@revenge-mod/plugins/types'
@@ -7,15 +7,15 @@ import type { AnyObject } from '@revenge-mod/utils/types'
 import type { Storage, StorageOptions } from '.'
 
 declare module '@revenge-mod/plugins/types' {
-    export interface PluginApiExtensionOptions {
+    export interface PluginApiExtensionsOptions {
         storage: AnyObject
     }
 
-    export interface PluginOptions<O extends PluginApiExtensionOptions> {
+    export interface PluginOptions<O extends PluginApiExtensionsOptions> {
         storage?: Omit<StorageOptions<O['storage']>, 'directory'>
     }
 
-    export interface InitPluginApi<O extends PluginApiExtensionOptions> {
+    export interface InitPluginApi<O extends PluginApiExtensionsOptions> {
         /**
          * The plugin storage.
          *
@@ -29,7 +29,7 @@ declare module '@revenge-mod/plugins/types' {
 }
 
 declare module '@revenge-mod/plugins/_' {
-    export function registerPlugin<E extends PluginApiExtensionOptions>(
+    export function registerPlugin<E extends PluginApiExtensionsOptions>(
         manifest: PluginManifest,
         options: PluginOptions<E>,
         flags: number,
