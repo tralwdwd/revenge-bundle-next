@@ -110,7 +110,7 @@ export function lookupModules<
 >(filter: F, options: O): Generator<LookupModulesResult<F, O>, undefined>
 
 export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
-    let warn = true
+    let notFound = true
 
     const reg = cache[filter.key]
     // Return early if previous lookup was a full lookup and no modules were found
@@ -146,7 +146,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
             const exports = getInitializedModuleExports(id)
             const flag = runFilter(filter, id, exports, options)
             if (flag) {
-                warn = false
+                notFound = false
                 yield [exportsFromFilterResultFlag(flag, exports, options), id]
             }
         }
@@ -157,7 +157,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
 
             const flag = runFilter(filter, id)
             if (flag) {
-                warn = false
+                notFound = false
                 yield [
                     exportsFromFilterResultFlag(
                         flag,
@@ -170,9 +170,9 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
         }
 
     if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
-        if (warn) warnDeveloperAboutNoFilterMatch(filter)
+        if (notFound) warnDeveloperAboutNoFilterMatch(filter)
 
-    cache[filter.key] = null // Full lookup, and still not found!
+    if (notFound) cache[filter.key] = null // Full lookup, and still not found!
 }
 
 /**
