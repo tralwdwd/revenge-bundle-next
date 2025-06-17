@@ -1,6 +1,7 @@
 import { transform } from '@swc/core'
 import { $, main } from 'bun'
 import chalk from 'chalk'
+import { existsSync } from 'fs'
 import { exists, mkdir, readdir, rm, writeFile } from 'fs/promises'
 import { parse } from 'path'
 import { rolldown } from 'rolldown'
@@ -91,17 +92,20 @@ export default async function build(dev = Dev, log = true) {
                     '-Wno-direct-eval',
                     '-Wno-undefined-variable',
                 ],
-                before() {
-                    if (log)
+                before(ver) {
+                    if (log) {
                         console.debug(
                             chalk.cyanBright(
                                 '\u{1F5CE} JS compilation finished...',
                             ),
                         )
-                    if (log)
+
                         console.debug(
-                            chalk.gray('\u{1F5CE} Compiling bytecode...'),
+                            chalk.gray(
+                                `\u{1F5CE} Compiling bytecode with ${ver}...`,
+                            ),
                         )
+                    }
                 },
                 after() {
                     if (log)
@@ -183,30 +187,38 @@ function swcPlugin() {
     } satisfies RolldownPlugin
 }
 
-function hermesCPlugin({
+async function hermesCPlugin({
     after,
     before,
     flags,
 }: {
     flags?: string[]
-    before?: () => void
-    after?: () => void
+    before?: (v: string) => void
+    after?: (v: string) => void
 } = {}) {
     const paths = {
-        win32: 'hermesc.exe',
-        darwin: 'hermesc',
-        linux: 'hermesc',
+        win32: 'win64-bin/hermesc.exe',
+        darwin: 'osx-bin/hermesc',
+        linux: 'linux64/hermesc',
     }
 
     if (!(process.platform in paths))
         throw new Error(`Unsupported platform: ${process.platform}`)
 
-    const binPath = paths[process.platform as keyof typeof paths]
+    const sdksDir = './node_modules/react-native/sdks'
+    const binPath = `${sdksDir}/hermesc/${paths[process.platform as keyof typeof paths]}`
+
+    if (!existsSync(binPath))
+        throw new Error(
+            `Hermes compiler not found at ${binPath}. Please ensure you have react-native installed.`,
+        )
+
+    const ver = await Bun.file(`${sdksDir}/.hermesversion`).text()
 
     return {
         name: 'hermesc',
         generateBundle(_, bundle) {
-            if (before) before()
+            if (before) before(ver)
 
             const file = bundle['revenge.js'] as OutputChunk
             if (!file || !file.code) throw new Error('No code to compile')
@@ -214,11 +226,7 @@ function hermesCPlugin({
             // TODO(scripts/build): Remove this when we have a better way to add sourceURL
             file.code += `//# sourceURL=Revenge`
 
-            const cmdlist = [
-                `./node_modules/@unbound-mod/hermesc/${process.platform}/${binPath}`,
-                '-emit-binary',
-                ...(flags ?? []),
-            ]
+            const cmdlist = [binPath, '-emit-binary', ...(flags ?? [])]
 
             const cmd = Bun.spawnSync(cmdlist, {
                 // @ts-expect-error: Types are incorrect, but this works
@@ -238,7 +246,7 @@ function hermesCPlugin({
                 source: buf,
             })
 
-            if (after) after()
+            if (after) after(ver)
         },
     } satisfies RolldownPlugin
 }

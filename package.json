@@ -8,7 +8,6 @@
     "@react-native-clipboard/clipboard": "^1.16.2",
     "@swc/core": "^1.12.1",
     "@types/bun": "^1.2.16",
-    "@unbound-mod/hermesc": "^1.0.3",
     "chalk": "^5.4.1",
     "rolldown": "^1.0.0-beta.16"
   },
@@ -40,6 +39,17 @@
   ],
   "dependencies": {
     "react-native-click-outside": "^0.1.1"
+  },
+  "overrides": {
+    "@react-native/community-cli-plugin": "npm:dry-uninstall",
+    "@react-native/codegen": "npm:dry-uninstall",
+    "babel-jest": "npm:dry-uninstall",
+    "babel-plugin-syntax-hermes-parser": "npm:dry-uninstall",
+    "jsc-android": "npm:dry-uninstall",
+    "react-devtools-core": "npm:dry-uninstall",
+    "recyclerlistview": "npm:dry-uninstall",
+    "react-native-gesture-handler": "npm:dry-uninstall",
+    "react-native-screens": "npm:dry-uninstall"
   },
   "patchedDependencies": {
     "react-native-click-outside@0.1.1": "patches/react-native-click-outside@0.1.1.patch"
