@@ -199,7 +199,7 @@ async function hermesCPlugin({
     const paths = {
         win32: 'win64-bin/hermesc.exe',
         darwin: 'osx-bin/hermesc',
-        linux: 'linux64/hermesc',
+        linux: 'linux64-bin/hermesc',
     }
 
     if (!(process.platform in paths))
