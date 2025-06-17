@@ -35,7 +35,9 @@ export interface Cache {
     }
 }
 
-const save = debounce(() => CacheStorage.set({}), 1000)
+const save = debounce(() => {
+    CacheStorage.set({})
+}, 1000)
 
 export function cacheAsset(asset: Asset, moduleId: Metro.ModuleID) {
     // Merge directly into the cache, only debouncing actual writes

@@ -141,7 +141,9 @@ function Screen() {
             <Stack direction="horizontal">
                 <View style={styles.grow}>
                     <SearchInput
-                        onChange={(v: string) => debouncedSetSearch(v)}
+                        onChange={(v: string) => {
+                            debouncedSetSearch(v)
+                        }}
                         size="md"
                     />
                 </View>

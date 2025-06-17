@@ -28,9 +28,15 @@ export function allSettled(
 }
 
 export function sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise(resolve => {
+        setTimeout(resolve, ms)
+    })
 }
 
 export function sleepReject(ms: number, msg?: string): Promise<void> {
-    return new Promise((_, reject) => setTimeout(() => reject(msg), ms))
+    return new Promise((_, reject) => {
+        setTimeout(() => {
+            reject(msg)
+        }, ms)
+    })
 }

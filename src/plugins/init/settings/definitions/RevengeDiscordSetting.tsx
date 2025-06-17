@@ -8,7 +8,9 @@ const RevengeDiscordSetting: SettingsItem = {
     parent: Setting.Revenge,
     IconComponent: () => <TableRowAssetIcon name="Discord" />,
     title: () => 'Discord Server',
-    onPress: () => Linking.openURL(DiscordServerURL),
+    onPress: () => {
+        Linking.openURL(DiscordServerURL)
+    },
     type: 'pressable',
 }
 

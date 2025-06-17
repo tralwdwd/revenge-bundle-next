@@ -7,7 +7,9 @@ const ReloadSetting: SettingsItem = {
     parent: Setting.Revenge,
     IconComponent: () => <TableRowAssetIcon name="RetryIcon" />,
     title: () => 'Reload App',
-    onPress: () => BundleUpdaterManager.reload(),
+    onPress: () => {
+        BundleUpdaterManager.reload()
+    },
     type: 'pressable',
 }
 

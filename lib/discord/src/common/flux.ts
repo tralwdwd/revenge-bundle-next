@@ -33,8 +33,7 @@ export const [Dispatcher, DispatcherModuleId] = lookupModule(
 ) as [DiscordModules.Flux.Dispatcher, Metro.ModuleID]
 
 waitForModules(byProps<DiscordModules.Flux.Store>('_dispatchToken'), store => {
-    const name = store.getName()
-    _stores[name] = store
+    _stores[store.getName()] = store
 })
 
 const _stores: Record<string, any> = {}

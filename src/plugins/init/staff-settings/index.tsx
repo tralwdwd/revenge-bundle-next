@@ -33,7 +33,9 @@ registerPlugin(
                         store.initialize()
                         unpatch()
 
-                        setTimeout(() => refreshSettingsOverviewScreen(true))
+                        setTimeout(() => {
+                            refreshSettingsOverviewScreen(true)
+                        })
                     },
                 )
             }

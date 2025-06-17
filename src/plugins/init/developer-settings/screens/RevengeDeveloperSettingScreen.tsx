@@ -69,7 +69,9 @@ export function RDTAddrSetting() {
                             }),
                         )
                 }
-                onChange={text => (RDTContext.addr = text)}
+                onChange={text => {
+                    RDTContext.addr = text
+                }}
                 returnKeyType="done"
             />
         </View>

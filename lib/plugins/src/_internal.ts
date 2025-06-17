@@ -304,7 +304,9 @@ export async function stopPlugin(plugin: InternalPlugin) {
                 // If the lifecycles don't finish in 5 seconds, a reload is probably required to unapply the changes
                 if (!finished) plugin.flags |= Flag.ReloadRequired
             })
-            .catch(e => handlePluginError(e, plugin))
+            .catch(e => {
+                handlePluginError(e, plugin)
+            })
     else if (
         !(plugin.status & (Status.PreInited | Status.Inited | Status.Started))
     )

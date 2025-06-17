@@ -16,7 +16,9 @@ const EvalJSSetting: SettingsItem = {
     IconComponent: () => <TableRowAssetIcon name="FileIcon" />,
     title: () => 'Evaluate JavaScript',
     useDescription: () => 'Runs a JavaScript code snippet.',
-    onPress: () => AlertActionCreators.openAlert(AlertKey, <EvalJSAlert />),
+    onPress: () => {
+        AlertActionCreators.openAlert(AlertKey, <EvalJSAlert />)
+    },
     type: 'pressable',
 }
 
@@ -99,7 +101,9 @@ function EvalJSAlert() {
                     <TextArea
                         autoFocus
                         label="Code"
-                        onChange={v => (code.current = v)}
+                        onChange={v => {
+                            code.current = v
+                        }}
                         placeholder="ReactNative.NativeModules.BundleUpdaterManager.reload()"
                         size="md"
                     />

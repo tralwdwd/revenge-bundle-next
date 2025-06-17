@@ -38,7 +38,10 @@ registerPlugin<{ storage: Storage }>(
             api = api_
 
             if (isSettingsModulesLoaded()) require('./utils').register()
-            else onSettingsModulesLoaded(() => require('./utils').register())
+            else
+                onSettingsModulesLoaded(() => {
+                    require('./utils').register()
+                })
 
             if (api_.plugin.flags & PluginFlags.EnabledLate)
                 refreshSettingsOverviewScreen()

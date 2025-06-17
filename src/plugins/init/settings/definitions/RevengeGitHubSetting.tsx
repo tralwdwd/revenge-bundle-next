@@ -10,7 +10,9 @@ const RevengeGitHubSetting: SettingsItem = {
         <TableRowAssetIcon name="img_account_sync_github_white" />
     ),
     title: () => 'GitHub',
-    onPress: () => Linking.openURL(GitHubOrganizationURL),
+    onPress: () => {
+        Linking.openURL(GitHubOrganizationURL)
+    },
     type: 'pressable',
 }
 

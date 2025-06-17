@@ -31,8 +31,13 @@ let enabledCount = 0
 for (const plugin of _plugins.values())
     if (plugin.flags & PluginFlags.Enabled) enabledCount++
 
-_emitter.on('disabled', () => enabledCount--)
-_emitter.on('enabled', () => enabledCount++)
+_emitter.on('disabled', () => {
+    enabledCount--
+})
+
+_emitter.on('enabled', () => {
+    enabledCount++
+})
 
 export function useUpdateOnPluginStatesChange() {
     const reRender = useReRender()
@@ -73,7 +78,9 @@ function showReloadRequiredAlertIfNeeded(plugin: InternalPlugin) {
                         <AlertActionButton
                             variant="destructive"
                             text="Reload"
-                            onPress={() => BundleUpdaterManager.reload()}
+                            onPress={() => {
+                                BundleUpdaterManager.reload()
+                            }}
                         />
                         <AlertActionButton variant="secondary" text="Not now" />
                     </>

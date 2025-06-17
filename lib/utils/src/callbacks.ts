@@ -6,7 +6,9 @@ export function debounce<F extends (...args: any[]) => any>(
     return (...args: Parameters<F>) =>
         new Promise(rs => {
             clearTimeout(timer)
-            timer = setTimeout(() => rs(func(...args)), timeout)
+            timer = setTimeout(() => {
+                rs(func(...args))
+            }, timeout)
         })
 }
 

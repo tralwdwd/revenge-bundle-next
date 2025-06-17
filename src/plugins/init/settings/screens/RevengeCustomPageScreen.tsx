@@ -13,7 +13,9 @@ export default function RevengeCustomPageScreen({
     const { render: PageComponent, options } = route.params
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: We only want to set options once
-    useLayoutEffect(() => options && navigation.setOptions(options), [])
+    useLayoutEffect(() => {
+        if (options) navigation.setOptions(options)
+    }, [])
 
     return <PageComponent />
 }

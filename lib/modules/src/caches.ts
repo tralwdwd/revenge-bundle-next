@@ -36,7 +36,9 @@ export interface Cache {
         | undefined
 }
 
-const save = debounce(() => CacheStorage.set({}), 1000)
+const save = debounce(() => {
+    CacheStorage.set({})
+}, 1000)
 
 export function cacheFilterResult(
     key: Filter['key'],

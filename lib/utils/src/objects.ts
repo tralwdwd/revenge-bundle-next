@@ -67,7 +67,7 @@ export function interceptProperty(
         delete proto[prop]
         const desc = _intercepting.get(prop)
         if (desc) objectDefineProperty(proto, prop, desc)
-        _intercepting.delete(prop)
+        return _intercepting.delete(prop)
     }
 }
 

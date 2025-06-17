@@ -111,7 +111,9 @@ export function InstalledPluginCard({
                             size="sm"
                             variant="secondary"
                             icon={SettingsIcon}
-                            onPress={() => navigatePluginSettings(plugin)}
+                            onPress={() => {
+                                navigatePluginSettings(plugin)
+                            }}
                             disabled={!enabled}
                         />
                     </Pressable>

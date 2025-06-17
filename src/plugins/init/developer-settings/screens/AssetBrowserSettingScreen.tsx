@@ -46,7 +46,9 @@ export default function AssetBrowserSettingScreen() {
     return (
         <Page spacing={16}>
             <SearchInput
-                onChange={(v: string) => debouncedSetSearch(v)}
+                onChange={(v: string) => {
+                    debouncedSetSearch(v)
+                }}
                 size="md"
             />
             <FlashList.FlashList
@@ -124,7 +126,9 @@ function AssetDisplay({
                 )
             }
             label={asset.name}
-            onPress={() => openAssetDisplayAlert(asset, id, metadata)}
+            onPress={() => {
+                openAssetDisplayAlert(asset, id, metadata)
+            }}
             start={start}
             subLabel={metadata
                 .filter(([, , , hiddenInText]) => !hiddenInText)

@@ -7,9 +7,8 @@ const { jsx: _jsx, jsxs: _jsxs, Fragment } = ReactJsxRuntime
 const jsx = ((type, ...args) =>
     _jsx(unproxy(type as object), ...args)) as typeof _jsx
 
-const jsxs = ((type, ...args) => {
-    return _jsxs(unproxy(type as object), ...args)
-}) as typeof _jsxs
+const jsxs = ((type, ...args) =>
+    _jsxs(unproxy(type as object), ...args)) as typeof _jsxs
 
 function unproxy(type: object): ElementType {
     return (isProxified(type)

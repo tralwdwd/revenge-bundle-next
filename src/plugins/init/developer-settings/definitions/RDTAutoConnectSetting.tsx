@@ -14,7 +14,9 @@ const RDTAutoConnectSetting: SettingsItem = {
     useValue: () =>
         api.storage.use(s => s.devtools?.autoConnect !== undefined)!.devtools
             .autoConnect,
-    onValueChange: v => api.storage.set({ devtools: { autoConnect: v } }),
+    onValueChange: v => {
+        api.storage.set({ devtools: { autoConnect: v } })
+    },
     type: 'toggle',
 }
 
