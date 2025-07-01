@@ -236,10 +236,9 @@ export function destructure<T extends object>(
     options?: ProxifyOptions,
 ): T {
     return new Proxy({} as T, {
-        get: (_, p) =>
+        get: (_, p, r) =>
             proxify(() => {
-                // @ts-expect-error
-                const v = unproxify(proxified)[p]
+                const v = Reflect.get(unproxify(proxified), p, r)
 
                 if (v == null)
                     throw new TypeError(

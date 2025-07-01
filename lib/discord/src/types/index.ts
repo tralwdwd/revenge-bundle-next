@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events'
-import type { ComponentProps, ComponentType, FC, ReactNode } from 'react'
+import type { ComponentProps, ComponentType, FC, JSX, ReactNode } from 'react'
 import type {
     ImageSourcePropType,
     ImageStyle,

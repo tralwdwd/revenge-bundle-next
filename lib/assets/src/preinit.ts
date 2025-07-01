@@ -74,8 +74,7 @@ const unsubRAS = waitForModules(
         // This will result in a crash, because it tries to read the path and run checks on it, but the path is undefined.
         // @ts-expect-error
         rAS.addCustomSourceTransformer(({ asset }) => {
-            // @ts-expect-error
-            if (!asset.__packager_asset) return asset
+            if (!(asset as PackagerAsset).__packager_asset) return asset
         })
 
         // Asset overrides
