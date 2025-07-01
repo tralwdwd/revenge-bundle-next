@@ -27,9 +27,7 @@ export interface BaseLookupModulesOptions<
     /**
      * Whether to include uninitialized modules in the lookup.
      *
-     * Options that require modules to be initialized (eg. `returnNamespace`, `skipDefault`) will be ignored during uninitialized module ID lookup.
-     *
-     * **This will initialize any modules that match the filter and may cause unintended side effects.**
+     * **This will initialize any modules that match the exportsless filter and may cause unintended side effects.**
      *
      * @default false
      */
@@ -116,6 +114,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     // Return early if previous lookup was a full lookup and no modules were found
     if (reg === null) return
 
+    const noInitCached = !(options?.initializeCached ?? true)
     const cached = new Set<Metro.ModuleID>()
 
     if (reg)
@@ -125,18 +124,11 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
             let exports: Metro.ModuleExports | undefined
 
             if (!isModuleInitialized(id)) {
-                if (!(options?.initializeCached ?? true)) continue
+                if (noInitCached) continue
                 exports = __r(id)
-            }
+            } else exports = getInitializedModuleExports(id)
 
-            yield [
-                exportsFromFilterResultFlag(
-                    flag,
-                    (exports ??= getInitializedModuleExports(id)),
-                    options,
-                ),
-                id,
-            ]
+            yield [exportsFromFilterResultFlag(flag, exports, options), id]
         }
 
     if (options?.includeInitialized ?? true)
@@ -203,6 +195,8 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
     // Return early if previous lookup was a full lookup and no modules were found
     if (reg === null) return []
 
+    const noInitCached = !(options?.initializeCached ?? true)
+
     if (reg)
         for (const sId in reg) {
             const flag = reg[sId]
@@ -210,18 +204,11 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
             let exports: Metro.ModuleExports
 
             if (!isModuleInitialized(id)) {
-                if (!(options?.initializeCached ?? true)) continue
+                if (noInitCached) continue
                 exports = __r(id)
-            }
+            } else exports = getInitializedModuleExports(id)
 
-            return [
-                exportsFromFilterResultFlag(
-                    flag,
-                    (exports ??= getInitializedModuleExports(id)),
-                    options,
-                ),
-                id,
-            ]
+            return [exportsFromFilterResultFlag(flag, exports, options), id]
         }
 
     if (options?.includeInitialized ?? true)

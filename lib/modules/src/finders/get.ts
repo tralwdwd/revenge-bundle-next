@@ -92,13 +92,15 @@ export function getModule(
     } else
         for (const [exports, id] of lookupModules(filter, options!)) {
             callback(exports, id)
-            if (--max === 0) return noopFalse
+            max--
+            if (!max) return noopFalse
         }
 
     const unsub = waitForModules(
         filter,
         (exports, id) => {
-            if (--max === 0) unsub()
+            max--
+            if (!max) unsub()
             callback(exports, id)
         },
         options!,
