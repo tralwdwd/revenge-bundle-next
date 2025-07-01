@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "module": "src/index.ts",
   "devDependencies": {
-    "@biomejs/biome": "^2.0.0",
+    "@biomejs/biome": "^2.0.6",
     "@parcel/watcher": "^2.5.1",
-    "@react-native-clipboard/clipboard": "^1.16.2",
-    "@types/bun": "^1.2.16"
+    "@react-native-clipboard/clipboard": "^1.16.3",
+    "@types/bun": "^1.2.17"
   },
   "peerDependencies": {
     "@react-navigation/core": "^7.10.1",
@@ -35,10 +35,10 @@
     "plugins/*"
   ],
   "dependencies": {
-    "@swc/core": "^1.12.1",
+    "@swc/core": "^1.12.9",
     "chalk": "^5.4.1",
     "react-native-click-outside": "^0.1.1",
-    "rolldown": "^1.0.0-beta.17"
+    "rolldown": "^1.0.0-beta.23"
   },
   "overrides": {
     "@react-native/community-cli-plugin": "npm:dry-uninstall",
