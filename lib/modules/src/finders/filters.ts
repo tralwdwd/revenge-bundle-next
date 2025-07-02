@@ -89,7 +89,7 @@ export type ByProps = FilterGenerator<
 >
 
 /**
- * Filter modules by their exports having all of the specified properties.
+ * Filter modules by their exports having all of the specified properties with truthy values.
  *
  * @param prop The property to check for.
  * @param props More properties to check for (optional).
@@ -155,11 +155,19 @@ export type BySingleProp = FilterGenerator<
  * ```
  */
 export const bySingleProp = createFilterGenerator<Parameters<BySingleProp>>(
-    // We don't use Reflect.ownKeys here because __esModule is not enumerable, and we don't want to include it in the check
-    ([prop], _, exports) =>
-        typeof exports === 'object' &&
-        Object.keys(exports).length === 1 &&
-        prop in exports,
+    ([prop], _, exports) => {
+        if (typeof exports === 'object' && prop in exports) {
+            let hasMultipleProperties = false
+            for (const _ in exports) {
+                if (hasMultipleProperties) return false
+                hasMultipleProperties = true
+            }
+
+            return true
+        }
+
+        return false
+    },
     ([prop]) => `revenge.singleProp(${prop})`,
 ) as BySingleProp
 
