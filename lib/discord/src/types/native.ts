@@ -93,7 +93,7 @@ export namespace DiscordNativeModules {
             storageDir: 'cache' | 'documents',
             path: string,
         ): Promise<boolean>
-        getConstants: () => {
+        getConstants(): {
             /**
              * The path the `documents` storage dir (see {@link writeFile}) represents.
              */
@@ -106,50 +106,52 @@ export namespace DiscordNativeModules {
      * Client information
      */
     export interface ClientInfoModule {
-        /**
-         * Sentry ingestion DSN URL for alpha/beta builds
-         */
-        SentryAlphaBetaDsn: string
-        /**
-         * Sentry ingestion DSN URL for staff builds (?)
-         */
-        SentryStaffDsn: string
-        /**
-         * Sentry ingestion DSN URL for stable builds
-         */
-        SentryDsn: string
-        DeviceVendorID: string
-        Manifest: string
-        /**
-         * Version code
-         *
-         * Follows the format of `{MINOR}{CHANNEL}{PATCH}` for `{MINOR}.{PATCH} ({CHANNEL})`
-         * - `248200` for `248.0 (alpha)`
-         * - `247105` for `247.5 (beta)`
-         * - `246011` for `246.11 (stable)`
-         */
-        Build: string
-        /**
-         * Version string
-         *
-         * Eg. `248.0`
-         */
-        Version: string
-        /**
-         * Release channel
-         */
-        ReleaseChannel: string
-        /**
-         * Matches `Version`
-         */
-        OTABuild: string
-        /**
-         * Identifier for the installed client
-         *
-         * - **Android**: Package name
-         * - **iOS**: Bundle ID
-         */
-        Identifier: string
+        getConstants(): {
+            /**
+             * Sentry ingestion DSN URL for alpha/beta builds
+             */
+            SentryAlphaBetaDsn: string
+            /**
+             * Sentry ingestion DSN URL for staff builds (?)
+             */
+            SentryStaffDsn: string
+            /**
+             * Sentry ingestion DSN URL for stable builds
+             */
+            SentryDsn: string
+            DeviceVendorID: string
+            Manifest: string
+            /**
+             * Version code
+             *
+             * Follows the format of `{MINOR}{CHANNEL}{PATCH}` for `{MINOR}.{PATCH} ({CHANNEL})`
+             * - `248200` for `248.0 (alpha)`
+             * - `247105` for `247.5 (beta)`
+             * - `246011` for `246.11 (stable)`
+             */
+            Build: string
+            /**
+             * Version string
+             *
+             * Eg. `248.0`
+             */
+            Version: string
+            /**
+             * Release channel
+             */
+            ReleaseChannel: string
+            /**
+             * Matches `Version`
+             */
+            OTABuild: string
+            /**
+             * Identifier for the installed client
+             *
+             * - **Android**: Package name
+             * - **iOS**: Bundle ID
+             */
+            Identifier: string
+        }
     }
 
     /**
@@ -170,64 +172,66 @@ export namespace DiscordNativeModules {
          * Returns the screen size of the device
          */
         getScreenSize(): { width: number; height: number }
-        /**
-         * Maximum CPU frequency
-         * @example "2.00"
-         */
-        maxCpuFreq: string
-        /**
-         * The brand of the device
-         * - On Android, returns the value of `ro.product.brand`
-         */
-        deviceBrand: string
-        /**
-         * Whether the device is using gesture navigation
-         */
-        isGestureNavigationEnabled: boolean
-        /**
-         * The manufacturer of the device
-         * - On Android, returns the value of `ro.product.manufacturer`
-         */
-        deviceManufacturer: string
-        /**
-         * RAM size in gigabytes (most likely an approximation)
-         * @example "3.62"
-         */
-        ramSize: string
-        /**
-         * The device's DPI setting
-         */
-        smallestScreenWidth: number
-        /**
-         * The version of the system
-         * - On Android, returns the value of `ro.build.version.sdk`
-         */
-        systemVersion: string
-        /**
-         * Whether the system taskbar navigation is enabled
-         */
-        isTaskBarEnabled: boolean
-        /**
-         * The name of the device product
-         * - On Android, returns the value of `ro.product.name`
-         */
-        deviceProduct: string
-        /**
-         * The model of the device
-         * - On Android, returns the value of `ro.product.model`
-         */
-        deviceModel: string
-        /**
-         * The name of the device
-         * - On Android, returns the value of `ro.product.device`
-         */
-        device: string
-        /**
-         * The name of the device board
-         * - On Android, returns the value of `{ro.product.manufacturer}_{ro.soc.model}`
-         * @example "Google_Tensor G4" // ro.product.manufacturer=Google; ro.soc.model=Tensor G4
-         */
-        socName: string
+        getConstants(): {
+            /**
+             * Maximum CPU frequency
+             * @example "2.00"
+             */
+            maxCpuFreq: string
+            /**
+             * The brand of the device
+             * - On Android, returns the value of `ro.product.brand`
+             */
+            deviceBrand: string
+            /**
+             * Whether the device is using gesture navigation
+             */
+            isGestureNavigationEnabled: boolean
+            /**
+             * The manufacturer of the device
+             * - On Android, returns the value of `ro.product.manufacturer`
+             */
+            deviceManufacturer: string
+            /**
+             * RAM size in gigabytes (most likely an approximation)
+             * @example "3.62"
+             */
+            ramSize: string
+            /**
+             * The device's DPI setting
+             */
+            smallestScreenWidth: number
+            /**
+             * The version of the system
+             * - On Android, returns the value of `ro.build.version.sdk`
+             */
+            systemVersion: string
+            /**
+             * Whether the system taskbar navigation is enabled
+             */
+            isTaskBarEnabled: boolean
+            /**
+             * The name of the device product
+             * - On Android, returns the value of `ro.product.name`
+             */
+            deviceProduct: string
+            /**
+             * The model of the device
+             * - On Android, returns the value of `ro.product.model`
+             */
+            deviceModel: string
+            /**
+             * The name of the device
+             * - On Android, returns the value of `ro.product.device`
+             */
+            device: string
+            /**
+             * The name of the device board
+             * - On Android, returns the value of `{ro.product.manufacturer}_{ro.soc.model}`
+             * @example "Google_Tensor G4" // ro.product.manufacturer=Google; ro.soc.model=Tensor G4
+             */
+            socName: string
+        }
     }
 
     /**

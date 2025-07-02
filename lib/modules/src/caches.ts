@@ -7,7 +7,7 @@ import type { FilterResultFlag } from './finders/_internal'
 import type { Filter } from './finders/filters'
 
 const Version = 1
-const Key = `${Version}.${ClientInfoModule.Build}`
+const Key = `${Version}.${ClientInfoModule.getConstants().Build}`
 
 // In-memory cache
 export const cache: Cache = {}

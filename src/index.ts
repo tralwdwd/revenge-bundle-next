@@ -58,10 +58,13 @@ function runCatching(fn: () => void) {
         const { ClientInfoModule, DeviceModule } =
             require('@revenge-mod/discord/native') as typeof import('@revenge-mod/discord/native')
 
+        const Client = ClientInfoModule.getConstants()
+        const Device = DeviceModule.getConstants()
+
         alert(
             `Failed to load Revenge (${__BUILD_VERSION__}-${__BUILD_COMMIT__}-${__BUILD_BRANCH__} (${__BUILD_ENV__}))\n` +
-                `Discord: ${ClientInfoModule.Version} (${ClientInfoModule.Build})\n` +
-                `Device: ${DeviceModule.deviceManufacturer} ${DeviceModule.deviceModel}\n\n` +
+                `Discord: ${Client.Version} (${Client.Build})\n` +
+                `Device: ${Device.deviceManufacturer} ${Device.deviceModel}\n\n` +
                 getErrorStack(e),
         )
     }

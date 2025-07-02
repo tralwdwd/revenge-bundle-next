@@ -69,7 +69,6 @@ declare global {
 /// METRO
 
 declare global {
-    var nativeModuleProxy: Record<string, unknown>
     var __r: Metro.RequireFn
     var __c: Metro.ClearFn
     var __d: Metro.DefineFn
@@ -78,6 +77,8 @@ declare global {
 /// REACT NATIVE
 
 declare global {
+    var nativeModuleProxy: Record<string, unknown>
+    function __turboModuleProxy(name: string): unknown
     function nativeLoggingHook(str: string, level: number): void
     function alert(message: unknown): void
 

@@ -7,7 +7,7 @@ import type { Metro } from '@revenge-mod/modules/types'
 import type { Asset } from './types'
 
 const Version = 1
-const Key = `${Version}.${ClientInfoModule.Build}`
+const Key = `${Version}.${ClientInfoModule.getConstants().Build}`
 
 // In-memory cache
 export const cache: Cache = {}
