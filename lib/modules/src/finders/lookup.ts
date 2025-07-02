@@ -123,10 +123,12 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
             const id = Number(sId)
             let exports: Metro.ModuleExports | undefined
 
-            if (!isModuleInitialized(id)) {
+            if (isModuleInitialized(id))
+                exports = getInitializedModuleExports(id)
+            else {
                 if (noInitCached) continue
                 exports = __r(id)
-            } else exports = getInitializedModuleExports(id)
+            }
 
             yield [exportsFromFilterResultFlag(flag, exports, options), id]
         }
@@ -203,10 +205,12 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
             const id = Number(sId)
             let exports: Metro.ModuleExports
 
-            if (!isModuleInitialized(id)) {
+            if (isModuleInitialized(id))
+                exports = getInitializedModuleExports(id)
+            else {
                 if (noInitCached) continue
                 exports = __r(id)
-            } else exports = getInitializedModuleExports(id)
+            }
 
             return [exportsFromFilterResultFlag(flag, exports, options), id]
         }
