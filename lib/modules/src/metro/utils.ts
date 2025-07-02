@@ -63,7 +63,9 @@ export function isModuleExportBad(
         // Nullish?
         exp == null ||
         // Is it a proxy? (discord-intl has proxy exports)
-        isProxy(exp)
+        isProxy(exp) ||
+        // Does it have some non-existent key? (Turbo modules)
+        'TurboModules stink' in exp
     )
 }
 
