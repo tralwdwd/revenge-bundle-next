@@ -1,55 +1,39 @@
 import { isProxy } from '@revenge-mod/utils/proxy'
-import { _inits, _metas, _uninits } from './_internal'
+import { _metas } from './_internal'
 import type { Metro } from '../types'
-
-/**
- * Returns whether an uninitialized module has bad exports.
- *
- * @see {@link isModuleExportsBad} for more information on what is considered bad module exports.
- *
- * @param id The module ID.
- */
-export function uninitializedModuleHasBadExports(id: Metro.ModuleID): boolean {
-    return !_uninits.has(id)
-}
-
-/**
- * Returns whether an initialized module has bad exports.
- *
- * @see {@link isModuleExportsBad} for more information on what is considered bad module exports.
- *
- * @param id The module ID.
- */
-export function initializedModuleHasBadExports(id: Metro.ModuleID): boolean {
-    return !_inits.has(id)
-}
 
 /**
  * Returns the dependencies of a module.
  * @param id The module ID.
+ * @throws {TypeError} If the module with the given ID does not exist.
  */
 export function getModuleDependencies(
     id: Metro.ModuleID,
 ): Metro.DependencyMap | undefined {
-    return _metas.get(id)?.[0]
+    return _metas.get(id)![0]
 }
 
 /**
  * Returns whether a module is initialized.
  * @param id The module ID.
+ * @throws {TypeError} If the module with the given ID does not exist.
  */
-export function isModuleInitialized(id: Metro.ModuleID): boolean {
-    return _metas.get(id)?.[1]!
+export function isModuleInitialized(id: Metro.ModuleID): boolean | undefined {
+    return _metas.get(id)![1]
 }
 
 /**
  * Returns the exports of an initialized module.
+ *
+ * @see {@link isModuleInitialized} to check if the module is initialized.
+ *
  * @param id The module ID.
+ * @throws {TypeError} If the module with the given ID does not exist, or is not initialized.
  */
 export function getInitializedModuleExports(
     id: Metro.ModuleID,
 ): Metro.ModuleExports | undefined {
-    return _metas.get(id)?.[2]?.exports
+    return _metas.get(id)![2]!.exports
 }
 
 /**

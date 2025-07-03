@@ -1,11 +1,9 @@
+import { _inits } from '../metro/_internal'
 import {
     onAnyModuleInitialized,
     onModuleFinishedImporting,
 } from '../metro/subscriptions'
-import {
-    getInitializedModuleExports,
-    initializedModuleHasBadExports,
-} from '../metro/utils'
+import { getInitializedModuleExports } from '../metro/utils'
 import { exportsFromFilterResultFlag, runFilter } from './_internal'
 import type { MaybeDefaultExportMatched, Metro } from '../types'
 import type { RunFilterReturnExportsOptions } from './_internal'
@@ -91,13 +89,18 @@ export function waitForModules(
                       )
               }
             : (id, exports) => {
-                  if (initializedModuleHasBadExports(id)) return
-                  const flag = runFilter(filter, id, exports, options)
-                  if (flag)
-                      callback(
-                          exportsFromFilterResultFlag(flag, exports, options),
-                          id,
-                      )
+                  if (_inits.has(id)) {
+                      const flag = runFilter(filter, id, exports, options)
+                      if (flag)
+                          callback(
+                              exportsFromFilterResultFlag(
+                                  flag,
+                                  exports,
+                                  options,
+                              ),
+                              id,
+                          )
+                  }
               },
     )
 }
@@ -138,9 +141,8 @@ export function waitForModuleByImportedPath<T = any>(
                   }
               }
             : (id, cmpPath) => {
-                  if (path === cmpPath) {
+                  if (path === cmpPath && _inits.has(id)) {
                       unsub()
-                      if (initializedModuleHasBadExports(id)) return
                       callback(getInitializedModuleExports(id), id)
                   }
               },
