@@ -62,17 +62,18 @@ export function isModuleExportBad(
  */
 export function isModuleExportsBad(exports: Metro.ModuleExports): boolean {
     return (
-        // Can't run isProxy() on this because this isn't your typical proxy:
-        // https://github.com/facebook/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
-        exports === nativeModuleProxy ||
         // Nullish?
         exports == null ||
         // Isn't an object or function?
         // - Number exports are not useful, usually just an asset ID
         // - String, Boolean, Symbol, BigInt exports are not useful (who would do `module.exports = ...`?)
         !(
-            exports.__proto__ === Function.prototype ||
-            (typeof exports === 'object' && Reflect.ownKeys(exports).length)
-        )
+            (exports.__proto__ === Object.prototype &&
+                Reflect.ownKeys(exports).length) ||
+            exports.__proto__ === Function.prototype
+        ) ||
+        // Can't run isProxy() on this because this isn't your typical proxy:
+        // https://github.com/facebook/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
+        exports === nativeModuleProxy
     )
 }
