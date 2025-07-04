@@ -12,6 +12,12 @@ export interface RunFilterOptions {
      * @default false
      */
     skipDefault?: boolean
+    /**
+     * Whether to allow initializing modules to check their exports.
+     *
+     * @default false
+     */
+    initialize?: boolean
 }
 
 export type RunFilterReturnExportsOptions<
@@ -79,9 +85,11 @@ export function runFilter(
                 const flag = runFilter(filter, id, __r(id), options)
                 if (!flag) warnDeveloperAboutPartialFilterMatch(id, filter.key)
                 return flag
-            } else {
+            } else if (options?.initialize) {
                 return runFilter(filter, id, __r(id), options)
             }
+
+            return FilterResultFlags.Found
         }
 
         return

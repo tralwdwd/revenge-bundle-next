@@ -28,7 +28,7 @@ export const [Dispatcher, DispatcherModuleId] = lookupModule(
         ]),
     ),
     {
-        includeUninitialized: true,
+        uninitialized: true,
     },
 ) as [DiscordModules.Flux.Dispatcher, Metro.ModuleID]
 

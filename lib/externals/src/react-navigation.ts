@@ -29,7 +29,7 @@ export let ReactNavigationNative: typeof import('@react-navigation/native') =
                     ),
                 ),
                 {
-                    includeUninitialized: true,
+                    uninitialized: true,
                 },
             )
 
@@ -62,7 +62,7 @@ export let ReactNavigationStack: typeof import('@react-navigation/stack') =
                     ),
                 ),
                 {
-                    includeUninitialized: true,
+                    uninitialized: true,
                 },
             )
 

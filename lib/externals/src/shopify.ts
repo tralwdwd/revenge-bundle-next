@@ -30,7 +30,7 @@ export let FlashList: typeof import('@shopify/flash-list') = proxify(
                 // [React, RN, JSXRuntime, (FlashListExports), (Reanimated), (RNBottomSheet), ImportTracker, (BottomSheetFlashList)]
             ),
             {
-                includeUninitialized: true,
+                uninitialized: true,
             },
         )
 

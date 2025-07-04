@@ -40,7 +40,7 @@ export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCr
                     ]),
                 ),
                 {
-                    includeUninitialized: true,
+                    uninitialized: true,
                 },
             )
 
@@ -66,7 +66,7 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators =
                     ]),
                 ),
                 {
-                    includeUninitialized: true,
+                    uninitialized: true,
                 },
             )
 
@@ -91,7 +91,7 @@ export let ToastActionCreators: DiscordModules.Actions.ToastActionCreators =
                 byDependencies([DispatcherModuleId, 2]),
             ),
             {
-                includeUninitialized: true,
+                uninitialized: true,
             },
         )
 

@@ -20,7 +20,7 @@ export let nodeUtil: typeof import('node:util') = proxify(
                 ]),
             ),
             {
-                includeUninitialized: true,
+                uninitialized: true,
             },
         )
 

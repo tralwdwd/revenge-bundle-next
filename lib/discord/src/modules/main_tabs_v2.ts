@@ -26,7 +26,7 @@ export let RootNavigationRef: RootNavigationRef = proxify(
                 ]),
             ),
             {
-                includeUninitialized: true,
+                uninitialized: true,
             },
         )
 

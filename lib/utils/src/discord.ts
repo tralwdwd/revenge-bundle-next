@@ -60,7 +60,7 @@ export function lookupGeneratedIconComponent<N extends string>(
     }
 
     return lookupModule(byDependencies<{ [K in N]: FC }>(filter), {
-        includeInitialized: false,
-        includeUninitialized: true,
+        initialized: false,
+        uninitialized: true,
     })[0]?.[compName]
 }

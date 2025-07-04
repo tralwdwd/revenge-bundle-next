@@ -34,7 +34,7 @@ export let Design: Design = proxify(
                 ),
             ),
             {
-                includeUninitialized: true,
+                uninitialized: true,
             },
         )
 
@@ -75,7 +75,7 @@ export let FormSwitch: DiscordModules.Components.FormSwitch = proxify(() => {
             ]),
         ),
         {
-            includeUninitialized: true,
+            uninitialized: true,
         },
     )
 

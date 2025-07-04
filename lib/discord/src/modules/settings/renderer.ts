@@ -34,7 +34,7 @@ export let SettingListRenderer: SettingListRenderer = proxify(
                 ),
             ),
             {
-                includeUninitialized: true,
+                uninitialized: true,
             },
         )
 

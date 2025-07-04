@@ -25,7 +25,7 @@ export let TypedEventEmitter: typeof DiscordModules.Utils.TypedEventEmitter =
                 ]),
             ),
             {
-                includeUninitialized: true,
+                uninitialized: true,
             },
         )
 

@@ -13,11 +13,11 @@ export interface BaseWaitForModulesOptions<
     IncludeAll extends boolean = boolean,
 > {
     /**
-     * Whether to include all modules, including ones with bad exports.
+     * Whether to include all modules, including blacklisted ones.
      *
      * @default false
      */
-    includeAll?: IncludeAll
+    all?: IncludeAll
 }
 
 export type WaitForModulesUnsubscribeFunction = () => boolean
@@ -79,7 +79,7 @@ export function waitForModules(
     options?: WaitForModulesOptions,
 ) {
     return onAnyModuleInitialized(
-        options?.includeAll
+        options?.all
             ? (id, exports) => {
                   const flag = runFilter(filter, id, exports, options)
                   if (flag)
@@ -133,7 +133,7 @@ export function waitForModuleByImportedPath<T = any>(
     options?: BaseWaitForModulesOptions,
 ) {
     const unsub = onModuleFinishedImporting(
-        options?.includeAll
+        options?.all
             ? (id, cmpPath) => {
                   if (path === cmpPath) {
                       unsub()

@@ -16,7 +16,7 @@ export const [AppStartPerformance] = lookupModule(
         byDependencies([relative(-1), undefined, undefined, 2]),
     ),
     {
-        includeUninitialized: true,
+        uninitialized: true,
     },
 ) as [DiscordModules.AppStartPerformance, Metro.ModuleID]
 

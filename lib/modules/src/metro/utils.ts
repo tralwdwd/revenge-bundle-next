@@ -5,21 +5,21 @@ import type { Metro } from '../types'
 /**
  * Returns the dependencies of a module.
  * @param id The module ID.
- * @throws {TypeError} If the module with the given ID does not exist.
+ * @returns The dependency map of the module, or `undefined` if the module does not exist.
  */
 export function getModuleDependencies(
     id: Metro.ModuleID,
 ): Metro.DependencyMap | undefined {
-    return _metas.get(id)![0]
+    return _metas.get(id)?.[0]
 }
 
 /**
  * Returns whether a module is initialized.
  * @param id The module ID.
- * @throws {TypeError} If the module with the given ID does not exist.
+ * @returns `true` if the module is initialized, `false` if it is not initialized, or `undefined` if the module does not exist.
  */
 export function isModuleInitialized(id: Metro.ModuleID): boolean | undefined {
-    return _metas.get(id)![1]
+    return _metas.get(id)?.[1]
 }
 
 /**
@@ -28,12 +28,12 @@ export function isModuleInitialized(id: Metro.ModuleID): boolean | undefined {
  * @see {@link isModuleInitialized} to check if the module is initialized.
  *
  * @param id The module ID.
- * @throws {TypeError} If the module with the given ID does not exist, or is not initialized.
+ * @returns The exports of the module, or `undefined` if the module is not initialized or does not exist.
  */
 export function getInitializedModuleExports(
     id: Metro.ModuleID,
 ): Metro.ModuleExports | undefined {
-    return _metas.get(id)![2]!.exports
+    return _metas.get(id)?.[2]?.exports
 }
 
 /**
