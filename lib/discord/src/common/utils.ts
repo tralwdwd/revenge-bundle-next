@@ -10,6 +10,7 @@ import type { DiscordModules } from '../types'
 const [, _createClassModuleId] = lookupModule(byName('_createClass'))
 const [, _classCallCheckModuleId] = lookupModule(byName('_classCallCheck'))
 
+// ../discord_common/js/shared/utils/TypedEventEmitter.tsx
 export let TypedEventEmitter: typeof DiscordModules.Utils.TypedEventEmitter =
     proxify(() => {
         const [module] = lookupModule(

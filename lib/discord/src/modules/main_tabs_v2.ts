@@ -15,6 +15,7 @@ export interface RootNavigationRef {
     >(): NavigationContainerRef<T>
 }
 
+// modules/main_tabs_v2/RootNavigationRef.native.tsx
 export let RootNavigationRef: RootNavigationRef = proxify(
     () => {
         const [module] = lookupModule(

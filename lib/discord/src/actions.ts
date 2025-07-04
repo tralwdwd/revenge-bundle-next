@@ -20,6 +20,7 @@ import type { DiscordModules } from './types'
 
 const { relative } = byDependencies
 
+// modules/action_sheet/native/ActionSheetActionCreators.tsx
 export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCreators =
     proxify(
         () => {
@@ -51,6 +52,7 @@ export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCr
         },
     )!
 
+// actions/native/AlertActionCreators.tsx
 export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators =
     proxify(
         () => {
@@ -77,6 +79,7 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators =
         },
     )!
 
+// modules/toast/native/ToastActionCreators.tsx
 export let ToastActionCreators: DiscordModules.Actions.ToastActionCreators =
     proxify(() => {
         // Many other modules share the same dependencies, the second yielded should be the correct module.

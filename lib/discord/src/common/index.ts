@@ -15,7 +15,7 @@ export * as utils from './utils'
 
 const { loose, relative } = byDependencies
 
-// ../discord_common/js/shared/Logger.tsx
+// ../discord_common/js/packages/logger/Logger.tsx
 export const [Logger] = lookupModule(
     byName<typeof DiscordModules.Logger>('Logger'),
 ) as [typeof DiscordModules.Logger, Metro.ModuleID]

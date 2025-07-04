@@ -9,7 +9,7 @@ import type { DiscordModules } from './types'
 
 const { relative } = byDependencies
 
-// ../discord_common/js/shared/AppStartPerformance.tsx
+// ../discord_common/js/packages/app-start-performance/AppStartPerformance.tsx
 export const [AppStartPerformance] = lookupModule(
     preferExports(
         byProps<DiscordModules.AppStartPerformance>('markAndLog'),

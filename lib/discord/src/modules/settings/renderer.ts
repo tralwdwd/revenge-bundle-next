@@ -17,6 +17,7 @@ const { loose, relative } = byDependencies
 export type SettingListRenderer =
     DiscordModules.Modules.Settings.SettingListRenderer
 
+// modules/main_tabs_v2/native/settings/renderer/SettingListRenderer.tsx
 export let SettingListRenderer: SettingListRenderer = proxify(
     () => {
         const [module] = lookupModule(
