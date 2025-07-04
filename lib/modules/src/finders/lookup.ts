@@ -117,8 +117,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     let notFound = true
     let cached: Set<Metro.ModuleID> | undefined
 
-    const init = options?.initialize ?? true
-    const notInit = !init
+    const notInit = !(options?.initialize ?? true)
 
     if (options?.cached ?? true) {
         const reg = cache[filter.key]
@@ -188,13 +187,11 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
                     notFound = false
 
                     yield [
-                        init
-                            ? exportsFromFilterResultFlag(
-                                  flag,
-                                  getInitializedModuleExports(id),
-                                  options,
-                              )
-                            : undefined,
+                        exportsFromFilterResultFlag(
+                            flag,
+                            getInitializedModuleExports(id),
+                            options,
+                        ),
                         id,
                     ]
                 }
@@ -231,8 +228,7 @@ export function lookupModule<
 >(filter: F, options: O): LookupModulesResult<F, O> | LookupNotFoundResult
 
 export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
-    const init = options?.initialize ?? true
-    const notInit = !init
+    const notInit = !(options?.initialize ?? true)
 
     if (options?.cached ?? true) {
         const reg = cache[filter.key]
@@ -290,13 +286,11 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
                 const flag = runFilter(filter, id, undefined, options)
                 if (flag)
                     return [
-                        init
-                            ? exportsFromFilterResultFlag(
-                                  flag,
-                                  getInitializedModuleExports(id),
-                                  options,
-                              )
-                            : undefined,
+                        exportsFromFilterResultFlag(
+                            flag,
+                            getInitializedModuleExports(id),
+                            options,
+                        ),
                         id,
                     ]
             }
@@ -334,8 +328,9 @@ const __blacklistedFunctions = __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__
     ? proxify(
           () => [
               require('./get').getModule,
-              require('@revenge-mod/utils/discord')
-                  .lookupGeneratedIconComponent,
+              isModuleInitialized(0) &&
+                  require('@revenge-mod/utils/discord')
+                      .lookupGeneratedIconComponent,
           ],
           { hint: [] },
       )
