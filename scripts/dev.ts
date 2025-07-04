@@ -23,8 +23,8 @@ const Sources = [
 ].map(cwdify)
 const ExitTriggers = ['scripts'].map(cwdify)
 
-const debouncedBuildDev = debounce(
-    () => ((needRebuild = false), build(true)),
+const debouncedBuild = debounce(
+    () => ((needRebuild = false), build(!prod)),
     250,
 )
 
@@ -47,7 +47,7 @@ const server = Bun.serve({
     hostname: lanHost ? '0.0.0.0' : '127.0.0.1',
     async fetch(req, srv) {
         try {
-            if (needRebuild) await debouncedBuildDev()
+            if (needRebuild) await debouncedBuild()
             console.debug(
                 chalk.gray(
                     `\u{1F79B} Receiving request from ${srv.requestIP(req)!.address}`,
