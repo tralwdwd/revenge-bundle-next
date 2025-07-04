@@ -15,7 +15,7 @@ export interface RunFilterOptions {
     /**
      * Whether to allow initializing modules to check their exports.
      *
-     * @default false
+     * @default true
      */
     initialize?: boolean
 }
@@ -81,12 +81,13 @@ export function runFilter(
 ): FilterResultFlag | undefined {
     if (exports === undefined) {
         if ((filter as Filter<any, false>)(id)) {
-            if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__) {
-                const flag = runFilter(filter, id, __r(id), options)
-                if (!flag) warnDeveloperAboutPartialFilterMatch(id, filter.key)
-                return flag
-            } else if (options?.initialize) {
-                return runFilter(filter, id, __r(id), options)
+            if (options?.initialize ?? true) {
+                if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__) {
+                    const flag = runFilter(filter, id, __r(id), options)
+                    if (!flag)
+                        warnDeveloperAboutPartialFilterMatch(id, filter.key)
+                    return flag
+                } else return runFilter(filter, id, __r(id), options)
             }
 
             return FilterResultFlags.Found
@@ -98,12 +99,10 @@ export function runFilter(
     if (filter(id, exports))
         return cacheFilterResult(filter.key, id, FilterResultFlags.Namespace)
 
-    const defaultExport = exports.default
-    if (
-        !options?.skipDefault &&
-        !isModuleExportBad(defaultExport) &&
-        filter(id, defaultExport)
-    )
+    if (options?.skipDefault) return
+
+    const { default: defaultExport } = exports
+    if (!isModuleExportBad(defaultExport) && filter(id, defaultExport))
         return cacheFilterResult(filter.key, id, FilterResultFlags.Default)
 }
 
