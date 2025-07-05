@@ -1,13 +1,23 @@
 import {
     byDependencies,
+    byName,
     byProps,
     createFilterGenerator,
     preferExports,
 } from '@revenge-mod/modules/finders/filters'
-import { lookupModule } from '@revenge-mod/modules/finders/lookup'
+import {
+    lookupModule,
+    lookupModules,
+} from '@revenge-mod/modules/finders/lookup'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
+import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
 import { noopFalse } from '@revenge-mod/utils/callbacks'
-import type { Filter } from '@revenge-mod/modules/finders/filters'
+import { cached, cacheFilterResult } from '../../../modules/src/caches'
+import { FilterResultFlags } from '../../../modules/src/finders/_internal'
+import type {
+    Filter,
+    FilterGenerator,
+} from '@revenge-mod/modules/finders/filters'
 import type { Metro } from '@revenge-mod/modules/types'
 import type { DiscordModules } from '../types'
 
@@ -32,36 +42,126 @@ export const [Dispatcher, DispatcherModuleId] = lookupModule(
     },
 ) as [DiscordModules.Flux.Dispatcher, Metro.ModuleID]
 
-waitForModules(byProps<DiscordModules.Flux.Store>('_dispatchToken'), store => {
-    _stores[store.getName()] = store
-})
+const _stores: Record<string, DiscordModules.Flux.Store> = {}
 
-const _stores: Record<string, any> = {}
-
+/**
+ * A proxy object that allows you to access Flux stores by their name, including uninitialized stores.
+ *
+ * Use `Reflect.ownKeys()` on this proxy to get a list of all initialized stores.
+ *
+ * @see {@link getStore} for a way to get stores lazily.
+ */
 export const Stores = new Proxy(_stores, {
-    ownKeys: () => Reflect.ownKeys(_stores),
-    get: (_, name) => _stores[name as string],
+    ownKeys: target => Reflect.ownKeys(target),
+    get: (target, prop: string) =>
+        target[prop] ??
+        lookupModule(byStoreName(prop), { uninitialized: true })[0],
 })
 
+/**
+ * Gets a Flux store by its name, and calls the provided callback with the store.
+ *
+ * @param name The name of the store to get.
+ * @param callback A callback that will be called with the store once it is found.
+ * @returns A function that can be used to cancel the wait for the store.
+ */
 export function getStore<T>(
     name: string,
     callback: (store: DiscordModules.Flux.Store<T>) => void,
 ) {
-    const store = Stores[name]
+    const store = _stores[name]
     if (store) {
-        callback(store)
+        callback(store as DiscordModules.Flux.Store<T>)
         return noopFalse
     }
 
     return waitForModules(byStoreName<T>(name), callback)
 }
 
-export type ByStoreName = <T>(
-    name: string,
-) => Filter<DiscordModules.Flux.Store<T>>
+/// FILTERING
 
-export const byStoreName = createFilterGenerator<[name: string]>(
+/* 
+    Flux Store dependencies: [
+        6, // _classCallCheck
+        5, // _createClass
+        14, // _possibleConstructorReturn
+        16, // bound getPrototypeOf
+        17, // _inherits
+        (...), // (any amount of dependencies)
+        2 // ImportTracker
+    ]
+*/
+
+const [, _createClassModuleId] = lookupModule(byName('_createClass'))
+const [, _classCallCheckModuleId] = lookupModule(byName('_classCallCheck'))
+const [, _possibleConstructorReturnModuleId] = lookupModule(
+    byName('_possibleConstructorReturn'),
+)
+const [, _bound_getPrototypeOfModuleId] = lookupModule(
+    byName('bound getPrototypeOf'),
+)
+const [, _inheritsModuleId] = lookupModule(byName('_inherits'))
+
+const FluxStoreLeadingDeps = [
+    _classCallCheckModuleId,
+    _createClassModuleId,
+    _possibleConstructorReturnModuleId,
+    _bound_getPrototypeOfModuleId,
+    _inheritsModuleId,
+]
+
+export type ByStore = FilterGenerator<
+    <T>() => Filter<DiscordModules.Flux.Store<T>, boolean>
+>
+
+/**
+ * A dynamic filter that matches all Flux stores.
+ */
+export const byStore = createFilterGenerator(
+    (_, id, exports) => {
+        if (exports) return Boolean(exports._dispatchToken)
+        else {
+            const deps = getModuleDependencies(id)!
+            if (deps.length < FluxStoreLeadingDeps.length) return false
+
+            for (let i = 0; i < FluxStoreLeadingDeps.length; i++)
+                if (deps[i] !== FluxStoreLeadingDeps[i]) return false
+
+            return deps[deps.length - 1] === 2
+        }
+    },
+    () => 'revenge.discord.byStore',
+) as ByStore
+
+export type ByStoreName = FilterGenerator<
+    <T>(name: string) => Filter<DiscordModules.Flux.Store<T>, true>
+>
+
+/**
+ * A with-exports filter that matches a Flux store by its name.
+ */
+export const byStoreName = createFilterGenerator(
     ([name], _, exports) =>
         exports.getName?.length === 0 && exports.getName() === name,
     ([name]) => `revenge.discord.byStoreName(${name})`,
 ) as ByStoreName
+
+/// CACHING
+
+waitForModules(byStore(), (store, id) => {
+    const name = store.getName()
+    // Cache stores
+    cacheFilterResult(byStoreName.keyFor([name]), id, FilterResultFlags.Default)
+    Stores[name] = store
+})
+
+cached.then(cached => {
+    if (!cached)
+        setImmediate(() => {
+            const lookup = lookupModules(byStore(), {
+                uninitialized: true,
+            })
+
+            while (lookup.next().done);
+        })
+})
