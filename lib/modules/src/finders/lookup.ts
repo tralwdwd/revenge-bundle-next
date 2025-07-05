@@ -28,6 +28,9 @@ type LookupModulesOptionsWithAll<A extends boolean> = If<
         all: A
     },
     {
+        /**
+         * You can only use `all` with exportsless filters!
+         */
         all?: false
     }
 >
@@ -52,6 +55,9 @@ type LookupModulesOptionsWithInitializedUninitialized<U extends boolean> = {
         uninitialized: U
     },
     {
+        /**
+         * You can only use `uninitialized` with exportsless filters!
+         */
         uninitialized?: false
     }
 >
@@ -94,9 +100,9 @@ export type LookupModulesResult<
     F extends Filter,
     O extends LookupModulesOptions,
 > = [
-    exports: O extends LookupModulesOptions<boolean, boolean, false, true>
-        ? LookupFilterResult<F, O>
-        : LookupFilterResult<F, O> | Nullish,
+    exports: O extends LookupModulesOptions<boolean, boolean, boolean, false>
+        ? LookupFilterResult<F, O> | Nullish
+        : LookupFilterResult<F, O>,
     id: Metro.ModuleID,
 ]
 
@@ -133,15 +139,14 @@ export function lookupModules<F extends Filter>(
 ): Generator<LookupModulesResult<F, object>, undefined>
 
 export function lookupModules<
-    F extends Filter<
-        any,
-        O extends
-            | LookupModulesOptions<boolean, true>
-            | LookupModulesOptions<boolean, boolean, true>
-            ? false
-            : true
-    >,
-    const O extends LookupModulesOptions,
+    F extends Filter,
+    const O extends F extends Filter<any, infer WE>
+        ? If<
+              WE,
+              LookupModulesOptions<boolean, false, false>,
+              LookupModulesOptions
+          >
+        : never,
 >(filter: F, options: O): Generator<LookupModulesResult<F, O>, undefined>
 
 export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
@@ -252,10 +257,14 @@ export function lookupModule<F extends Filter>(
 ): LookupModulesResult<F, object> | LookupNotFoundResult
 
 export function lookupModule<
-    F extends O extends LookupModulesOptions<boolean, true>
-        ? Filter<any, false>
-        : Filter,
-    const O extends LookupModulesOptions,
+    F extends Filter,
+    const O extends F extends Filter<any, infer WE>
+        ? If<
+              WE,
+              LookupModulesOptions<boolean, false, false>,
+              LookupModulesOptions
+          >
+        : never,
 >(filter: F, options: O): LookupModulesResult<F, O> | LookupNotFoundResult
 
 export function lookupModule(filter: Filter, options?: LookupModulesOptions) {

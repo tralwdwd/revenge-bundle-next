@@ -5,6 +5,7 @@ import {
     lookupModules,
 } from './lookup'
 import { waitForModuleByImportedPath, waitForModules } from './wait'
+import type { If } from '@revenge-mod/utils/types'
 import type { MaybeDefaultExportMatched, Metro } from '../types'
 import type { RunFilterReturnExportsOptions } from './_internal'
 import type { Filter, FilterResult } from './filters'
@@ -14,8 +15,9 @@ import type { WaitForModulesOptions } from './wait'
 export type GetModuleOptions<
     ReturnNamespace extends boolean = boolean,
     Uninitialized extends boolean = boolean,
+    All extends boolean = boolean,
 > = WaitForModulesOptions<ReturnNamespace> &
-    LookupModulesOptions<ReturnNamespace, Uninitialized> & {
+    LookupModulesOptions<ReturnNamespace, Uninitialized, All, true> & {
         /**
          * The maximum number of modules to get.
          *
@@ -66,10 +68,10 @@ export function getModule<F extends Filter>(
 ): GetModuleUnsubscribeFunction
 
 export function getModule<
-    F extends O extends GetModuleOptions<boolean, true>
-        ? Filter<any, false>
-        : Filter,
-    O extends GetModuleOptions,
+    F extends Filter,
+    const O extends F extends Filter<any, infer WE>
+        ? If<WE, GetModuleOptions<boolean, boolean, false>, GetModuleOptions>
+        : never,
 >(
     filter: F,
     callback: GetModuleCallback<FilterResult<F>>,
