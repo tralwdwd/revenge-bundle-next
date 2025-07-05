@@ -3,10 +3,11 @@ import { Tokens } from '@revenge-mod/discord/common'
 import { Stores } from '@revenge-mod/discord/common/flux'
 import { Design } from '@revenge-mod/discord/design'
 import { RootNavigationRef } from '@revenge-mod/discord/modules/main_tabs_v2'
-import { _metas } from '@revenge-mod/plugins/_'
+import { pMetadata } from '@revenge-mod/plugins/_'
 import { createElement } from 'react'
 import { Image } from 'react-native'
 import { RouteNames, Setting } from './constants'
+import type { DiscordModules } from '@revenge-mod/discord/types'
 import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
 import type { Plugin, PluginApi } from '@revenge-mod/plugins/types'
 
@@ -15,7 +16,7 @@ const { NavigatorHeader } = Design
 // TODO(plugins/settings): Register a custom route instead, so plugin "settings" can actually be pinned and navigated to without hassle.
 // This would require us to implement the event-based plugin management system first, so we can listen to plugin enable/disable events and update the settings accordingly.
 export function navigatePluginSettings(plugin: Plugin) {
-    const [api] = _metas.get(plugin.manifest.id)!
+    const [api] = pMetadata.get(plugin.manifest.id)!
     const navigation =
         RootNavigationRef.getRootNavigationRef<ReactNavigationParamList>()
     if (!navigation.isReady()) return
@@ -37,7 +38,11 @@ export function navigatePluginSettings(plugin: Plugin) {
                                       marginEnd: 8,
                                       tintColor:
                                           Tokens.default.internal.resolveSemanticColor(
-                                              Stores.ThemeStore.theme,
+                                              (
+                                                  Stores.ThemeStore as DiscordModules.Flux.Store<{
+                                                      theme: string
+                                                  }>
+                                              ).theme,
                                               Tokens.default.colors
                                                   .HEADER_PRIMARY,
                                           ),

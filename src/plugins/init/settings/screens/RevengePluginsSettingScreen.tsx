@@ -6,7 +6,7 @@ import { ActionSheetActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { ReactNavigationNative } from '@revenge-mod/externals/react-navigation'
 import { FlashList } from '@revenge-mod/externals/shopify'
-import { _metas, _plugins, InternalPluginFlags } from '@revenge-mod/plugins/_'
+import { InternalPluginFlags, pList, pMetadata } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { debounce } from '@revenge-mod/utils/callbacks'
 import { useCallback, useMemo, useState } from 'react'
@@ -107,8 +107,9 @@ function Screen() {
 
     const allPlugins = useMemo(
         () =>
-            [..._plugins.values()].map(
-                plugin => [plugin, _metas.get(plugin.manifest.id)![2]] as const,
+            [...pList.values()].map(
+                plugin =>
+                    [plugin, pMetadata.get(plugin.manifest.id)![2]] as const,
             ),
         [],
     )

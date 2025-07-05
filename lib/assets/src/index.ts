@@ -1,5 +1,5 @@
 import { Platform } from 'react-native'
-import { _customs, _overrides } from './_internal'
+import { aCustoms, aOverrides } from './_internal'
 import { cache } from './caches'
 import { AssetsRegistry } from './preinit'
 import type {
@@ -39,7 +39,7 @@ export function* getAssets(): Generator<Asset> {
  * Yields all registered custom assets.
  */
 export function* getCustomAssets(): Generator<CustomAsset> {
-    for (const asset of _customs) yield asset
+    for (const asset of aCustoms) yield asset
 }
 
 /**
@@ -133,7 +133,7 @@ export function registerAsset(asset: RegisterableAsset): AssetId {
             `Asset with name ${asset.name} and type ${asset.type} already exists!`,
         )
 
-    _customs.add(asset as CustomAsset)
+    aCustoms.add(asset as CustomAsset)
 
     // @ts-expect-error
     return AssetsRegistry.registerAsset(asset)
@@ -146,7 +146,7 @@ export function registerAsset(asset: RegisterableAsset): AssetId {
  * @param override The custom asset to override with.
  */
 export function addAssetOverride(asset: Asset, override: Asset) {
-    _overrides.set(asset, override)
+    aOverrides.set(asset, override)
 }
 
 /**
@@ -156,5 +156,5 @@ export function addAssetOverride(asset: Asset, override: Asset) {
  * @returns The asset that was removed.
  */
 export function removeAssetOverride(asset: Asset) {
-    return _overrides.delete(asset)
+    return aOverrides.delete(asset)
 }

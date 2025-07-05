@@ -13,9 +13,9 @@ import type { WaitForModulesOptions } from './wait'
 
 export type GetModuleOptions<
     ReturnNamespace extends boolean = boolean,
-    IncludeUninitialized extends boolean = boolean,
+    Uninitialized extends boolean = boolean,
 > = WaitForModulesOptions<ReturnNamespace> &
-    LookupModulesOptions<ReturnNamespace, IncludeUninitialized> & {
+    LookupModulesOptions<ReturnNamespace, Uninitialized> & {
         /**
          * The maximum number of modules to get.
          *

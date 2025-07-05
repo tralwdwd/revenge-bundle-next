@@ -2,7 +2,7 @@ import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { BundleUpdaterManager } from '@revenge-mod/discord/native'
-import { _emitter, _plugins } from '@revenge-mod/plugins/_'
+import { pEmitter, pList } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { useReRender } from '@revenge-mod/utils/react'
 import { useEffect } from 'react'
@@ -28,14 +28,14 @@ const RevengePluginsSetting: SettingsItem = {
 
 let enabledCount = 0
 
-for (const plugin of _plugins.values())
+for (const plugin of pList.values())
     if (plugin.flags & PluginFlags.Enabled) enabledCount++
 
-_emitter.on('disabled', () => {
+pEmitter.on('disabled', () => {
     enabledCount--
 })
 
-_emitter.on('enabled', () => {
+pEmitter.on('enabled', () => {
     enabledCount++
 })
 
@@ -43,20 +43,20 @@ export function useUpdateOnPluginStatesChange() {
     const reRender = useReRender()
 
     useEffect(() => {
-        _emitter.on('disabled', reRender)
-        _emitter.on('enabled', reRender)
+        pEmitter.on('disabled', reRender)
+        pEmitter.on('enabled', reRender)
 
         return () => {
-            _emitter.off('disabled', reRender)
-            _emitter.off('enabled', reRender)
+            pEmitter.off('disabled', reRender)
+            pEmitter.off('enabled', reRender)
         }
     }, [reRender])
 }
 
 const { AlertActionButton, AlertModal, Text } = Design
 
-_emitter.on('started', showReloadRequiredAlertIfNeeded)
-_emitter.on('stopped', showReloadRequiredAlertIfNeeded)
+pEmitter.on('started', showReloadRequiredAlertIfNeeded)
+pEmitter.on('stopped', showReloadRequiredAlertIfNeeded)
 
 function showReloadRequiredAlertIfNeeded(plugin: InternalPlugin) {
     if (plugin.flags & PluginFlags.ReloadRequired) {

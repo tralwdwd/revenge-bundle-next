@@ -1,4 +1,4 @@
-import { _ara, _bra } from './patches'
+import { sAfterRunApplication, sBeforeRunApplication } from './patches'
 
 /**
  * Registers a callback to be run when a call to {@link AppRegistry.runApplication} is made.
@@ -7,8 +7,8 @@ import { _ara, _bra } from './patches'
  * @returns A function to unregister the callback.
  */
 export function onRunApplication(callback: RunApplicationCallback) {
-    _bra.add(callback)
-    return () => _bra.delete(callback)
+    sBeforeRunApplication.add(callback)
+    return () => sBeforeRunApplication.delete(callback)
 }
 
 /**
@@ -18,8 +18,8 @@ export function onRunApplication(callback: RunApplicationCallback) {
  * @returns A function to unregister the callback.
  */
 export function onRunApplicationFinished(callback: RunApplicationCallback) {
-    _ara.add(callback)
-    return () => _ara.delete(callback)
+    sAfterRunApplication.add(callback)
+    return () => sAfterRunApplication.delete(callback)
 }
 
 export type RunApplicationCallback = () => any

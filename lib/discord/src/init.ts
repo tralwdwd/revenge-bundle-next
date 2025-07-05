@@ -1,4 +1,4 @@
-import { _emitter, _uapi } from '@revenge-mod/plugins/_'
+import { pEmitter, pUnscopedApi } from '@revenge-mod/plugins/_'
 import {
     defineLazyProperties,
     defineLazyProperty,
@@ -8,7 +8,7 @@ import type { UnscopedInitPluginApi } from '@revenge-mod/plugins/types'
 import type { PluginApiDiscord } from './types/revenge'
 
 defineLazyProperties(
-    ((_uapi as UnscopedInitPluginApi).discord = {} as PluginApiDiscord),
+    ((pUnscopedApi as UnscopedInitPluginApi).discord = {} as PluginApiDiscord),
     {
         actions: () => {
             return require('@revenge-mod/discord/actions')
@@ -35,7 +35,7 @@ defineLazyProperties(
     },
 )
 
-_emitter.on('init', ({ manifest: { id } }, api) =>
+pEmitter.on('init', ({ manifest: { id } }, api) =>
     defineLazyProperty(
         api,
         'logger',

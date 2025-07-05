@@ -1,4 +1,4 @@
-import { _inits } from '../metro/_internal'
+import { mInitialized } from '../metro/_internal'
 import {
     onAnyModuleInitialized,
     onModuleFinishedImporting,
@@ -9,15 +9,13 @@ import type { MaybeDefaultExportMatched, Metro } from '../types'
 import type { RunFilterReturnExportsOptions } from './_internal'
 import type { Filter, FilterResult } from './filters'
 
-export interface BaseWaitForModulesOptions<
-    IncludeAll extends boolean = boolean,
-> {
+export interface BaseWaitForModulesOptions<All extends boolean = boolean> {
     /**
      * Whether to include all modules, including blacklisted ones.
      *
      * @default false
      */
-    all?: IncludeAll
+    all?: All
 }
 
 export type WaitForModulesUnsubscribeFunction = () => boolean
@@ -26,9 +24,9 @@ export type WaitForModulesCallback<T> = (exports: T, id: Metro.ModuleID) => any
 
 export type WaitForModulesOptions<
     ReturnNamespace extends boolean = boolean,
-    IncludeBadExports extends boolean = boolean,
+    All extends boolean = boolean,
 > = RunFilterReturnExportsOptions<ReturnNamespace> &
-    BaseWaitForModulesOptions<IncludeBadExports>
+    BaseWaitForModulesOptions<All>
 
 export type WaitForModulesResult<
     F extends Filter,
@@ -89,7 +87,7 @@ export function waitForModules(
                       )
               }
             : (id, exports) => {
-                  if (_inits.has(id)) {
+                  if (mInitialized.has(id)) {
                       const flag = runFilter(filter, id, exports, options)
                       if (flag)
                           callback(
@@ -141,7 +139,7 @@ export function waitForModuleByImportedPath<T = any>(
                   }
               }
             : (id, cmpPath) => {
-                  if (path === cmpPath && _inits.has(id)) {
+                  if (path === cmpPath && mInitialized.has(id)) {
                       unsub()
                       callback(getInitializedModuleExports(id), id)
                   }

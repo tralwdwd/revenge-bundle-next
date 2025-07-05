@@ -38,7 +38,7 @@ export type RunFilterReturnExportsOptions<
         }
     >
 
-const FilterResultFlags = {
+export const FilterResultFlags = {
     /**
      * A module was found, without exports filtering.
      */

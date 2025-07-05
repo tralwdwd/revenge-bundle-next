@@ -7,7 +7,7 @@ import type {
     UnscopedPreInitPluginApi,
 } from '../types'
 
-export const _uapi:
+export const pUnscopedApi:
     | UnscopedPreInitPluginApi
     | UnscopedInitPluginApi
     | UnscopedPluginApi = {

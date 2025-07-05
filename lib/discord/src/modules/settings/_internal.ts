@@ -4,7 +4,7 @@ import type {
     SettingsSection,
 } from '.'
 
-export const _data = [
+export const sData = [
     // Sections to splice in the SettingsOverviewScreen
     {},
     // SETTING_RENDERER_CONFIG settings
@@ -16,4 +16,4 @@ export const _data = [
     loaded: boolean,
 ]
 
-export const _subs = new Set<SettingsModulesLoadedSubscription>()
+export const sSubscriptions = new Set<SettingsModulesLoadedSubscription>()

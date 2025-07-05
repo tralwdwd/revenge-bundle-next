@@ -2,7 +2,7 @@ import { ReactNavigationNative } from '@revenge-mod/externals/react-navigation'
 import { findInTree } from '@revenge-mod/utils/trees'
 import { Constants } from '../../common'
 import { RootNavigationRef } from '../main_tabs_v2'
-import { _data, _subs } from './_internal'
+import { sData, sSubscriptions } from './_internal'
 import type { NavigationState } from '@react-navigation/core'
 import type { DiscordModules } from '../../types'
 
@@ -15,7 +15,7 @@ export type SettingsModulesLoadedSubscription = () => void
  * Checks if the settings modules are loaded.
  */
 export function isSettingsModulesLoaded() {
-    return _data[2]
+    return sData[2]
 }
 
 /**
@@ -29,10 +29,10 @@ export function isSettingsModulesLoaded() {
 export function onSettingsModulesLoaded(
     subcription: SettingsModulesLoadedSubscription,
 ) {
-    if (_data[2]) throw new Error('Settings modules already loaded')
+    if (sData[2]) throw new Error('Settings modules already loaded')
 
-    _subs.add(subcription)
-    return () => _subs.delete(subcription)
+    sSubscriptions.add(subcription)
+    return () => sSubscriptions.delete(subcription)
 }
 
 /**
@@ -43,8 +43,8 @@ export function onSettingsModulesLoaded(
  * @returns A function to unregister the settings section.
  */
 export function registerSettingsSection(key: string, section: SettingsSection) {
-    _data[0][key] = section
-    return () => delete _data[0][key]
+    sData[0][key] = section
+    return () => delete sData[0][key]
 }
 
 /**
@@ -55,8 +55,8 @@ export function registerSettingsSection(key: string, section: SettingsSection) {
  * @returns A function to unregister the settings item.
  */
 export function registerSettingsItem(key: string, item: SettingsItem) {
-    _data[1][key] = item
-    return () => delete _data[1][key]
+    sData[1][key] = item
+    return () => delete sData[1][key]
 }
 
 /**
@@ -66,10 +66,10 @@ export function registerSettingsItem(key: string, item: SettingsItem) {
  * @returns A function to unregister the settings items.
  */
 export function registerSettingsItems(record: Record<string, SettingsItem>) {
-    Object.assign(_data[1], record)
+    Object.assign(sData[1], record)
     return () => {
         let ret = true
-        for (const key in record) ret &&= delete _data[1][key]
+        for (const key in record) ret &&= delete sData[1][key]
         return ret
     }
 }
@@ -82,7 +82,7 @@ export function registerSettingsItems(record: Record<string, SettingsItem>) {
  * @returns A function to remove the settings item from the section.
  */
 export function addSettingsItemToSection(key: string, item: string) {
-    const section = _data[0][key]
+    const section = sData[0][key]
     if (!section) throw new Error(`Section "${key}" does not exist`)
 
     const newLength = section.settings.push(item)

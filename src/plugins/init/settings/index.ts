@@ -1,4 +1,4 @@
-import { _data, _subs } from '@revenge-mod/discord/_/modules/settings'
+import { sData, sSubscriptions } from '@revenge-mod/discord/_/modules/settings'
 import { onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
@@ -33,7 +33,7 @@ registerPlugin(
                         'Settings modules loaded, running subscriptions and patching...',
                     )
 
-                    for (const sub of _subs)
+                    for (const sub of sSubscriptions)
                         try {
                             sub()
                         } catch (e) {
@@ -44,8 +44,8 @@ registerPlugin(
                         }
 
                     // We don't ever need to call this again
-                    _subs.clear()
-                    _data[2] = true
+                    sSubscriptions.clear()
+                    sData[2] = true
 
                     let ORIGINAL_RENDERER_CONFIG =
                         SettingRendererConfig.SETTING_RENDERER_CONFIG
@@ -57,7 +57,7 @@ registerPlugin(
                             get: () =>
                                 ({
                                     ...ORIGINAL_RENDERER_CONFIG,
-                                    ..._data[1],
+                                    ...sData[1],
                                 }) as Record<string, SettingsItem>,
                             set: v => (ORIGINAL_RENDERER_CONFIG = v),
                         },
@@ -70,7 +70,7 @@ registerPlugin(
                 exports => {
                     unsubSOS()
 
-                    const customSections = _data[0]
+                    const customSections = sData[0]
 
                     after(exports as { default: FC }, 'default', tree => {
                         const {

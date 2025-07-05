@@ -1,6 +1,6 @@
 import { TypedEventEmitter } from '@revenge-mod/discord/common/utils'
 import { allSettled, sleepReject } from '@revenge-mod/utils/promises'
-import { _uapi as uapi } from './apis'
+import { pUnscopedApi as uapi } from './apis'
 import { PluginFlags as Flag, PluginStatus as Status } from './constants'
 import type {
     InitPluginApi,
@@ -13,9 +13,9 @@ import type {
     PreInitPluginApi,
 } from './types'
 
-export const _uapi = uapi
+export const pUnscopedApi = uapi
 
-export const _emitter = new TypedEventEmitter<{
+export const pEmitter = new TypedEventEmitter<{
     register: [InternalPlugin, PluginOptions<any>]
     disabled: [InternalPlugin]
     enabled: [InternalPlugin]
@@ -32,8 +32,8 @@ export const _emitter = new TypedEventEmitter<{
     error: [InternalPlugin, unknown]
 }>()
 
-export const _plugins = new Map<PluginManifest['id'], InternalPlugin>()
-export const _metas = new Map<
+export const pList = new Map<PluginManifest['id'], InternalPlugin>()
+export const pMetadata = new Map<
     PluginManifest['id'],
     [
         api: PreInitPluginApi | InitPluginApi | PluginApi | undefined,
@@ -50,7 +50,7 @@ export function registerPlugin<O extends PluginApiExtensionsOptions>(
     iflags: number,
 ) {
     // TODO(plugins): verify plugin manifest
-    if (_plugins.has(manifest.id))
+    if (pList.has(manifest.id))
         throw new Error(`Plugin with ID "${manifest.id}" already registered`)
 
     const plugin: InternalPlugin = {
@@ -70,27 +70,27 @@ export function registerPlugin<O extends PluginApiExtensionsOptions>(
         stop: () => stopPlugin(plugin),
     }
 
-    _metas.set(manifest.id, [undefined, [], iflags, PluginApiLevel.None])
-    _plugins.set(manifest.id, plugin)
+    pMetadata.set(manifest.id, [undefined, [], iflags, PluginApiLevel.None])
+    pList.set(manifest.id, plugin)
 
-    _emitter.emit('register', plugin, options)
+    pEmitter.emit('register', plugin, options)
 }
 
 function handlePluginError(e: unknown, plugin: InternalPlugin) {
     plugin.errors.push(e)
     plugin.flags |= Flag.Errored
-    const [api, , iflags] = _metas.get(plugin.manifest.id)!
+    const [api, , iflags] = pMetadata.get(plugin.manifest.id)!
 
     const log = (api as InitPluginApi).logger ?? console
     log.error('Plugin encountered an error', e)
 
-    _emitter.emit('error', plugin, e)
+    pEmitter.emit('error', plugin, e)
 
     if (!(iflags & InternalPluginFlags.Essential)) return plugin.disable()
 }
 
 function preparePluginPreInit(plugin: InternalPlugin) {
-    const meta = _metas.get(plugin.manifest.id)!
+    const meta = pMetadata.get(plugin.manifest.id)!
 
     // Clear errors from previous runs
     plugin.errors = []
@@ -101,24 +101,24 @@ function preparePluginPreInit(plugin: InternalPlugin) {
             plugin._c.push(...items)
         },
         plugin,
-        unscoped: _uapi,
+        unscoped: pUnscopedApi,
     })
 
-    _emitter.emit('preInit', plugin, api)
+    pEmitter.emit('preInit', plugin, api)
     meta[3] = PluginApiLevel.PreInit
 }
 
 function preparePluginInit(plugin: InternalPlugin) {
-    const meta = _metas.get(plugin.manifest.id)!
+    const meta = pMetadata.get(plugin.manifest.id)!
 
-    _emitter.emit('init', plugin, meta[0] as InitPluginApi)
+    pEmitter.emit('init', plugin, meta[0] as InitPluginApi)
     meta[3] = PluginApiLevel.Init
 }
 
 function preparePluginStart(plugin: InternalPlugin) {
-    const meta = _metas.get(plugin.manifest.id)!
+    const meta = pMetadata.get(plugin.manifest.id)!
 
-    _emitter.emit('start', plugin, meta[0] as PluginApi)
+    pEmitter.emit('start', plugin, meta[0] as PluginApi)
     meta[3] = PluginApiLevel.Start
 }
 
@@ -126,7 +126,7 @@ async function disablePlugin(plugin: InternalPlugin) {
     if (!(plugin.flags & Flag.Enabled))
         throw new Error(`Plugin "${plugin.manifest.id}" is not enabled`)
 
-    const iflags = _metas.get(plugin.manifest.id)![2] ?? 0
+    const iflags = pMetadata.get(plugin.manifest.id)![2] ?? 0
     if (iflags & InternalPluginFlags.Essential)
         throw new Error(
             `Plugin "${plugin.manifest.id}" is essential and cannot be disabled`,
@@ -139,7 +139,7 @@ async function disablePlugin(plugin: InternalPlugin) {
     // TODO(plugins): write to storage
     plugin.flags &= ~Flag.Enabled
 
-    _emitter.emit('disabled', plugin)
+    pEmitter.emit('disabled', plugin)
 }
 
 export function enablePlugin(plugin: InternalPlugin, late: boolean) {
@@ -150,7 +150,7 @@ export function enablePlugin(plugin: InternalPlugin, late: boolean) {
     plugin.flags |= Flag.Enabled
     if (late) plugin.flags |= Flag.EnabledLate
 
-    _emitter.emit('enabled', plugin)
+    pEmitter.emit('enabled', plugin)
 }
 
 export async function preInitPlugin(plugin: InternalPlugin) {
@@ -161,7 +161,7 @@ export async function preInitPlugin(plugin: InternalPlugin) {
     try {
         if (!lifecycles.preInit) return
 
-        const meta = _metas.get(id)!
+        const meta = pMetadata.get(id)!
         const [, promises] = meta
 
         if (!(plugin.flags & Flag.Enabled))
@@ -187,7 +187,7 @@ export async function preInitPlugin(plugin: InternalPlugin) {
             await handlePluginError(e, plugin)
         }
     } finally {
-        _emitter.emit('preInited', plugin)
+        pEmitter.emit('preInited', plugin)
     }
 }
 
@@ -200,7 +200,7 @@ export async function initPlugin(plugin: InternalPlugin) {
     try {
         if (!lifecycles.init) return
 
-        const meta = _metas.get(id)!
+        const meta = pMetadata.get(id)!
         const [, promises, , apiLevel] = meta
 
         if (!(plugin.flags & Flag.Enabled))
@@ -227,7 +227,7 @@ export async function initPlugin(plugin: InternalPlugin) {
             await handlePluginError(e, plugin)
         }
     } finally {
-        _emitter.emit('inited', plugin)
+        pEmitter.emit('inited', plugin)
     }
 }
 
@@ -240,7 +240,7 @@ export async function startPlugin(plugin: InternalPlugin) {
     try {
         if (!lifecycles.start) return
 
-        const meta = _metas.get(id)!
+        const meta = pMetadata.get(id)!
         const [, promises, , apiLevel] = meta
 
         if (!(plugin.flags & Flag.Enabled))
@@ -268,7 +268,7 @@ export async function startPlugin(plugin: InternalPlugin) {
             await handlePluginError(e, plugin)
         }
     } finally {
-        _emitter.emit('started', plugin)
+        pEmitter.emit('started', plugin)
     }
 }
 
@@ -279,7 +279,7 @@ export async function stopPlugin(plugin: InternalPlugin) {
         manifest: { id },
         lifecycles,
     } = plugin
-    const meta = _metas.get(id)!
+    const meta = pMetadata.get(id)!
     const [, promises, iflags, apiLevel] = meta
 
     if (iflags & InternalPluginFlags.Essential)
@@ -366,7 +366,7 @@ export async function stopPlugin(plugin: InternalPlugin) {
         // Reset status
         plugin.status = 0
 
-        _emitter.emit('stopped', plugin)
+        pEmitter.emit('stopped', plugin)
     }
 }
 

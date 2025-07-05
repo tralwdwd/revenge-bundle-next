@@ -1,8 +1,8 @@
-import { _initing, _uninits } from '@revenge-mod/modules/_/metro'
+import { mInitializingId, mUninitialized } from '@revenge-mod/modules/_/metro'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
-import { _overrides } from './_internal'
+import { aOverrides } from './_internal'
 import { cacheAsset, cached } from './caches'
 import type { ReactNative } from '@revenge-mod/react/types'
 import type { Asset, PackagerAsset } from './types'
@@ -31,7 +31,7 @@ const unsubAR = waitForModules(
                     // More fragile way, but also more performant:
                     // There is exactly one asset before the reexported asset registry :/
                     const firstAssetModuleId = id - 1
-                    for (const mId of _uninits) {
+                    for (const mId of mUninitialized) {
                         if (mId < firstAssetModuleId) continue
 
                         const deps = getModuleDependencies(mId)!
@@ -50,8 +50,8 @@ const unsubAR = waitForModules(
 
             // Cache and set moduleId for packager assets only
             if ((asset as PackagerAsset).__packager_asset) {
-                asset.moduleId = _initing!
-                cacheAsset(asset, _initing!)
+                asset.moduleId = mInitializingId!
+                cacheAsset(asset, mInitializingId!)
             }
 
             return (asset.id = result)
@@ -79,6 +79,6 @@ const unsubRAS = waitForModules(
 
         // Asset overrides
         // @ts-expect-error
-        rAS.addCustomSourceTransformer(({ asset }) => _overrides.get(asset))
+        rAS.addCustomSourceTransformer(({ asset }) => aOverrides.get(asset))
     },
 )

@@ -1,4 +1,10 @@
-import { _init, _initAll, _path, _req, _reqAll } from './_internal'
+import {
+    sImportedPath,
+    sInitialize,
+    sInitializeAny,
+    sRequire,
+    sRequireAny,
+} from './_internal'
 import type { Metro } from '../../types'
 
 export type ModuleFirstRequiredCallback = (id: Metro.ModuleID) => void
@@ -23,8 +29,8 @@ export type ModuleFinishedImportingCallback = (
  * @returns A function that unregisters the callback.
  */
 export function onAnyModuleInitialized(callback: ModuleInitializedCallback) {
-    _initAll.add(callback)
-    return () => _initAll.delete(callback)
+    sInitializeAny.add(callback)
+    return () => sInitializeAny.delete(callback)
 }
 
 /**
@@ -43,10 +49,10 @@ export function onModuleInitialized(
     id: Metro.ModuleID,
     callback: ModuleInitializedCallback,
 ) {
-    let set = _init.get(id)
+    let set = sInitialize.get(id)
     if (!set) {
         set = new Set()
-        _init.set(id, set)
+        sInitialize.set(id, set)
     }
 
     set.add(callback)
@@ -64,8 +70,8 @@ export function onModuleInitialized(
 export function onModuleFinishedImporting(
     callback: ModuleFinishedImportingCallback,
 ) {
-    _path.add(callback)
-    return () => _path.delete(callback)
+    sImportedPath.add(callback)
+    return () => sImportedPath.delete(callback)
 }
 
 /**
@@ -81,8 +87,8 @@ export function onModuleFinishedImporting(
 export function onAnyModuleFirstRequired(
     callback: ModuleFirstRequiredCallback,
 ) {
-    _reqAll.add(callback)
-    return () => _reqAll.delete(callback)
+    sRequireAny.add(callback)
+    return () => sRequireAny.delete(callback)
 }
 
 /**
@@ -100,10 +106,10 @@ export function onModuleFirstRequired(
     id: Metro.ModuleID,
     callback: ModuleFirstRequiredCallback,
 ) {
-    let set = _req.get(id)
+    let set = sRequire.get(id)
     if (!set) {
         set = new Set()
-        _req.set(id, set)
+        sRequire.set(id, set)
     }
 
     set.add(callback)

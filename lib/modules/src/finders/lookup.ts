@@ -1,42 +1,60 @@
 import { getCurrentStack } from '@revenge-mod/utils/errors'
 import { proxify } from '@revenge-mod/utils/proxy'
 import { cache } from '../caches'
-import { _inits, _metas, _paths, _uninits } from '../metro/_internal'
+import {
+    mImportedPaths,
+    mInitialized,
+    mMetadata,
+    mUninitialized,
+} from '../metro/_internal'
 import {
     getInitializedModuleExports,
     isModuleInitialized,
 } from '../metro/utils'
 import { exportsFromFilterResultFlag, runFilter } from './_internal'
-import type { If } from '@revenge-mod/utils/types'
+import type { If, Nullish } from '@revenge-mod/utils/types'
 import type { MaybeDefaultExportMatched, Metro } from '../types'
 import type { RunFilterReturnExportsOptions } from './_internal'
 import type { Filter, FilterResult } from './filters'
 
-interface LookupModulesOptionsWithAll<O extends boolean> {
-    /**
-     * Whether to include all modules in the lookup, including blacklisted ones.
-     *
-     * **This overrides {@link BaseLookupModulesOptions.initialized} and {@link BaseLookupModulesOptions.uninitialized}.**
-     */
-    all: O
-}
+type LookupModulesOptionsWithAll<A extends boolean> = If<
+    A,
+    {
+        /**
+         * Whether to include all modules in the lookup, including blacklisted ones.
+         *
+         * **This overrides {@link BaseLookupModulesOptions.initialized} and {@link BaseLookupModulesOptions.uninitialized}.**
+         */
+        all: A
+    },
+    {
+        all?: false
+    }
+>
 
-interface LookupModulesOptionsWithInitializedUninitialized<U extends boolean> {
+type LookupModulesOptionsWithInitializedUninitialized<U extends boolean> = {
     /**
      * Whether to include initialized modules in the lookup.
      *
      * @default true
      */
     initialized?: boolean
-    /**
-     * Whether to include uninitialized modules in the lookup.
-     *
-     * Set {@link BaseLookupModulesOptions.initialize} `true` to initialize uninitialized modules.
-     *
-     * @default false
-     */
-    uninitialized?: U
-}
+} & If<
+    U,
+    {
+        /**
+         * Whether to include uninitialized modules in the lookup.
+         *
+         * Set {@link BaseLookupModulesOptions.initialize} `true` to initialize uninitialized modules.
+         *
+         * @default false
+         */
+        uninitialized: U
+    },
+    {
+        uninitialized?: false
+    }
+>
 
 export type LookupModulesOptions<
     ReturnNamespace extends boolean = boolean,
@@ -48,13 +66,21 @@ export type LookupModulesOptions<
      * Whether to use cached lookup results.
      */
     cached?: boolean
-    /**
-     * Whether to initialize matching uninitialized modules.
-     *
-     * **This will initialize any modules that match the exportsless filter and may cause unintended side effects.**
-     */
-    initialize?: Initialize
 } & If<
+        Initialize,
+        {
+            /**
+             * Whether to initialize matching uninitialized modules.
+             *
+             * **This will initialize any modules that match the exportsless filter and may cause unintended side effects.**
+             */
+            initialize?: Initialize
+        },
+        {
+            initialize: false
+        }
+    > &
+    If<
         All,
         LookupModulesOptionsWithAll<All> & {
             [K in keyof LookupModulesOptionsWithInitializedUninitialized<Uninitialized>]?: never
@@ -70,7 +96,7 @@ export type LookupModulesResult<
 > = [
     exports: O extends LookupModulesOptions<boolean, boolean, false, true>
         ? LookupFilterResult<F, O>
-        : LookupFilterResult<F, O> | undefined,
+        : LookupFilterResult<F, O> | Nullish,
     id: Metro.ModuleID,
 ]
 
@@ -107,9 +133,14 @@ export function lookupModules<F extends Filter>(
 ): Generator<LookupModulesResult<F, object>, undefined>
 
 export function lookupModules<
-    F extends O extends LookupModulesOptions<boolean, true>
-        ? Filter<any, false>
-        : Filter,
+    F extends Filter<
+        any,
+        O extends
+            | LookupModulesOptions<boolean, true>
+            | LookupModulesOptions<boolean, boolean, true>
+            ? false
+            : true
+    >,
     const O extends LookupModulesOptions,
 >(filter: F, options: O): Generator<LookupModulesResult<F, O>, undefined>
 
@@ -117,9 +148,9 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     let notFound = true
     let cached: Set<Metro.ModuleID> | undefined
 
-    const notInit = !(options?.initialize ?? true)
-
     if (options?.cached ?? true) {
+        const notInit = !(options?.initialize ?? true)
+
         const reg = cache[filter.key]
         // Return early if previous lookup was a full lookup and no modules were found
         if (reg === null) return
@@ -148,7 +179,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
 
     // Full lookup
     if (options?.all) {
-        for (const id of _metas.keys()) {
+        for (const id of mMetadata.keys()) {
             if (cached?.has(id)) continue
 
             const exports = getInitializedModuleExports(id)
@@ -164,7 +195,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     // Partial lookup
     else {
         if (options?.initialized ?? true)
-            for (const id of _inits) {
+            for (const id of mInitialized) {
                 if (cached?.has(id)) continue
 
                 const exports = getInitializedModuleExports(id)
@@ -179,7 +210,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
             }
 
         if (options?.uninitialized)
-            for (const id of _uninits) {
+            for (const id of mUninitialized) {
                 if (cached?.has(id)) continue
 
                 const flag = runFilter(filter, id, undefined, options)
@@ -228,9 +259,9 @@ export function lookupModule<
 >(filter: F, options: O): LookupModulesResult<F, O> | LookupNotFoundResult
 
 export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
-    const notInit = !(options?.initialize ?? true)
-
     if (options?.cached ?? true) {
+        const notInit = !(options?.initialize ?? true)
+
         const reg = cache[filter.key]
         // Return early if previous lookup was a full lookup and no modules were found
         if (reg === null) return NotFoundResult
@@ -254,7 +285,7 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
 
     // Full lookup
     if (options?.all) {
-        for (const id of _metas.keys()) {
+        for (const id of mMetadata.keys()) {
             const exports = getInitializedModuleExports(id)
             const flag = runFilter(filter, id, exports, options)
             if (flag)
@@ -271,7 +302,7 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
     // Partial lookup
     else {
         if (options?.initialized ?? true)
-            for (const id of _inits) {
+            for (const id of mInitialized) {
                 const exports = getInitializedModuleExports(id)
                 const flag = runFilter(filter, id, exports, options)
                 if (flag)
@@ -282,7 +313,7 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
             }
 
         if (options?.uninitialized)
-            for (const id of _uninits) {
+            for (const id of mUninitialized) {
                 const flag = runFilter(filter, id, undefined, options)
                 if (flag)
                     return [
@@ -318,13 +349,13 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
 export function lookupModuleByImportedPath<T = any>(
     path: string,
 ): [exports: T, id: Metro.ModuleID] | [] {
-    const id = _paths.get(path)
+    const id = mImportedPaths.get(path)
     if (id == null) return NotFoundResult
 
     return [getInitializedModuleExports(id), id]
 }
 
-const __blacklistedFunctions = __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__
+const __DEBUG_TRACER_IGNORE_LIST__ = __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__
     ? proxify(
           () => [
               require('./get').getModule,
@@ -342,7 +373,7 @@ const __blacklistedFunctions = __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__
  */
 function warnDeveloperAboutNoFilterMatch(filter: Filter) {
     const stack = getCurrentStack()
-    for (const func of __blacklistedFunctions)
+    for (const func of __DEBUG_TRACER_IGNORE_LIST__)
         if (stack.includes(func.name)) return
 
     nativeLoggingHook(

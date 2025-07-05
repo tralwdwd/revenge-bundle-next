@@ -1,4 +1,4 @@
-import { _inits } from '../metro/_internal'
+import { mInitialized } from '../metro/_internal'
 import { getModuleDependencies, isModuleInitialized } from '../metro/utils'
 import type { If, LogicalOr } from '@revenge-mod/utils/types'
 import type { Metro } from '../types'
@@ -529,7 +529,7 @@ export const moduleStateAware = createFilterGenerator<
 >(
     ([initializedFilter, uninitializedFilter, strict], id, exports) => {
         if (isModuleInitialized(id)) {
-            if (_inits.has(id) && initializedFilter(id, exports))
+            if (mInitialized.has(id) && initializedFilter(id, exports))
                 return strict ? uninitializedFilter(id) : true
             return false
         }
@@ -570,7 +570,7 @@ export type PreferExports = FilterGenerator<
  */
 export const preferExports = createFilterGenerator<Parameters<PreferExports>>(
     ([withExportsFilter, exportslessFilter, strict], id, exports) => {
-        if (_inits.has(id)) {
+        if (mInitialized.has(id)) {
             if (withExportsFilter(id, exports))
                 return strict ? exportslessFilter(id) : true
             return false

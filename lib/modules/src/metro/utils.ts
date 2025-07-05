@@ -1,5 +1,5 @@
 import { isProxy } from '@revenge-mod/utils/proxy'
-import { _metas } from './_internal'
+import { mMetadata } from './_internal'
 import type { Metro } from '../types'
 
 /**
@@ -10,7 +10,7 @@ import type { Metro } from '../types'
 export function getModuleDependencies(
     id: Metro.ModuleID,
 ): Metro.DependencyMap | undefined {
-    return _metas.get(id)?.[0]
+    return mMetadata.get(id)?.[0]
 }
 
 /**
@@ -19,7 +19,7 @@ export function getModuleDependencies(
  * @returns `true` if the module is initialized, `false` if it is not initialized, or `undefined` if the module does not exist.
  */
 export function isModuleInitialized(id: Metro.ModuleID): boolean | undefined {
-    return _metas.get(id)?.[1]
+    return mMetadata.get(id)?.[1]
 }
 
 /**
@@ -33,7 +33,7 @@ export function isModuleInitialized(id: Metro.ModuleID): boolean | undefined {
 export function getInitializedModuleExports(
     id: Metro.ModuleID,
 ): Metro.ModuleExports | undefined {
-    return _metas.get(id)?.[2]?.exports
+    return mMetadata.get(id)?.[2]?.exports
 }
 
 /**

@@ -4,10 +4,10 @@ import FormSwitch from '@revenge-mod/components/FormSwitch'
 import { Tokens } from '@revenge-mod/discord/common'
 import { Design } from '@revenge-mod/discord/design'
 import {
-    _emitter,
     enablePlugin,
     InternalPluginFlags,
     initPlugin,
+    pEmitter,
     preInitPlugin,
     startPlugin,
 } from '@revenge-mod/plugins/_'
@@ -52,12 +52,12 @@ export function InstalledPluginCard({
         const listener = (p: InternalPlugin) =>
             id === p.manifest.id && reRender()
 
-        _emitter.on('disabled', listener)
-        _emitter.on('enabled', listener)
+        pEmitter.on('disabled', listener)
+        pEmitter.on('enabled', listener)
 
         return () => {
-            _emitter.off('disabled', listener)
-            _emitter.off('enabled', listener)
+            pEmitter.off('disabled', listener)
+            pEmitter.off('enabled', listener)
         }
     })
 

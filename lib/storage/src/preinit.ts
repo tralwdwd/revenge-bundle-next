@@ -1,5 +1,5 @@
-import { _emitter } from '@revenge-mod/plugins/_'
+import { pEmitter } from '@revenge-mod/plugins/_'
 
-_emitter.on('register', (plugin, options) => {
+pEmitter.on('register', (plugin, options) => {
     plugin._s = options.storage
 })

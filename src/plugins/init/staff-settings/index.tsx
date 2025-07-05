@@ -5,6 +5,7 @@ import { getModule } from '@revenge-mod/modules/finders/get'
 import { instead } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
+import type { DiscordModules } from '@revenge-mod/discord/types'
 
 registerPlugin(
     {
@@ -17,27 +18,26 @@ registerPlugin(
     {
         start({ cleanup, logger }) {
             function reset() {
-                getStore<{ initialize(): void }>(
-                    'DeveloperExperimentStore',
-                    store => {
-                        logger.log(
-                            'Reinitializing DeveloperExperimentStore to apply changes...',
-                        )
+                getStore<{
+                    initialize(): void
+                }>('DeveloperExperimentStore', store => {
+                    logger.log(
+                        'Reinitializing DeveloperExperimentStore to apply changes...',
+                    )
 
-                        const unpatch = instead(
-                            Object,
-                            'defineProperties',
-                            args => args[0],
-                        )
+                    const unpatch = instead(
+                        Object,
+                        'defineProperties',
+                        args => args[0],
+                    )
 
-                        store.initialize()
-                        unpatch()
+                    store.initialize()
+                    unpatch()
 
-                        setTimeout(() => {
-                            refreshSettingsOverviewScreen(true)
-                        })
-                    },
-                )
+                    setTimeout(() => {
+                        refreshSettingsOverviewScreen(true)
+                    })
+                })
             }
 
             cleanup(
@@ -49,7 +49,12 @@ registerPlugin(
                             UserStoreUtils,
                             'isStaffEnv',
                             ([user]) =>
-                                user === Stores.UserStore.getCurrentUser(),
+                                user ===
+                                (
+                                    Stores.UserStore as DiscordModules.Flux.Store<{
+                                        getCurrentUser(): unknown
+                                    }>
+                                ).getCurrentUser(),
                         ),
                         reset,
                     )

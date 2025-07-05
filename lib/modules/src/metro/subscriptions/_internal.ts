@@ -5,31 +5,40 @@ import type {
     ModuleInitializedCallback,
 } from '.'
 
-export const _reqAll = new Set<ModuleFirstRequiredCallback>()
-export const _req = new Map<Metro.ModuleID, Set<ModuleFirstRequiredCallback>>()
-export const _initAll = new Set<ModuleInitializedCallback>()
-export const _init = new Map<Metro.ModuleID, Set<ModuleInitializedCallback>>()
-export const _path = new Set<ModuleFinishedImportingCallback>()
+export const sRequireAny = new Set<ModuleFirstRequiredCallback>()
+export const sRequire = new Map<
+    Metro.ModuleID,
+    Set<ModuleFirstRequiredCallback>
+>()
+export const sInitializeAny = new Set<ModuleInitializedCallback>()
+export const sInitialize = new Map<
+    Metro.ModuleID,
+    Set<ModuleInitializedCallback>
+>()
+export const sImportedPath = new Set<ModuleFinishedImportingCallback>()
 
-export function _execReqSubs(id: Metro.ModuleID) {
-    for (const cb of _reqAll) cb(id)
-    if (_req.has(id)) {
-        for (const cb of _req.get(id)!) cb(id)
-        _req.delete(id)
+export function executeRequireSubscriptions(id: Metro.ModuleID) {
+    for (const cb of sRequireAny) cb(id)
+    if (sRequire.has(id)) {
+        for (const cb of sRequire.get(id)!) cb(id)
+        sRequire.delete(id)
     }
 }
 
-export function _execInitSubs(
+export function executeInitializeSubscriptions(
     id: Metro.ModuleID,
     exports: Metro.ModuleExports,
 ) {
-    for (const cb of _initAll) cb(id, exports)
-    if (_init.has(id)) {
-        for (const cb of _init.get(id)!) cb(id, exports)
-        _init.delete(id)
+    for (const cb of sInitializeAny) cb(id, exports)
+    if (sInitialize.has(id)) {
+        for (const cb of sInitialize.get(id)!) cb(id, exports)
+        sInitialize.delete(id)
     }
 }
 
-export function _execPathSubs(id: Metro.ModuleID, path: string) {
-    for (const cb of _path) cb(id, path)
+export function executeImportedPathSubscriptions(
+    id: Metro.ModuleID,
+    path: string,
+) {
+    for (const cb of sImportedPath) cb(id, path)
 }

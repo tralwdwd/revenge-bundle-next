@@ -1,4 +1,4 @@
 import type { Asset, CustomAsset } from './types'
 
-export const _customs = new Set<CustomAsset>()
-export const _overrides = new WeakMap<Asset, Asset>()
+export const aCustoms = new Set<CustomAsset>()
+export const aOverrides = new WeakMap<Asset, Asset>()

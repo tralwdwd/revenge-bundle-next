@@ -4,19 +4,19 @@ import { after, before } from '@revenge-mod/patcher'
 import { ReactNative } from '..'
 import type { RunApplicationCallback } from '.'
 
-export const _bra = new Set<RunApplicationCallback>()
-export const _ara = new Set<RunApplicationCallback>()
+export const sBeforeRunApplication = new Set<RunApplicationCallback>()
+export const sAfterRunApplication = new Set<RunApplicationCallback>()
 
 const unsub = waitForModules(byProps('AppRegistry'), () => {
     unsub()
 
     before(ReactNative.AppRegistry, 'runApplication', args => {
-        for (const cb of _bra) cb()
+        for (const cb of sBeforeRunApplication) cb()
         return args
     })
 
     after(ReactNative.AppRegistry, 'runApplication', res => {
-        for (const cb of _ara) cb()
+        for (const cb of sAfterRunApplication) cb()
         return res
     })
 })

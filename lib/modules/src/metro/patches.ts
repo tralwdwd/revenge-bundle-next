@@ -1,7 +1,7 @@
 import { byProps } from '../finders/filters'
 import { waitForModules } from '../finders/wait'
-import { _initing, _paths } from './_internal'
-import { _execPathSubs } from './subscriptions/_internal'
+import { mImportedPaths, mInitializingId } from './_internal'
+import { executeImportedPathSubscriptions } from './subscriptions/_internal'
 
 const unsubFFI = waitForModules(byProps('fileFinishedImporting'), exports => {
     unsubFFI()
@@ -9,8 +9,8 @@ const unsubFFI = waitForModules(byProps('fileFinishedImporting'), exports => {
     const orig = exports.fileFinishedImporting
     exports.fileFinishedImporting = (path: string) => {
         orig(path)
-        const id = _initing!
-        _paths.set(path, id)
-        _execPathSubs(id, path)
+        const id = mInitializingId!
+        mImportedPaths.set(path, id)
+        executeImportedPathSubscriptions(id, path)
     }
 })
