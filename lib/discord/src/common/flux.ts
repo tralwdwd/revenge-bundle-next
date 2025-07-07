@@ -55,6 +55,7 @@ export const Stores = new Proxy(_stores, {
     ownKeys: target => Reflect.ownKeys(target),
     get: (target, prop: string) =>
         target[prop] ??
+        // @ts-expect-error: This always uses cache
         lookupModule(byStoreName(prop), { uninitialized: true })[0],
 })
 
