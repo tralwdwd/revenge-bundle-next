@@ -69,9 +69,14 @@ declare global {
 /// METRO
 
 declare global {
-    var __r: Metro.RequireFn
-    var __c: Metro.ClearFn
+    var __METRO_GLOBAL_PREFIX__: ''
+
     var __d: Metro.DefineFn
+    var __r: Metro.RequireFn & {
+        importDefault: Metro.ImportDefaultFn
+        importAll: Metro.ImportAllFn
+    }
+    var __c: Metro.ClearFn
 }
 
 /// REACT NATIVE

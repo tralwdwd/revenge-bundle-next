@@ -1,11 +1,5 @@
+import { objectDefineProperty } from './patches/objects'
 import type { AnyObject } from './types'
-
-// Retain reference to original functions
-export const objectFreeze = Object.freeze
-export const objectDefineProperty = Object.defineProperty
-
-// Patch to prevent the use of Object.freeze
-Object.freeze = (o: any) => o
 
 // Heavily inspired by uwu/shelter
 // https://github.com/uwu/shelter/blob/main/packages/shelter/src/exfiltrate.ts

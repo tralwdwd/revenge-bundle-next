@@ -3,6 +3,12 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./patches/objects": {
+      "default": "./src/patches/objects.ts"
+    },
+    "./patches/proxy": {
+      "default": "./src/patches/proxy.ts"
+    },
     "./callbacks": {
       "default": "./src/callbacks.ts"
     },
