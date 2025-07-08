@@ -22,7 +22,7 @@ export let mList: Metro.ModuleList
  * Here's how Metro sets itself up:
  * 1. `__METRO_GLOBAL_PREFIX__ = ""`
  * 2. `${__METRO_GLOBAL_PREFIX__}__d = function define(...) {}`
- *    - Why don't we patch it here? Because we need to know the value of __METRO_GLOBAL_PREFIX__ first
+ *    - Why don't we patch it here? Because we need to know the value of `__METRO_GLOBAL_PREFIX__` first
  *    - And since Revenge runs before everything else, we need to patch in the next steps:
  *      - We chose to patch it in 4. because we can access all the global functions at that point.
  * 3. `__r = function metroRequire(...) {}`

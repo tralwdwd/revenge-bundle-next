@@ -59,6 +59,7 @@ export default async function build(dev = Dev, log = true) {
 
             // See types.d.ts for what these flags do
             __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__: String(dev),
+            __BUILD_FLAG_DEBUG_MODULE_WAITS__: String(dev),
             __BUILD_FLAG_DEBUG_PROXIFIED_VALUES__: 'false',
             __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: String(dev),
         },

@@ -4,9 +4,16 @@ import {
     onModuleFinishedImporting,
 } from '../metro/subscriptions'
 import { getInitializedModuleExports } from '../metro/utils'
-import { exportsFromFilterResultFlag, runFilter } from './_internal'
+import {
+    exportsFromFilterResultFlag,
+    FilterResultFlagToHumanReadable,
+    runFilter,
+} from './_internal'
 import type { MaybeDefaultExportMatched, Metro } from '../types'
-import type { RunFilterReturnExportsOptions } from './_internal'
+import type {
+    FilterResultFlag,
+    RunFilterReturnExportsOptions,
+} from './_internal'
 import type { Filter, FilterResult } from './filters'
 
 export interface BaseWaitForModulesOptions<All extends boolean = boolean> {
@@ -76,20 +83,33 @@ export function waitForModules(
     callback: WaitForModulesCallback<any>,
     options?: WaitForModulesOptions,
 ) {
+    if (__BUILD_FLAG_DEBUG_MODULE_WAITS__)
+        nativeLoggingHook(
+            `\u001b[94mWaiting for module matching: \u001b[93m${filter.key}\u001b[0m`,
+            1,
+        )
+
     return onAnyModuleInitialized(
         options?.all
             ? (id, exports) => {
                   const flag = runFilter(filter, id, exports, options)
-                  if (flag)
+                  if (flag) {
+                      if (__BUILD_FLAG_DEBUG_MODULE_WAITS__)
+                          DEBUG_logWaitMatched(filter.key, id, flag)
+
                       callback(
                           exportsFromFilterResultFlag(flag, exports, options),
                           id,
                       )
+                  }
               }
             : (id, exports) => {
                   if (mInitialized.has(id)) {
                       const flag = runFilter(filter, id, exports, options)
-                      if (flag)
+                      if (flag) {
+                          if (__BUILD_FLAG_DEBUG_MODULE_WAITS__)
+                              DEBUG_logWaitMatched(filter.key, id, flag)
+
                           callback(
                               exportsFromFilterResultFlag(
                                   flag,
@@ -98,6 +118,7 @@ export function waitForModules(
                               ),
                               id,
                           )
+                      }
                   }
               },
     )
@@ -147,4 +168,18 @@ export function waitForModuleByImportedPath<T = any>(
     )
 
     return unsub
+}
+
+/**
+ * Logs to the developer that a module wait has matched.
+ */
+function DEBUG_logWaitMatched(
+    key: string,
+    id: Metro.ModuleID,
+    flag: FilterResultFlag,
+) {
+    nativeLoggingHook(
+        `\u001b[32mWait matched: \u001b[33m${key}\u001b[0m (matched ${id}, ${FilterResultFlagToHumanReadable[flag]})`,
+        1,
+    )
 }

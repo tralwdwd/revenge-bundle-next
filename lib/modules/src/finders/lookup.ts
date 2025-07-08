@@ -11,10 +11,17 @@ import {
     getInitializedModuleExports,
     isModuleInitialized,
 } from '../metro/utils'
-import { exportsFromFilterResultFlag, runFilter } from './_internal'
+import {
+    exportsFromFilterResultFlag,
+    FilterResultFlagToHumanReadable,
+    runFilter,
+} from './_internal'
 import type { If, Nullish } from '@revenge-mod/utils/types'
 import type { MaybeDefaultExportMatched, Metro } from '../types'
-import type { RunFilterReturnExportsOptions } from './_internal'
+import type {
+    FilterResultFlag,
+    RunFilterReturnExportsOptions,
+} from './_internal'
 import type { Filter, FilterResult } from './filters'
 
 type LookupModulesOptionsWithAll<A extends boolean> = If<
@@ -177,6 +184,9 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
 
                 cached.add(id)
 
+                if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
+                    DEBUG_logLookupMatched(filter.key, flag, id, true)
+
                 yield [exportsFromFilterResultFlag(flag, exports, options), id]
             }
         }
@@ -191,6 +201,10 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
             const flag = runFilter(filter, id, exports, options)
             if (flag) {
                 notFound = false
+
+                if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
+                    DEBUG_logLookupMatched(filter.key, flag, id)
+
                 yield [exportsFromFilterResultFlag(flag, exports, options), id]
             }
         }
@@ -207,6 +221,10 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
                 const flag = runFilter(filter, id, exports, options)
                 if (flag) {
                     notFound = false
+
+                    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
+                        DEBUG_logLookupMatched(filter.key, flag, id)
+
                     yield [
                         exportsFromFilterResultFlag(flag, exports, options),
                         id,
@@ -222,6 +240,9 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
                 if (flag) {
                     notFound = false
 
+                    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
+                        DEBUG_logLookupMatched(filter.key, flag, id)
+
                     yield [
                         exportsFromFilterResultFlag(
                             flag,
@@ -235,7 +256,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     }
 
     if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
-        if (notFound) warnDeveloperAboutNoFilterMatch(filter)
+        if (notFound) DEBUG_warnLookupNoMatch(filter.key)
 }
 
 /**
@@ -288,6 +309,9 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
                     exports = __r(id)
                 }
 
+                if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
+                    DEBUG_logLookupMatched(filter.key, flag, id, true)
+
                 return [exportsFromFilterResultFlag(flag, exports, options), id]
             }
     }
@@ -297,12 +321,16 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
         for (let id = 0; id < mDeps.length; id++) {
             const exports = getInitializedModuleExports(id)
             const flag = runFilter(filter, id, exports, options)
-            if (flag)
+            if (flag) {
+                if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
+                    DEBUG_logLookupMatched(filter.key, flag, id)
+
                 return [exportsFromFilterResultFlag(flag, exports, options), id]
+            }
         }
 
         if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
-            warnDeveloperAboutNoFilterMatch(filter)
+            DEBUG_warnLookupNoMatch(filter.key)
 
         cache[filter.key] = null // Full lookup, and still not found!
 
@@ -314,17 +342,24 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
             for (const id of mInitialized) {
                 const exports = getInitializedModuleExports(id)
                 const flag = runFilter(filter, id, exports, options)
-                if (flag)
+                if (flag) {
+                    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
+                        DEBUG_logLookupMatched(filter.key, flag, id)
+
                     return [
                         exportsFromFilterResultFlag(flag, exports, options),
                         id,
                     ]
+                }
             }
 
         if (options?.uninitialized)
             for (const id of mUninitialized) {
                 const flag = runFilter(filter, id, undefined, options)
-                if (flag)
+                if (flag) {
+                    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
+                        DEBUG_logLookupMatched(filter.key, flag, id)
+
                     return [
                         exportsFromFilterResultFlag(
                             flag,
@@ -333,11 +368,11 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
                         ),
                         id,
                     ]
+                }
             }
     }
 
-    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
-        warnDeveloperAboutNoFilterMatch(filter)
+    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__) DEBUG_warnLookupNoMatch(filter.key)
 
     return NotFoundResult
 }
@@ -377,16 +412,28 @@ const __DEBUG_TRACER_IGNORE_LIST__ = __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__
     : []
 
 /**
+ * Logs to the developer that a module was found, how it is found, and whether it was a cached result.
+ */
+function DEBUG_logLookupMatched(
+    key: string,
+    flag: FilterResultFlag,
+    id: Metro.ModuleID,
+    cached?: boolean,
+) {
+    nativeLoggingHook(
+        `\u001b[32mSuccessful lookup: \u001b[33m${key}\u001b[0m (matched ${id}, ${FilterResultFlagToHumanReadable[flag]}${cached ? ', \u001b[92mcached\u001b[0m' : ''})`,
+        1,
+    )
+}
+
+/**
  * Warns the developer that no module was found for the given filter.
  * This is useful for debugging purposes, especially when using filters that are expected to match a module.
  */
-function warnDeveloperAboutNoFilterMatch(filter: Filter) {
+function DEBUG_warnLookupNoMatch(key: string) {
     const stack = getCurrentStack()
     for (const func of __DEBUG_TRACER_IGNORE_LIST__)
         if (stack.includes(func.name)) return
 
-    nativeLoggingHook(
-        `\u001b[31mNo module found for filter: ${filter.key}\n${stack}\u001b[0m`,
-        2,
-    )
+    nativeLoggingHook(`\u001b[31mFailed lookup: ${key}\n${stack}\u001b[0m`, 2)
 }

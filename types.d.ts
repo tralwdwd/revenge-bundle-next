@@ -13,6 +13,7 @@ declare global {
     /**
      * Whether to debug module lookups.
      *
+     * - Logs successful lookups.
      * - Logs failed lookups with stack traces.
      * - Logs partial matches (matches exportless, but not with-exports).
      */
@@ -24,11 +25,13 @@ declare global {
      * - Warns if the proxified value is nullish.
      */
     const __BUILD_FLAG_DEBUG_PROXIFIED_VALUES__: boolean
-
-    // CommonJS modules, we don't want to depend on @types/node
-    const module: {
-        exports: any
-    }
+    /**
+     * Whether to debug module waits.
+     *
+     * - Logs when a module is waited for.
+     * - Logs when a module is found.
+     */
+    const __BUILD_FLAG_DEBUG_MODULE_WAITS__: boolean
 
     export interface ImportMeta {
         glob<T = any>(

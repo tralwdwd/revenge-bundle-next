@@ -147,7 +147,7 @@ export function proxify<T>(signal: () => T, options?: ProxifyOptions): T {
 
     if (__BUILD_FLAG_DEBUG_PROXIFIED_VALUES__) {
         const v = unproxifyFromHint(hint)
-        if (v == null) warnDeveloperAboutNullishProxifiedValue()
+        if (v == null) DEBUG_warnNullishProxifiedValue()
     }
 
     return new Proxy(hint, _handler)
@@ -242,7 +242,10 @@ export function destructure<T extends object>(
     })
 }
 
-function warnDeveloperAboutNullishProxifiedValue() {
+/**
+ * Warns the developer that the proxified value is nullish.
+ */
+function DEBUG_warnNullishProxifiedValue() {
     nativeLoggingHook(
         `\u001b[33mProxified value is nullish! The signal is may be invalid.\n${getCurrentStack()}\u001b[0m`,
         3,

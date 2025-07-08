@@ -56,6 +56,13 @@ export const FilterResultFlags = {
 export type FilterResultFlag =
     (typeof FilterResultFlags)[keyof typeof FilterResultFlags]
 
+export const FilterResultFlagToHumanReadable: Record<FilterResultFlag, string> =
+    {
+        [FilterResultFlags.Default]: '\u001b[94mdefault\u001b[0m',
+        [FilterResultFlags.Namespace]: '\u001b[35mnamespace\u001b[0m',
+        [FilterResultFlags.Found]: '\u001b[96mexportsless\u001b[0m',
+    }
+
 // The reason this returns a flag is because flags are never falsy, while exports may be falsy when using ID-only filters (eg. `byDependencies`).
 
 // Currently, we only have options that are relevant for checking exports
@@ -84,8 +91,7 @@ export function runFilter(
             if (options?.initialize ?? true) {
                 if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__) {
                     const flag = runFilter(filter, id, __r(id), options)
-                    if (!flag)
-                        warnDeveloperAboutPartialFilterMatch(id, filter.key)
+                    if (!flag) DEBUG_warnPartialFilterMatch(id, filter.key)
                     return flag
                 } else return runFilter(filter, id, __r(id), options)
             }
@@ -119,9 +125,8 @@ export function exportsFromFilterResultFlag(
 /**
  * Warns the developer that the filter matched during exportsless comparison, but not during the full comparison.
  * This will cause modules to be initialized unnecessarily, and may cause issues.
- * @internal
  */
-function warnDeveloperAboutPartialFilterMatch(id: Metro.ModuleID, key: string) {
+function DEBUG_warnPartialFilterMatch(id: Metro.ModuleID, key: string) {
     nativeLoggingHook(
         `\u001b[33m${key} matched module ${id} partially.\n${getCurrentStack()}\u001b[0m`,
         2,

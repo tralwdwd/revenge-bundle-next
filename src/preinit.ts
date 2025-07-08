@@ -14,6 +14,9 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
         if (__BUILD_FLAG_LOG_PROMISE_REJECTIONS__)
             require('./patches/log-promise-rejections')
 
+        if (__BUILD_ENV__ === 'development')
+            nativeLoggingHook(`\u001b[31m--- PREINIT STAGE ---\u001b[0m`, 1)
+
         // Initialize preinit libraries
         require('@revenge-mod/modules/preinit')
         require('@revenge-mod/react/preinit')
@@ -27,6 +30,12 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
 
         onModuleInitialized(IndexModuleId, function onIndexInitialized() {
             try {
+                if (__BUILD_ENV__ === 'development')
+                    nativeLoggingHook(
+                        `\u001b[31m--- INIT STAGE ---\u001b[0m`,
+                        1,
+                    )
+
                 // Initialize init libraries
                 require('@revenge-mod/storage/init')
                 require('@revenge-mod/externals/init')
