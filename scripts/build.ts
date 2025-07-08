@@ -87,11 +87,16 @@ export default async function build(dev = Dev, log = true) {
             hermesCPlugin({
                 flags: [
                     dev ? '-Og' : '-O',
-                    '-eager',
+                    dev ? '-g3' : '-g1',
+                    '-reuse-prop-cache',
+                    '-optimized-eval',
+                    '-strict',
+                    '-fno-static-builtins',
                     '-finline',
                     '-fno-static-require',
-                    '-Wno-direct-eval',
-                    '-Wno-undefined-variable',
+                    '-Wdirect-eval',
+                    '-Wundefined-variable',
+                    '-funsafe-intrinsics',
                 ],
                 before(ver) {
                     if (log) {
@@ -142,7 +147,7 @@ function swcPlugin() {
         name: 'swc',
         transform: {
             filter: {
-                id: /\.[cm]?[jt]sx?$/,
+                moduleType: ['js', 'jsx', 'ts', 'tsx'],
             },
             handler(code) {
                 return transform(code, {
@@ -229,11 +234,20 @@ async function hermesCPlugin({
 
             const cmdlist = [binPath, '-emit-binary', ...(flags ?? [])]
 
-            const cmd = Bun.spawnSync(cmdlist, {
+            const cmd = Bun.spawnSync<'pipe', 'pipe'>(cmdlist, {
                 // @ts-expect-error: Types are incorrect, but this works
                 stdin: new Blob([file.code]),
                 stdout: 'pipe',
             })
+
+            if (cmd.exitCode) {
+                if (cmd.stderr.length)
+                    throw new Error(
+                        `Got error from hermesc: ${cmd.stderr.toString()}`,
+                    )
+                else
+                    throw new Error(`hermesc exited with code: ${cmd.exitCode}`)
+            }
 
             const buf = cmd.stdout
             if (!buf.length)
