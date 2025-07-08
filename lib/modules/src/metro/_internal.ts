@@ -1,4 +1,13 @@
 import {
+    global,
+    define as metroDefine,
+    metroImportAll,
+    metroImportDefault,
+    metroRequire,
+} from './custom'
+import { onModuleInitialized } from './subscriptions'
+import {
+    executeImportedPathSubscriptions,
     executeInitializeSubscriptions,
     executeRequireSubscriptions,
 } from './subscriptions/_internal'
@@ -38,79 +47,32 @@ export let mList: Metro.ModuleList
  */
 export function patchMetroDefine() {
     const defineKey = `${__METRO_GLOBAL_PREFIX__}__d` as const
-    const metroDefine = globalThis[defineKey]
 
-    // Actual patched define function
-    const defineRest: Metro.DefineFn = function define(factory, id, deps) {
-        mDeps[id] = deps!
-        mUninitialized.add(id)
-
-        metroDefine(
-            (_, __, ___, ____, moduleObject) => {
-                handleFactoryCall(factory, moduleObject)
-            },
-            id,
-            deps,
-        )
-    }
-
-    // Patched function for first __d call
+    // First __d call
     globalThis[defineKey] = function define(origFactory, id, deps) {
         // Clear the module list so we can keep in sync with Metro's
         mList = __c()
 
-        metroImportDefault = metroRequire.importDefault
-        metroImportAll = metroRequire.importAll
+        // Set own implementation of metroImportDefault and metroImportAll
+        metroRequire.importDefault = metroImportDefault
+        metroRequire.importAll = metroImportAll
 
-        // Call the actual patched function
-        defineRest(origFactory, id, deps)
-        // Set to the actual patched function so we can use it later
-        globalThis[defineKey] = defineRest
+        // Set to the our own implementation function
+        // And then call the function to define the first module
+        ;(globalThis[defineKey] = metroDefine)(origFactory, id, deps)
     }
 }
 
-/**
- * Returns whether the module has bad exports. If it does, it will be "blacklisted" to avoid filtering issues.
- *
- * **Which module exports are considered bad?** Anything not an object or function, or an empty object.
- *
- * @param exports The exports of the module.
- */
-export function isModuleExportsBad(exports: Metro.ModuleExports): boolean {
-    return (
-        // Nullish?
-        exports == null ||
-        // Isn't an object or function?
-        // - Number exports are not useful, usually just an asset ID
-        // - String, Boolean, Symbol, BigInt exports are not useful (who would do `module.exports = ...`?)
-        !(
-            (exports.__proto__ === Object.prototype &&
-                Reflect.ownKeys(exports).length) ||
-            exports.__proto__ === Function.prototype
-        ) ||
-        // Can't run isProxy() on this because this isn't your typical proxy:
-        // https://github.com/facebook/react-native/blob/master/packages/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.cpp
-        exports === nativeModuleProxy
-    )
-}
-
-const global = globalThis
-const metroRequire = __r
-// We can't destructure here because metroRequire.* is set a little later
-let metroImportDefault: Metro.RequireFn
-let metroImportAll: Metro.RequireFn
-
-function handleFactoryCall(
+// Why don't we use all the arguments from Metro.FactoryFn?
+// Because there's too many for Hermes to be able to its dedicated CallN function which only supports up to 4 arguments. (Call, Call1, Call2, Call3, Call4)
+export function handleFactoryCall(
     factory: Metro.FactoryFn,
     moduleObject: Metro.Module,
 ) {
-    const exports = moduleObject.exports
-    const id = moduleObject.id!
-
     const prevIId = mInitializingId
-    mInitializingId = id
+    mInitializingId = moduleObject.id!
 
-    executeRequireSubscriptions(id)
+    executeRequireSubscriptions(mInitializingId)
 
     try {
         factory(
@@ -119,16 +81,40 @@ function handleFactoryCall(
             metroImportDefault,
             metroImportAll,
             moduleObject,
-            exports,
-            mDeps[id],
+            moduleObject.exports,
+            mDeps[mInitializingId],
         )
+
+        const { exports: actualExports } = moduleObject
 
         // Add the module to the initialized set only if the factory doesn't error or the exports aren't bad
         // Don't use exports here, as modules can set module.exports to a different object
-        if (!isModuleExportsBad(moduleObject.exports)) mInitialized.add(id)
-        executeInitializeSubscriptions(id, moduleObject.exports)
+        if (actualExports != null) mInitialized.add(mInitializingId)
+
+        executeInitializeSubscriptions(mInitializingId, actualExports)
     } finally {
         mUninitialized.delete(mInitializingId)
         mInitializingId = prevIId
     }
 }
+
+/// MODULE PATCHES AND BLACKLISTS
+
+const ImportTrackerModuleId = 2
+
+onModuleInitialized(ImportTrackerModuleId, (_, exports) => {
+    const orig = exports.fileFinishedImporting
+    exports.fileFinishedImporting = (path: string) => {
+        orig(path)
+        const id = mInitializingId!
+        mImportedPaths.set(path, id)
+        executeImportedPathSubscriptions(id, path)
+    }
+})
+
+const NativeModuleProxyModuleId = 45
+
+// Exports nativeModuleProxy, which we want to blacklist
+onModuleInitialized(NativeModuleProxyModuleId, () => {
+    mInitialized.delete(NativeModuleProxyModuleId)
+})

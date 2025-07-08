@@ -52,5 +52,3 @@ export function isModuleExportBad(
         (!exp.__proto__ && '\u0001' in exp)
     )
 }
-
-export { isModuleExportsBad } from './_internal'
