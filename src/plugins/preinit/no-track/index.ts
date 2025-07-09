@@ -6,6 +6,7 @@ import { instead } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { noop } from '@revenge-mod/utils/callbacks'
+import { getErrorStack } from '@revenge-mod/utils/errors'
 
 // TODO(plugins/no-track): Block Sentry native-side
 registerPlugin(
@@ -21,24 +22,42 @@ registerPlugin(
             if (plugin.flags & PluginFlags.EnabledLate)
                 plugin.flags |= PluginFlags.ReloadRequired
 
+            // utils/SentryUtils.native.tsx
+            const unsubSU = waitForModules(
+                byProps<{
+                    profiledRootComponent<T>(x: T): T
+                    addBreadcrumb(): void
+                    setTags(): void
+                    setUser(): void
+                }>('profiledRootComponent'),
+                SentryUtils => {
+                    unsubSU()
+
+                    // These functions by Discord attempt to call Sentry APIs that set __SENTRY__
+                    SentryUtils.profiledRootComponent = x => x
+                    SentryUtils.addBreadcrumb = noop
+                    SentryUtils.setTags = noop
+                    SentryUtils.setUser = noop
+                },
+            )
+
             // modules/errors/native/SentryInitUtils.tsx
             const unsubSIU = waitForModules(
                 byProps('initSentry'),
                 SentryInitUtils => {
                     unsubSIU()
 
-                    console.log('Patching SentryInitUtils...')
                     instead(SentryInitUtils, 'initSentry', noop)
                 },
             )
 
             // Discord uses ReactNavigationInstrumentation to track navigation
-            const unsubSentry = waitForModules(
+            // Discord also uses Profiler to track performance, but we blocked that by patching profiledRootComponent
+            const unsubSentryInst = waitForModules(
                 byProps('ReactNavigationInstrumentation'),
                 exports => {
-                    unsubSentry()
+                    unsubSentryInst()
 
-                    console.log('Patching ReactNavigationInstrumentation...')
                     exports.ReactNavigationInstrumentation = class {
                         // https://docs.sentry.io/platforms/react-native/tracing/instrumentation/react-navigation/#initialization
                         registerNavigationContainer = noop
@@ -46,13 +65,16 @@ registerPlugin(
                 },
             )
 
-            // Make sure __SENTRY__ can never be set
-            Object.defineProperty(globalThis, '__SENTRY__', {
-                writable: false,
-                configurable: false,
-            })
+            if (__DEV__)
+                Object.defineProperty(globalThis, '__SENTRY__', {
+                    set: () => warnSetSentry(getErrorStack(new Error())!),
+                })
+            else
+                Object.defineProperty(globalThis, '__SENTRY__', {
+                    writable: false,
+                })
 
-            cleanup(unsubSIU, unsubSentry)
+            cleanup(unsubSIU, unsubSentryInst)
         },
         init({ cleanup, logger }) {
             // utils/AnalyticsUtils.tsx
@@ -119,3 +141,10 @@ registerPlugin(
     PluginFlags.Enabled,
     InternalPluginFlags.Internal,
 )
+
+function warnSetSentry(stack: string) {
+    nativeLoggingHook(
+        `\u001b[33mNo Track: Attempt to set __SENTRY__\n${stack}`,
+        2,
+    )
+}
