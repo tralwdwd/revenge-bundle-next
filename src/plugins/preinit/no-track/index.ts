@@ -1,5 +1,7 @@
+import { DispatcherModuleId } from '@revenge-mod/discord/common/flux'
 import { byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
+import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
 import { instead } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
@@ -30,7 +32,27 @@ registerPlugin(
                 },
             )
 
-            cleanup(unsubSIU)
+            // Discord uses ReactNavigationInstrumentation to track navigation
+            const unsubSentry = waitForModules(
+                byProps('ReactNavigationInstrumentation'),
+                exports => {
+                    unsubSentry()
+
+                    console.log('Patching ReactNavigationInstrumentation...')
+                    exports.ReactNavigationInstrumentation = class {
+                        // https://docs.sentry.io/platforms/react-native/tracing/instrumentation/react-navigation/#initialization
+                        registerNavigationContainer = noop
+                    }
+                },
+            )
+
+            // Make sure __SENTRY__ can never be set
+            Object.defineProperty(globalThis, '__SENTRY__', {
+                writable: false,
+                configurable: false,
+            })
+
+            cleanup(unsubSIU, unsubSentry)
         },
         init({ cleanup, logger }) {
             // utils/AnalyticsUtils.tsx
@@ -58,6 +80,7 @@ registerPlugin(
                         )
                 },
             )
+
             // modules/app_analytics/useTrackImpression.tsx
             const unsubTI = waitForModules(
                 byProps<{
@@ -74,7 +97,20 @@ registerPlugin(
                 },
             )
 
-            cleanup(unsubAU, unsubTI)
+            // actions/AnalyticsTrackActionCreators.tsx
+            const unsubATAC = waitForModules(
+                byProps('track'),
+                (AnalyticsTrackActionCreators, id) => {
+                    if (getModuleDependencies(id)![0] === DispatcherModuleId) {
+                        unsubATAC()
+
+                        logger.info('Patching AnalyticsTrackActionCreators...')
+                        instead(AnalyticsTrackActionCreators, 'track', noop)
+                    }
+                },
+            )
+
+            cleanup(unsubAU, unsubTI, unsubATAC)
         },
         stop({ plugin }) {
             plugin.flags |= PluginFlags.ReloadRequired
