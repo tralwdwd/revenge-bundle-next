@@ -1,4 +1,4 @@
-import type { If, Nullish } from '@revenge-mod/utils/types'
+import type { If } from '@revenge-mod/utils/types'
 
 /**
  * Metro is a bundler for React Native.
@@ -15,7 +15,7 @@ export namespace Metro {
         metroImportAll: RequireFn,
         moduleObject: Module,
         exports: ModuleExports,
-        dependencyMap: DependencyMap | Nullish,
+        dependencyMap: DependencyMap,
     ) => void
 
     export type ModuleID = number
@@ -58,10 +58,8 @@ export namespace Metro {
     export type DefineFn = (
         factory: FactoryFn,
         moduleId: ModuleID,
-        dependencyMap?: DependencyMap | undefined,
+        dependencyMap: DependencyMap,
     ) => void
-
-    export type ModuleDefiner = (moduleId: ModuleID) => void
 
     export type ClearFn = () => ModuleList
 
@@ -71,6 +69,19 @@ export namespace Metro {
     }
 
     export type ModuleExports = any
+}
+
+export namespace RevengeMetro {
+    export type ModuleDefinition<Initialized = boolean> = [
+        flags: number,
+        module: Metro.Module,
+        factory: If<Initialized, undefined, () => void>,
+        importedDefault?: Metro.ModuleExports,
+        importedAll?: Metro.ModuleExports,
+        error?: If<Initialized, undefined, any>,
+    ]
+
+    export type ModuleList = Map<Metro.ModuleID, ModuleDefinition>
 }
 
 /**

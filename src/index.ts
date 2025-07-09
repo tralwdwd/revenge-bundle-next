@@ -3,15 +3,12 @@ import type { Metro } from '@revenge-mod/modules/types'
 Object.defineProperty(globalThis, '__c', {
     configurable: true,
     set(clear: Metro.ClearFn) {
-        // @ts-expect-error
-        // biome-ignore lint/performance/noDelete: We need to reset the property descriptor
-        delete globalThis.__c
-        globalThis.__c = clear
+        Object.defineProperty(globalThis, '__c', {
+            value: clear,
+        })
 
-        const { patchMetroDefine } =
-            require('@revenge-mod/modules/_/metro') as typeof import('@revenge-mod/modules/_/metro')
-
-        patchMetroDefine()
+        // Patch Metro's core functions
+        require('@revenge-mod/modules/_/metro')
 
         require('./preinit')
     },

@@ -1,6 +1,5 @@
 import {
     global,
-    define as metroDefine,
     metroImportAll,
     metroImportDefault,
     metroRequire,
@@ -11,7 +10,7 @@ import {
     executeInitializeSubscriptions,
     executeRequireSubscriptions,
 } from './subscriptions/_internal'
-import type { Metro } from '../types'
+import type { Metro, RevengeMetro } from '../types'
 
 /** Initializing ID */
 export let mInitializingId: Metro.ModuleID | null = null
@@ -23,10 +22,30 @@ export const mInitialized = new Set<Metro.ModuleID>()
 export const mImportedPaths = new Map<string, Metro.ModuleID>()
 export const mDeps: Metro.DependencyMap[] = []
 
-export let mList: Metro.ModuleList
+export const mList: RevengeMetro.ModuleList = new Map()
+
+const metroDefine = (
+    factory: Metro.FactoryFn,
+    id: Metro.ModuleID,
+    dependencyMap: Metro.DependencyMap,
+) => {
+    mDeps[id] = dependencyMap!
+    mUninitialized.add(id)
+
+    const moduleObject = { exports: {} }
+
+    mList.set(id, [
+        0,
+        moduleObject,
+        () => {
+            handleFactoryCall(factory, moduleObject)
+        },
+    ])
+}
 
 /**
  * Patching Metro's `__d` function to handle module definitions.
+ * We roll our own implementation of Metro's core functions.
  *
  * Here's how Metro sets itself up:
  * 1. `__METRO_GLOBAL_PREFIX__ = ""`
@@ -36,36 +55,34 @@ export let mList: Metro.ModuleList
  *      - We chose to patch it in 4. because we can access all the global functions at that point.
  * 3. `__r = function metroRequire(...) {}`
  * 4. `__c = function clear() {}`
+ *    - **PATCH**: Set `__d` to our own implementation.
  *
  * 5. `clear()`
- *    - Metro clears the module list via clear(), and not __c() which makes it unpatchable.
- * 6. `__d(..., 0, [...])`
+ *    - Metro clears the module list directly with `clear()` and not `__c()`.
+ * 6. `metroRequire.importDefault = ...`, `metroRequire.importAll = ...`
+ * 7. `__d(..., 0, [...])`
  *    - The first module is defined with ID 0, which is the index module.
- *    - Patch:
- *      - We clear the module list again, so our module list is in sync with Metro's
+ *    - **PATCH**: Override the `importDefault` and `importAll` functions in `__r`.
  * #. `__d` is called with subsequent module definitions
  */
-export function patchMetroDefine() {
-    const defineKey = `${__METRO_GLOBAL_PREFIX__}__d` as const
+const defineKey = `${__METRO_GLOBAL_PREFIX__}__d` as const
 
-    // First __d call
-    globalThis[defineKey] = function define(origFactory, id, deps) {
-        // Clear the module list so we can keep in sync with Metro's
-        mList = __c()
+// First __d call
+globalThis[defineKey] = function define(origFactory, id, deps) {
+    // Set own implementation of metroImportDefault and metroImportAll
+    metroRequire.importDefault = metroImportDefault
+    metroRequire.importAll = metroImportAll
 
-        // Set own implementation of metroImportDefault and metroImportAll
-        metroRequire.importDefault = metroImportDefault
-        metroRequire.importAll = metroImportAll
-
-        // Set to the our own implementation function
-        // And then call the function to define the first module
-        ;(globalThis[defineKey] = metroDefine)(origFactory, id, deps)
-    }
+    // Set to the actual custom implementation
+    globalThis[defineKey] = metroDefine
+    // Call the custom implementation
+    metroDefine(origFactory, id, deps)
 }
 
 // Why don't we use all the arguments from Metro.FactoryFn?
-// Because there's too many for Hermes to be able to its dedicated CallN function which only supports up to 4 arguments. (Call, Call1, Call2, Call3, Call4)
-export function handleFactoryCall(
+// Because there's too many for Hermes to be able to use its dedicated CallN operation
+// which only supports up to 4 arguments. (Call, Call1, Call2, Call3, Call4)
+function handleFactoryCall(
     factory: Metro.FactoryFn,
     moduleObject: Metro.Module,
 ) {

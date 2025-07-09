@@ -1,65 +1,78 @@
 /**
- * Custom Metro-compatible methods.
+ * A more performant implementation of Metro's core functions.
+ * Making initialization faster and use less resources.
  */
 
-import { handleFactoryCall, mDeps, mList, mUninitialized } from './_internal'
-import type { Nullish } from '@revenge-mod/utils/types'
+import { mList } from './_internal'
 import type { Metro } from '../types'
 
+export const Initialized = 1 << 0
+const HasError = 1 << 1
+const HasImportedDefault = 1 << 2
+const HasImportedAll = 1 << 3
+
+const NotInitializedMask = ~Initialized
+
+export const FlagKey = 0
+export const ModuleObjectKey = 1
+const FactoryKey = 2
+const ImportedDefaultKey = 3
+const ImportedAllKey = 4
+const ErrorKey = 5
+
 export const global = globalThis
-export const metroRequire = global.__r
 
-// Roll our own define function implementation that replaces Metro's
-// This is much more performant than Metro's own define function, which makes initialization faster
-export function define(
-    factory: Metro.FactoryFn,
-    id: Metro.ModuleID,
-    dependencyMap: Metro.DependencyMap | Nullish,
-) {
-    mDeps[id] = dependencyMap!
-    mUninitialized.add(id)
+export const metroRequire = (moduleId => {
+    const module = mList.get(moduleId)!
+    const flags = module[FlagKey]
+    const moduleObject = module[ModuleObjectKey]
 
-    const moduleObject = { exports: {} }
+    if (flags & Initialized) return moduleObject.exports
+    if (flags & HasError) throw module[ErrorKey]
 
-    mList.set(id, {
-        dependencyMap: dependencyMap!,
-        factory: () => {
-            handleFactoryCall(factory, moduleObject)
-        },
-        publicModule: moduleObject,
-    } satisfies Omit<
-        Metro.ModuleDefinition<false>,
-        'importedDefault' | 'importedAll' | 'isInitialized' | 'hasError'
-    > as unknown as Metro.ModuleDefinition<false>)
-}
+    // Optimistically mark module as initialized before running the
+    // factory to keep any require cycles inside the factory from causing an
+    // infinite require loop.
+    module[FlagKey] |= Initialized
+    moduleObject.id = moduleId
 
-export function metroImportDefault(
-    moduleId: Metro.ModuleID,
-): Metro.ModuleExports {
-    const mod = mList.get(moduleId)!
-    if (mod.importedDefault) return mod.importedDefault
+    try {
+        const factory = module[FactoryKey]
+        module[FactoryKey] = undefined
 
-    const exports: Metro.ModuleExports = metroRequire(moduleId)
-    const importedDefault: Metro.ModuleExports = exports?.__esModule
-        ? exports.default
-        : exports
+        factory!()
 
-    return (mod.importedDefault = importedDefault)
-}
+        return moduleObject.exports
+    } catch (e) {
+        module[FlagKey] = (flags & NotInitializedMask) | HasError
+        module[ErrorKey] = e
+        // @ts-expect-error: We never access this key again
+        module[ModuleObjectKey] = undefined
 
-export function metroImportAll(moduleId: Metro.ModuleID): Metro.ModuleExports {
-    const mod = mList.get(moduleId)!
-    if (mod.importedAll) return mod.importedAll
-
-    const exports: Metro.ModuleExports = metroRequire(moduleId)
-    let importedAll: Metro.ModuleExports
-
-    if (exports?.__esModule) importedAll = exports
-    else {
-        importedAll = {}
-        if (exports) for (const key in exports) importedAll[key] = exports[key]
-        importedAll.default = exports
+        // @ts-expect-error: Not documented, but used by React Native
+        if (global.ErrorUtils) global.ErrorUtils.reportFatalError(e)
+        else throw e
     }
+}) as Metro.Require
 
-    return (mod.importedAll = importedAll)
+global.__r = metroRequire
+
+export const metroImportDefault: Metro.RequireFn = moduleId => {
+    const mod = mList.get(moduleId)!
+    if (mod[FlagKey] & HasImportedDefault) return mod[ImportedDefaultKey]
+
+    const exports = metroRequire(moduleId)
+    return (mod[ImportedDefaultKey] = exports?.__esModule
+        ? exports.default
+        : exports)
+}
+
+export const metroImportAll: Metro.RequireFn = moduleId => {
+    const mod = mList.get(moduleId)!
+    if (mod[FlagKey] & HasImportedAll) return mod[ImportedAllKey]
+
+    const exports = metroRequire(moduleId)
+    if (!exports?.__esModule) exports.default = exports
+
+    return (mod[ImportedAllKey] = exports)
 }
