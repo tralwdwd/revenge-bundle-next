@@ -139,8 +139,14 @@ function lazyPropDesc<T extends object, K extends keyof T>(
     return {
         configurable: true,
         get(this: T) {
-            delete this[key]
-            return (this[key] = loader())
+            const value = loader()
+
+            Object.defineProperty(this, key, {
+                configurable: true,
+                value,
+            })
+
+            return value
         },
     }
 }
