@@ -2,4 +2,3 @@
 import '.'
 
 import './native/patches'
-import './jsx-runtime/patches'
