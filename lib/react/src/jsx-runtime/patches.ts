@@ -1,29 +1,33 @@
 import { instead } from '@revenge-mod/patcher'
 import { ReactJSXRuntime } from '..'
-import { afterCallbacks, beforeCallbacks, insteadCallbacks } from './_internal'
-import type { ElementType, ReactElement } from 'react'
+import { jPatches } from './_internal'
+import type { ReactElement } from 'react'
 import type { AnyJSXFactoryFunction } from '.'
+
+const jsx = ReactJSXRuntime.jsx
 
 const patch = (
     args: Parameters<AnyJSXFactoryFunction>,
     orig: AnyJSXFactoryFunction,
 ) => {
-    const Comp = args[0] as any
-    const type: ElementType = Comp.type ?? Comp
+    const [type] = args
+    const patches = jPatches.get(type)
+    if (!patches) return Reflect.apply(orig, ReactJSXRuntime, args)
 
-    const before = beforeCallbacks.get(type)
+    const [before, after, instead] = patches
+
     if (before) for (const cb of before) args = cb(args)
 
-    let tree: ReactElement | null | undefined
-    const instead = insteadCallbacks.get(type)
-    if (instead) for (const cb of instead) tree = cb(args)
+    let fiber: ReactElement | null | undefined
 
-    const after = afterCallbacks.get(type)
-    if (after) for (const cb of after) tree = cb(tree!)
+    // If there are instead patches, fiber will always be set by the instead patches
+    if (instead) for (const cb of instead) fiber = cb(args, jsx)
+    // If there aren't any instead patches, we compute the fiber normally, and it will be set
+    else fiber = Reflect.apply(orig, ReactJSXRuntime, args)
 
-    if (tree !== undefined) return tree! // have to cast non-nullish even if returning null works
+    if (after) for (const cb of after) fiber = cb(fiber!)
 
-    return Reflect.apply(orig, ReactJSXRuntime, args)
+    return fiber!
 }
 
 instead(ReactJSXRuntime, 'jsx', patch)

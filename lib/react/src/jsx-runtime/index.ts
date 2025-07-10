@@ -1,4 +1,4 @@
-import { afterCallbacks, beforeCallbacks, insteadCallbacks } from './_internal'
+import { jPatches } from './_internal'
 import type { ComponentProps, ElementType, Key, ReactElement } from 'react'
 import type { ReactJSXRuntime } from '..'
 
@@ -16,10 +16,11 @@ export type InsteadJSXCallback<
     P = ComponentProps<E>,
 > = (
     args: [element: E, props: P, key?: Key | undefined],
+    jsx: AnyJSXFactoryFunction,
 ) => ReturnType<AnyJSXFactoryFunction> | null
 
 export type AfterJSXCallback = (
-    tree: ReactElement,
+    fiber: ReactElement,
 ) => ReturnType<AnyJSXFactoryFunction> | null
 
 /**
@@ -30,14 +31,20 @@ export type AfterJSXCallback = (
  * @returns A function to unpatch.
  */
 export function afterJSX(type: ElementType, patch: AfterJSXCallback) {
-    let set = afterCallbacks.get(type)
-    if (!set) {
-        set = new Set()
-        afterCallbacks.set(type, set)
+    let patches = jPatches.get(type)
+    if (!patches) {
+        patches = [undefined, new Set(), undefined]
+        jPatches.set(type, patches)
     }
 
+    const set = patches[1]!
+
     set.add(patch as AfterJSXCallback)
-    return () => set.delete(patch as AfterJSXCallback)
+    return () => {
+        const res = set.delete(patch as AfterJSXCallback)
+        if (res) attemptCleanup(type)
+        return res
+    }
 }
 
 /**
@@ -51,14 +58,20 @@ export function beforeJSX<
     E extends ElementType = ElementType,
     P = ComponentProps<E>,
 >(type: E, patch: BeforeJSXCallback<E, P>) {
-    let set = beforeCallbacks.get(type)
-    if (!set) {
-        set = new Set()
-        beforeCallbacks.set(type, set)
+    let patches = jPatches.get(type)
+    if (!patches) {
+        patches = [new Set(), undefined, undefined]
+        jPatches.set(type, patches)
     }
 
+    const set = patches[0]!
+
     set.add(patch as BeforeJSXCallback)
-    return () => set.delete(patch as BeforeJSXCallback)
+    return () => {
+        const res = set.delete(patch as BeforeJSXCallback)
+        if (res) attemptCleanup(type)
+        return res
+    }
 }
 
 /**
@@ -72,12 +85,24 @@ export function insteadJSX<
     E extends ElementType = ElementType,
     P = ComponentProps<E>,
 >(type: E, patch: InsteadJSXCallback<E, P>) {
-    let set = insteadCallbacks.get(type)
-    if (!set) {
-        set = new Set()
-        insteadCallbacks.set(type, set)
+    let patches = jPatches.get(type)
+    if (!patches) {
+        patches = [undefined, undefined, new Set()]
+        jPatches.set(type, patches)
     }
 
+    const set = patches[2]!
+
     set.add(patch as InsteadJSXCallback)
-    return () => set.delete(patch as InsteadJSXCallback)
+    return () => {
+        const res = set.delete(patch as InsteadJSXCallback)
+        if (res) attemptCleanup(type)
+        return res
+    }
+}
+
+function attemptCleanup(type: ElementType) {
+    const patches = jPatches.get(type)!
+    if (patches[0]?.size || patches[1]?.size || patches[2]?.size) return
+    jPatches.delete(type)
 }
