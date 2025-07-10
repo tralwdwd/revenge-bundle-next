@@ -91,12 +91,7 @@ export default async function build(dev = Dev, log = true) {
                     '-reuse-prop-cache',
                     '-optimized-eval',
                     '-strict',
-                    '-fno-static-builtins',
                     '-finline',
-                    '-fno-static-require',
-                    '-Wdirect-eval',
-                    '-Wundefined-variable',
-                    '-funsafe-intrinsics',
                 ],
                 before(ver) {
                     if (log) {
