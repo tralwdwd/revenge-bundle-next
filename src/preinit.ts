@@ -6,6 +6,7 @@ import {
     onModuleInitialized,
 } from '@revenge-mod/modules/metro/subscriptions'
 import { getErrorStack } from '@revenge-mod/utils/errors'
+import { BuildEnvironment } from './constants'
 
 const IndexModuleId = 0
 
@@ -14,7 +15,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
         if (__BUILD_FLAG_LOG_PROMISE_REJECTIONS__)
             require('./patches/log-promise-rejections')
 
-        if (__BUILD_ENV__ === 'development')
+        if (__DEV__)
             nativeLoggingHook(`\u001b[31m--- PREINIT STAGE ---\u001b[0m`, 1)
 
         // Initialize preinit libraries
@@ -29,7 +30,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
 
         onModuleInitialized(IndexModuleId, function onIndexInitialized() {
             try {
-                if (__BUILD_ENV__ === 'development')
+                if (__DEV__)
                     nativeLoggingHook(
                         `\u001b[31m--- INIT STAGE ---\u001b[0m`,
                         1,
@@ -63,7 +64,7 @@ function onError(e: unknown) {
     const Device = DeviceModule.getConstants()
 
     alert(
-        `Failed to load Revenge (${__BUILD_VERSION__}-${__BUILD_COMMIT__}-${__BUILD_BRANCH__} (${__BUILD_ENV__}))\n` +
+        `Failed to load Revenge (${__BUILD_VERSION__}-${__BUILD_COMMIT__}-${__BUILD_BRANCH__} (${BuildEnvironment}))\n` +
             `Discord: ${Client.Version} (${Client.Build})\n` +
             `Device: ${Device.deviceManufacturer} ${Device.deviceModel}\n\n` +
             getErrorStack(e),

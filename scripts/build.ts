@@ -55,7 +55,7 @@ export default async function build(dev = Dev, log = true) {
             __BUILD_BRANCH__: JSON.stringify(
                 (await $`git rev-parse --abbrev-ref HEAD`.text()).trim(),
             ),
-            __BUILD_ENV__: JSON.stringify(dev ? 'development' : 'production'),
+            __DEV__: String(dev),
 
             // See types.d.ts for what these flags do
             __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__: String(dev),
