@@ -5,7 +5,7 @@ import {
 } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import {
-    ReactJsxRuntimeModuleId,
+    ReactJSXRuntimeModuleId,
     ReactModuleId,
     ReactNativeModuleId,
 } from '@revenge-mod/react'
@@ -19,7 +19,7 @@ export let FlashList: typeof import('@shopify/flash-list') = proxify(
                 byDependencies([
                     ReactModuleId,
                     ReactNativeModuleId,
-                    ReactJsxRuntimeModuleId,
+                    ReactJSXRuntimeModuleId,
                     undefined,
                     undefined,
                     undefined,

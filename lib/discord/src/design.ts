@@ -6,7 +6,7 @@ import {
 } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import {
-    ReactJsxRuntimeModuleId,
+    ReactJSXRuntimeModuleId,
     ReactModuleId,
     ReactNativeModuleId,
 } from '@revenge-mod/react'
@@ -61,7 +61,7 @@ export let FormSwitch: DiscordModules.Components.FormSwitch = proxify(() => {
                 [relative(1), relative(2), undefined, relative(3)],
                 ReactModuleId,
                 ReactNativeModuleId,
-                ReactJsxRuntimeModuleId,
+                ReactJSXRuntimeModuleId,
                 undefined,
                 undefined,
                 undefined,

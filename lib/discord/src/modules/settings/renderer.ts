@@ -5,7 +5,7 @@ import {
 } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import {
-    ReactJsxRuntimeModuleId,
+    ReactJSXRuntimeModuleId,
     ReactModuleId,
     ReactNativeModuleId,
 } from '@revenge-mod/react'
@@ -30,7 +30,7 @@ export let SettingListRenderer: SettingListRenderer = proxify(
                         relative(1),
                         relative(2),
                         undefined,
-                        ReactJsxRuntimeModuleId,
+                        ReactJSXRuntimeModuleId,
                     ]),
                 ),
             ),

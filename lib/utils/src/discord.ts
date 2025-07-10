@@ -3,7 +3,7 @@ import { TokensModuleId } from '@revenge-mod/discord/common'
 import { byDependencies, byProps } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
 import {
-    ReactJsxRuntimeModuleId,
+    ReactJSXRuntimeModuleId,
     ReactModuleId,
     ReactNativeModuleId,
 } from '@revenge-mod/react'
@@ -13,7 +13,7 @@ import type { FC } from 'react'
 // Asset = relativeDep(1)
 const IconComponentFilter = [
     ReactModuleId,
-    ReactJsxRuntimeModuleId,
+    ReactJSXRuntimeModuleId,
     TokensModuleId,
     undefined,
     undefined,
@@ -26,7 +26,7 @@ const IconComponentFilter = [
 const MultiIconComponentFilterBase = [
     ReactModuleId,
     ReactNativeModuleId,
-    ReactJsxRuntimeModuleId,
+    ReactJSXRuntimeModuleId,
     TokensModuleId,
     undefined,
 ]

@@ -4,11 +4,11 @@ import type { Metro } from '@revenge-mod/modules/types'
 
 export let ReactModuleId: Metro.ModuleID
 export let ReactNativeModuleId: Metro.ModuleID
-export let ReactJsxRuntimeModuleId: Metro.ModuleID
+export let ReactJSXRuntimeModuleId: Metro.ModuleID
 
 export let React: typeof import('react')
 export let ReactNative: typeof import('react-native')
-export let ReactJsxRuntime: typeof import('react/jsx-runtime')
+export let ReactJSXRuntime: typeof import('react/jsx-runtime')
 
 let RtCount = 0
 
@@ -34,12 +34,12 @@ const unsubRN = waitForModules(
 
 let RJsxRCount = 0
 
-const unsubRJsxR = waitForModules(
-    byProps<typeof ReactJsxRuntime>('jsxs'),
+const unsubRJSXR = waitForModules(
+    byProps<typeof ReactJSXRuntime>('jsxs'),
     (exports, id) => {
-        if (RJsxRCount++ === 2) return unsubRJsxR()
+        if (RJsxRCount++ === 2) return unsubRJSXR()
 
-        ReactJsxRuntimeModuleId = id
-        ReactJsxRuntime = exports
+        ReactJSXRuntimeModuleId = id
+        ReactJSXRuntime = exports
     },
 )

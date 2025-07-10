@@ -5,7 +5,7 @@ import {
     preferExports,
 } from '@revenge-mod/modules/finders/filters'
 import { lookupModule } from '@revenge-mod/modules/finders/lookup'
-import { ReactJsxRuntimeModuleId, ReactModuleId } from '@revenge-mod/react'
+import { ReactJSXRuntimeModuleId, ReactModuleId } from '@revenge-mod/react'
 import { proxify } from '@revenge-mod/utils/proxy'
 
 const { loose, relative } = byDependencies
@@ -52,7 +52,7 @@ export let ReactNavigationStack: typeof import('@react-navigation/stack') =
                                 loose([
                                     [[]],
                                     ReactModuleId,
-                                    ReactJsxRuntimeModuleId,
+                                    ReactJSXRuntimeModuleId,
                                 ]),
                                 1,
                             ),

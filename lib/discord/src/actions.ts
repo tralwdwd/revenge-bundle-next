@@ -10,7 +10,7 @@ import {
     lookupModules,
 } from '@revenge-mod/modules/finders/lookup'
 import {
-    ReactJsxRuntimeModuleId,
+    ReactJSXRuntimeModuleId,
     ReactModuleId,
     ReactNativeModuleId,
 } from '@revenge-mod/react'
@@ -33,7 +33,7 @@ export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCr
                     byDependencies([
                         undefined,
                         ReactModuleId,
-                        ReactJsxRuntimeModuleId,
+                        ReactJSXRuntimeModuleId,
                         DispatcherModuleId,
                         relative(1),
                         relative(2),
