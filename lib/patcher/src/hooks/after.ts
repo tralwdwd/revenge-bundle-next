@@ -32,6 +32,34 @@ function unpatchAfter<T extends UnknownFunction>(
     hookNode.next = undefined
 }
 
+/**
+ * After hooks allow you to modify the return value of the original function, or to perform some action after the original function is called.
+ *
+ * ```js
+ * import { after } from '@revenge-mod/patcher'
+ *
+ * const obj = {
+ *     method: (a) => a * 2
+ * }
+ *
+ * after(obj, 'method', (result) => {
+ *     console.log('After method called with result:', result)
+ *     // Modify return value
+ *     return result + 1
+ * })
+ *
+ * console.log(obj.method(2)) // 5
+ * // CONSOLE OUTPUT:
+ * // After method called with result: 4
+ * // 5
+ * ```
+ *
+ * @param parent The parent object containing the method to patch.
+ * @param key The key of the method to patch.
+ * @param hook The hook function to execute after the original method.
+ *
+ * @returns A function to unpatch.
+ */
 export function after<
     Parent extends Record<Key, UnknownFunction>,
     Key extends keyof Parent,

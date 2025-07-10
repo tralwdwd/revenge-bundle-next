@@ -70,6 +70,43 @@ function unpatchInstead<T extends UnknownFunction>(
     hookNode.next = undefined
 }
 
+/**
+ * Instead hooks allow you to completely replace the original function with a new one, while still being able to call the original function if needed.
+ *
+ * ```js
+ * import { instead } from '@revenge-mod/patcher'
+ *
+ * const obj = {
+ *     method: (a) => {
+ *         console.log('Original method called with:', a)
+ *         return 'original result'
+ *     }
+ * }
+ *
+ * instead(obj, 'method', ([a], original) => {
+ *     console.log('Instead method called with:', a)
+ *     // Call the original function if needed
+ *     const originalResult = original('modified')
+ *     console.log('Original method was called')
+ *
+ *     // Return a new value
+ *     return 'new value'
+ * })
+ *
+ * console.log(obj.method('test')) // 'new value'
+ * // CONSOLE OUTPUT:
+ * // Instead method called with: test
+ * // Original method called with: modified
+ * // Original method was called
+ * // new value
+ * ```
+ *
+ * @param parent The parent object containing the method to patch.
+ * @param key The key of the method to patch.
+ * @param hook The hook function to execute instead of the original method.
+ *
+ * @return A function to unpatch.
+ */
 export function instead<
     Parent extends Record<Key, UnknownFunction>,
     Key extends keyof Parent,
