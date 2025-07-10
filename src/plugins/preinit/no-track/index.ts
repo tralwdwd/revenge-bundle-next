@@ -34,10 +34,14 @@ registerPlugin(
                     unsubSU()
 
                     // These functions by Discord attempt to call Sentry APIs that set __SENTRY__
-                    SentryUtils.profiledRootComponent = x => x
-                    SentryUtils.addBreadcrumb = noop
-                    SentryUtils.setTags = noop
-                    SentryUtils.setUser = noop
+                    instead(
+                        SentryUtils,
+                        'profiledRootComponent',
+                        args => args[0],
+                    )
+                    instead(SentryUtils, 'addBreadcrumb', noop)
+                    instead(SentryUtils, 'setTags', noop)
+                    instead(SentryUtils, 'setUser', noop)
                 },
             )
 
@@ -58,10 +62,14 @@ registerPlugin(
                 exports => {
                     unsubSentryInst()
 
-                    exports.ReactNavigationInstrumentation = class {
-                        // https://docs.sentry.io/platforms/react-native/tracing/instrumentation/react-navigation/#initialization
-                        registerNavigationContainer = noop
-                    }
+                    instead(
+                        exports,
+                        'ReactNavigationInstrumentation',
+                        function () {
+                            // https://docs.sentry.io/platforms/react-native/tracing/instrumentation/react-navigation/#initialization
+                            this.registerNavigationContainer = noop
+                        },
+                    )
                 },
             )
 
@@ -74,7 +82,7 @@ registerPlugin(
                     writable: false,
                 })
 
-            cleanup(unsubSIU, unsubSentryInst)
+            cleanup(unsubSU, unsubSIU, unsubSentryInst)
         },
         init({ cleanup, logger }) {
             // utils/AnalyticsUtils.tsx
