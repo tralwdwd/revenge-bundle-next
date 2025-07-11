@@ -106,7 +106,16 @@ function handleFactoryCall(
         )
 
         const { exports } = moduleObject
-        if (exports != null) mInitialized.add(mInitializingId)
+
+        // Blacklist exports that:
+        // - are primitives (https://developer.mozilla.org/en-US/docs/Glossary/Primitive)
+        // - are empty objects
+        if (exports instanceof Object) {
+            if (exports.__proto__ === Object.prototype) {
+                if (Reflect.ownKeys(exports).length)
+                    mInitialized.add(mInitializingId!)
+            } else mInitialized.add(mInitializingId)
+        }
 
         executeInitializeSubscriptions(mInitializingId, exports)
     } finally {
