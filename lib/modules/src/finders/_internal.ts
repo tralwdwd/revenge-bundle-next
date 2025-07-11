@@ -1,4 +1,4 @@
-import { getCurrentStack } from '@revenge-mod/utils/errors'
+import { getCurrentStack } from '@revenge-mod/utils/error'
 import { cacheFilterResultForId } from '../caches'
 import { isModuleExportBad } from '../metro/utils'
 import type { If } from '@revenge-mod/utils/types'

@@ -5,7 +5,7 @@ import {
     onModuleFirstRequired,
     onModuleInitialized,
 } from '@revenge-mod/modules/metro/subscriptions'
-import { getErrorStack } from '@revenge-mod/utils/errors'
+import { getErrorStack } from '@revenge-mod/utils/error'
 import { BuildEnvironment } from './constants'
 
 const IndexModuleId = 0

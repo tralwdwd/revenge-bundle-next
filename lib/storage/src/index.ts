@@ -1,8 +1,8 @@
 // TODO(storage): Implement using NativeModules interop instead
 
 import { FileModule } from '@revenge-mod/discord/native'
-import { getErrorStack } from '@revenge-mod/utils/errors'
-import { mergeDeep } from '@revenge-mod/utils/objects'
+import { getErrorStack } from '@revenge-mod/utils/error'
+import { mergeDeep } from '@revenge-mod/utils/object'
 import type { AnyObject, DeepPartial } from '@revenge-mod/utils/types'
 
 export type StorageSubscription<T extends AnyObject = AnyObject> = (

@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react'
-import { findInTree } from './trees'
+import { findInTree } from './tree'
 import type { ReactNode } from 'react'
-import type { SearchFilter } from './trees'
+import type { SearchFilter } from './tree'
 
 export function useIsFirstRender() {
     let firstRender = false

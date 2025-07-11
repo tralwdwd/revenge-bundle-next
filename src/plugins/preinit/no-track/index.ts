@@ -5,8 +5,8 @@ import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
 import { instead } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
-import { noop } from '@revenge-mod/utils/callbacks'
-import { getCurrentStack } from '@revenge-mod/utils/errors'
+import { noop } from '@revenge-mod/utils/callback'
+import { getCurrentStack } from '@revenge-mod/utils/error'
 
 // TODO(plugins/no-track): Block Sentry native-side
 registerPlugin(

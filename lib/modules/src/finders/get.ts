@@ -1,4 +1,4 @@
-import { noopFalse } from '@revenge-mod/utils/callbacks'
+import { noopFalse } from '@revenge-mod/utils/callback'
 import {
     lookupModule,
     lookupModuleByImportedPath,

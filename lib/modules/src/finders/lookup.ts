@@ -1,4 +1,4 @@
-import { getCurrentStack } from '@revenge-mod/utils/errors'
+import { getCurrentStack } from '@revenge-mod/utils/error'
 import { proxify } from '@revenge-mod/utils/proxy'
 import { cacheFilterNotFound, getCachedFilterRegistry } from '../caches'
 import {

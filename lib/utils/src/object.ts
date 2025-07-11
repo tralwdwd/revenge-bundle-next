@@ -1,6 +1,6 @@
 import type { AnyObject } from './types'
 
-export { objectFreeze } from './patches/objects'
+export { objectFreeze } from './patches/object'
 
 /**
  * Simple check if to see if value is an object.

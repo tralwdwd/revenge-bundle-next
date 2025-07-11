@@ -1,6 +1,6 @@
 import { pEmitter } from '@revenge-mod/plugins/_'
 import { PluginsStorageDirectory } from '@revenge-mod/plugins/constants'
-import { defineLazyProperty } from '@revenge-mod/utils/objects'
+import { defineLazyProperty } from '@revenge-mod/utils/object'
 import { useReRender } from '@revenge-mod/utils/react'
 import { useEffect } from 'react'
 import { getStorage, Storage } from '.'

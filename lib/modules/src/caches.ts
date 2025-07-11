@@ -1,7 +1,7 @@
 // TODO(lib/modules/caches): do not depend on Discord's ClientInfoModule for versioning, use native interop
 import { ClientInfoModule } from '@revenge-mod/discord/native'
 import { getStorage } from '@revenge-mod/storage'
-import { debounce } from '@revenge-mod/utils/callbacks'
+import { debounce } from '@revenge-mod/utils/callback'
 import type { Metro } from '@revenge-mod/modules/types'
 import type { FilterResultFlag } from './finders/_internal'
 import type { Filter } from './finders/filters'

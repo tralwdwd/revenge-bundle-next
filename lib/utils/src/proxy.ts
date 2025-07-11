@@ -3,7 +3,7 @@
  * This is especially useful for blacklisting exports that cannot be patched.
  */
 
-import { getCurrentStack } from './errors'
+import { getCurrentStack } from './error'
 import { pTargets } from './patches/proxy'
 
 /**
