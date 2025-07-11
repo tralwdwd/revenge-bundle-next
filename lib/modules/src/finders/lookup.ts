@@ -1,6 +1,6 @@
 import { getCurrentStack } from '@revenge-mod/utils/errors'
 import { proxify } from '@revenge-mod/utils/proxy'
-import { cache } from '../caches'
+import { cacheFilterNotFound, getCachedFilterRegistry } from '../caches'
 import {
     mImportedPaths,
     mInitialized,
@@ -163,7 +163,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
     if (options?.cached ?? true) {
         const notInit = !(options?.initialize ?? true)
 
-        const reg = cache[filter.key]
+        const reg = getCachedFilterRegistry(filter.key)
         // Return early if previous lookup was a full lookup and no modules were found
         if (reg === null) return
 
@@ -209,7 +209,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
             }
         }
 
-        if (notFound) cache[filter.key] = null // Full lookup, and still not found!
+        if (notFound) cacheFilterNotFound(filter.key) // Full lookup, and still not found!
     }
     // Partial lookup
     else {
@@ -292,7 +292,7 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
     if (options?.cached ?? true) {
         const notInit = !(options?.initialize ?? true)
 
-        const reg = cache[filter.key]
+        const reg = getCachedFilterRegistry(filter.key)
         // Return early if previous lookup was a full lookup and no modules were found
         if (reg === null) return NotFoundResult
 
@@ -332,7 +332,7 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
         if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
             DEBUG_warnLookupNoMatch(filter.key)
 
-        cache[filter.key] = null // Full lookup, and still not found!
+        cacheFilterNotFound(filter.key) // Full lookup, and still not found!
 
         return NotFoundResult
     }

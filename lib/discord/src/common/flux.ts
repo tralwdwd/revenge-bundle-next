@@ -12,7 +12,7 @@ import {
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
 import { noopFalse } from '@revenge-mod/utils/callbacks'
-import { cached, cacheFilterResult } from '../../../modules/src/caches'
+import { cached, cacheFilterResultForId } from '../../../modules/src/caches'
 import { FilterResultFlags } from '../../../modules/src/finders/_internal'
 import type {
     Filter,
@@ -152,7 +152,11 @@ export const byStoreName = createFilterGenerator(
 waitForModules(byStore(), (store, id) => {
     const name = store.getName()
     // Cache stores
-    cacheFilterResult(byStoreName.keyFor([name]), id, FilterResultFlags.Default)
+    cacheFilterResultForId(
+        byStoreName.keyFor([name]),
+        id,
+        FilterResultFlags.Default,
+    )
     Stores[name] = store
 })
 
