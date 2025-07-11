@@ -9,7 +9,6 @@ import type { UnscopedInitPluginApi } from './types'
 // Setup init plugin APIs
 const uapi = pUnscopedApi as UnscopedInitPluginApi
 uapi.assets = AssetsLibrary
-uapi.components = require('@revenge-mod/components')
 uapi.react = react
 uapi.utils.discord = require('@revenge-mod/utils/discord')
 uapi.utils.react = require('@revenge-mod/utils/react')
