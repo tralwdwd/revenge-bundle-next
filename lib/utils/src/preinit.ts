@@ -1,4 +1,6 @@
-export const utils: PreInitPluginApiUtils = {
+import { pUnscopedApi } from '@revenge-mod/plugins/_'
+
+pUnscopedApi.utils = {
     callback: require('@revenge-mod/utils/callback'),
     error: require('@revenge-mod/utils/error'),
     object: require('@revenge-mod/utils/object'),
@@ -19,4 +21,14 @@ export interface PreInitPluginApiUtils {
 export interface PluginApiUtils extends PreInitPluginApiUtils {
     react: typeof import('@revenge-mod/utils/react')
     discord: typeof import('@revenge-mod/utils/discord')
+}
+
+declare module '@revenge-mod/plugins/types' {
+    export interface UnscopedPreInitPluginApi {
+        utils: PreInitPluginApiUtils
+    }
+
+    export interface UnscopedInitPluginApi {
+        utils: PluginApiUtils
+    }
 }

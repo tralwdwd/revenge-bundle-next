@@ -35,6 +35,12 @@
     },
     "./types": {
       "types": "./src/types.ts"
+    },
+    "./preinit": {
+      "default": "./src/preinit.ts"
+    },
+    "./init": {
+      "default": "./src/init.ts"
     }
   }
 }

@@ -2,7 +2,6 @@ import type { FunctionComponent } from 'react'
 import type { PluginApiModules } from './apis/modules'
 import type { PluginApiPlugins } from './apis/plugins'
 import type { PluginApiReact } from './apis/react'
-import type { PluginApiUtils, PreInitPluginApiUtils } from './apis/utils'
 import type { PluginFlags, PluginStatus } from './constants'
 
 // biome-ignore lint/suspicious/noEmptyInterface: To be extended by actual extensions
@@ -20,7 +19,6 @@ export interface UnscopedPreInitPluginApi<
     patcher: typeof import('@revenge-mod/patcher')
     plugins: PluginApiPlugins
     storage: typeof import('@revenge-mod/storage')
-    utils: PreInitPluginApiUtils
 }
 
 /**
@@ -32,7 +30,6 @@ export interface UnscopedInitPluginApi<
 > extends UnscopedPreInitPluginApi<O> {
     assets: typeof import('@revenge-mod/assets')
     react: PluginApiReact
-    utils: PluginApiUtils
 }
 
 /**
@@ -41,9 +38,7 @@ export interface UnscopedInitPluginApi<
  */
 export interface UnscopedPluginApi<
     O extends PluginApiExtensionsOptions = PluginApiExtensionsOptions,
-> extends UnscopedInitPluginApi<O> {
-    components: typeof import('@revenge-mod/components')
-}
+> extends UnscopedInitPluginApi<O> {}
 
 export type PluginCleanup = () => any
 export type PluginCleanupApi = (...fns: PluginCleanup[]) => void

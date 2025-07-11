@@ -19,6 +19,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
             nativeLoggingHook(`\u001b[31m--- PREINIT STAGE ---\u001b[0m`, 1)
 
         // Initialize preinit libraries
+        require('@revenge-mod/utils/preinit')
         require('@revenge-mod/react/preinit')
         require('@revenge-mod/assets/preinit')
         require('@revenge-mod/storage/preinit')
@@ -37,6 +38,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
                     )
 
                 // Initialize init libraries
+                require('@revenge-mod/utils/init')
                 require('@revenge-mod/storage/init')
                 require('@revenge-mod/discord/init')
                 require('@revenge-mod/components/init')

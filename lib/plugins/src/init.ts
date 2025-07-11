@@ -10,8 +10,6 @@ import type { UnscopedInitPluginApi } from './types'
 const uapi = pUnscopedApi as UnscopedInitPluginApi
 uapi.assets = AssetsLibrary
 uapi.react = react
-uapi.utils.discord = require('@revenge-mod/utils/discord')
-uapi.utils.react = require('@revenge-mod/utils/react')
 
 for (const plugin of pList.values())
     if (plugin.flags & PluginFlags.Enabled) initPlugin(plugin)
