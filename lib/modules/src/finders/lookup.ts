@@ -2,9 +2,9 @@ import { getCurrentStack } from '@revenge-mod/utils/errors'
 import { proxify } from '@revenge-mod/utils/proxy'
 import { cache } from '../caches'
 import {
-    mDeps,
     mImportedPaths,
     mInitialized,
+    mList,
     mUninitialized,
 } from '../metro/_internal'
 import {
@@ -194,7 +194,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
 
     // Full lookup
     if (options?.all) {
-        for (let id = 0; id < mDeps.length; id++) {
+        for (const id of mList.keys()) {
             if (cached?.has(id)) continue
 
             const exports = getInitializedModuleExports(id)
@@ -318,7 +318,7 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
 
     // Full lookup
     if (options?.all) {
-        for (let id = 0; id < mDeps.length; id++) {
+        for (const id of mList.keys()) {
             const exports = getInitializedModuleExports(id)
             const flag = runFilter(filter, id, exports, options)
             if (flag) {

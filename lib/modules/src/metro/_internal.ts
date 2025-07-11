@@ -89,7 +89,7 @@ function handleFactoryCall(
     factory: Metro.FactoryFn,
     moduleObject: Metro.Module,
 ) {
-    const prevIId = mInitializingId
+    const prevId = mInitializingId
     mInitializingId = moduleObject.id!
 
     executeRequireSubscriptions(mInitializingId)
@@ -105,16 +105,13 @@ function handleFactoryCall(
             mDeps[mInitializingId],
         )
 
-        const { exports: actualExports } = moduleObject
+        const { exports } = moduleObject
+        if (exports != null) mInitialized.add(mInitializingId)
 
-        // Add the module to the initialized set only if the factory doesn't error or the exports aren't bad
-        // Don't use exports here, as modules can set module.exports to a different object
-        if (actualExports != null) mInitialized.add(mInitializingId)
-
-        executeInitializeSubscriptions(mInitializingId, actualExports)
+        executeInitializeSubscriptions(mInitializingId, exports)
     } finally {
         mUninitialized.delete(mInitializingId)
-        mInitializingId = prevIId
+        mInitializingId = prevId
     }
 }
 
