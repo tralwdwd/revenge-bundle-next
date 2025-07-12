@@ -35,7 +35,7 @@ export function afterJSX(type: ElementType, patch: AfterJSXCallback) {
     if (!patches) {
         patches = [undefined, new Set(), undefined]
         jPatches.set(type, patches)
-    }
+    } else if (!patches[1]) patches[1] = new Set()
 
     const set = patches[1]!
 
@@ -62,7 +62,7 @@ export function beforeJSX<
     if (!patches) {
         patches = [new Set(), undefined, undefined]
         jPatches.set(type, patches)
-    }
+    } else if (!patches[0]) patches[0] = new Set()
 
     const set = patches[0]!
 
@@ -89,7 +89,7 @@ export function insteadJSX<
     if (!patches) {
         patches = [undefined, undefined, new Set()]
         jPatches.set(type, patches)
-    }
+    } else if (!patches[2]) patches[2] = new Set()
 
     const set = patches[2]!
 
