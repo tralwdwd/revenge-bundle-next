@@ -37,7 +37,7 @@ const byAssetSourceResolver = byDependencies([
  *
  * ```js
  * preinit() {
- *   AssetRegistry.getAssetByID(0)
+ *   AssetsRegistry.getAssetByID(0)
  *   // Module ID will now be set!
  *   AssetsRegistryModuleId // ...
  * }
@@ -97,8 +97,6 @@ const unsubAR = waitForModules(
             // We already patched the original asset registry, so we don't need to patch again.
             return
         }
-
-        console.log('Patching')
 
         const orig = exports.registerAsset
         exports.registerAsset = (asset: Asset) => {
