@@ -10,7 +10,6 @@ import { Image } from 'react-native'
 import { Badges, UsersWithBadges } from './constants'
 import { useStyles } from './styles'
 import { afterReconciled } from './utils'
-import type { AssetId } from '@revenge-mod/assets/types'
 import type { FC, JSX, ReactElement } from 'react'
 import type {
     ImageProps,
@@ -99,7 +98,6 @@ function patchProfileBadgeRows(
             if (badges) {
                 for (const id of badges) {
                     const badge = Badges[id]
-                    const icon = badge.getAsset()
 
                     const el = (
                         <ProfileBadge
@@ -107,7 +105,7 @@ function patchProfileBadgeRows(
                             key={id}
                             id={id}
                             label={badge.label}
-                            source={icon}
+                            source={badge.icon}
                         />
                     )
 
@@ -129,7 +127,7 @@ function patchProfileBadge(
     styles: ReturnType<typeof useStyles>,
     badge: Badge,
 ) {
-    const { getAsset, bnw, showDialog } = badge
+    const { bnw, showDialog } = badge
 
     // Only patch if we actually need to
     if (bnw || showDialog) {
@@ -146,7 +144,7 @@ function patchProfileBadge(
 
                 if (pressable)
                     pressable.props.onPress = () => {
-                        openBadgeDialog(styles, badge, getAsset())
+                        openBadgeDialog(styles, badge)
                     }
             }
 
@@ -173,8 +171,7 @@ function patchProfileBadge(
 
 function openBadgeDialog(
     styles: ReturnType<typeof useStyles>,
-    { label, description, bnw }: Badge,
-    icon: AssetId,
+    { label, description, bnw, icon }: Badge,
 ) {
     AlertActionCreators.openAlert(
         'CUSTOM_PROFILE_BADGE',

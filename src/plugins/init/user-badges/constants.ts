@@ -7,7 +7,7 @@ export const Badges = {
     revenge_team: {
         label: 'Revenge Team',
         description: 'This user is a member of the Revenge team.',
-        getAsset: () => RevengeIcon,
+        icon: RevengeIcon,
         bnw: true,
         showDialog: true,
     },
@@ -17,7 +17,7 @@ export const UsersWithBadges = Data as Record<string, BadgeId[]>
 
 export type Badge = {
     label: string
-    getAsset: () => AssetId
+    icon: AssetId
     description: string
     /**
      * Black and white icon
