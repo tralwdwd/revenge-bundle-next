@@ -2,7 +2,7 @@ import { mInitializingId, mUninitialized } from '@revenge-mod/modules/_/metro'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
-import { aOverrides } from './_internal'
+import { aCallbacks, aOverrides } from './_internal'
 import { cacheAsset, cached } from './caches'
 import type { ReactNative } from '@revenge-mod/react/types'
 import type { Asset, PackagerAsset } from './types'
@@ -16,6 +16,13 @@ const unsubAR = waitForModules(
     (exports, id) => {
         AssetsRegistryModuleId = id
         AssetsRegistry = exports as ReactNative.AssetsRegistry
+
+        for (const cb of aCallbacks)
+            try {
+                cb()
+            } catch {}
+
+        aCallbacks.clear()
 
         // There are two matching exports. One is the original, and one is a re-export.
         // The original asset-registry is simply required by the re-exported one with no changes.

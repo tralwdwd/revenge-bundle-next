@@ -1,11 +1,13 @@
+import { noop } from '@revenge-mod/utils/callback'
 import { Platform } from 'react-native'
-import { aCustoms, aOverrides } from './_internal'
+import { aCallbacks, aCustoms, aOverrides } from './_internal'
 import { cache } from './caches'
-import { AssetsRegistry } from './preinit'
+import { AssetsRegistry, AssetsRegistryModuleId } from './preinit'
 import type {
     Asset,
     AssetId,
     CustomAsset,
+    OnAssetsRegistryInitializedCallback,
     PackagerAsset,
     RegisterableAsset,
 } from './types'
@@ -17,6 +19,35 @@ export {
 
 // iOS cannot display SVGs
 let _preferredType: Asset['type'] = Platform.OS === 'ios' ? 'png' : 'svg'
+
+/**
+ * Returns whether assets-registry is initialized.
+ */
+export function isAssetsRegistryInitialized() {
+    return AssetsRegistryModuleId >= 0
+}
+
+/**
+ * Registers a callback to be called when the assets registry is initialized.
+ *
+ * If the assets registry is already initialized, the callback will be called immediately.
+ *
+ * @param callback The callback to be called when the assets registry is initialized.
+ * @returns A function to remove the callback.
+ */
+export function onAssetsRegistryInitialized(
+    callback: OnAssetsRegistryInitializedCallback,
+) {
+    if (isAssetsRegistryInitialized()) {
+        callback()
+        return noop
+    }
+
+    aCallbacks.add(callback)
+    return () => {
+        aCallbacks.delete(callback)
+    }
+}
 
 /**
  * Set the preferred asset type. This is used to determine which asset to use when multiple types are available.
