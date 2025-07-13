@@ -24,7 +24,7 @@ let _preferredType: Asset['type'] = Platform.OS === 'ios' ? 'png' : 'svg'
  * Returns whether assets-registry is initialized.
  */
 export function isAssetsRegistryInitialized() {
-    return AssetsRegistryModuleId >= 0
+    return AssetsRegistryModuleId! >= 0
 }
 
 /**

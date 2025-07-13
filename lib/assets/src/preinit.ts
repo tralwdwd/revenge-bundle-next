@@ -2,13 +2,17 @@ import { mInitializingId, mUninitialized } from '@revenge-mod/modules/_/metro'
 import { byName, byProps } from '@revenge-mod/modules/finders/filters'
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
+import { proxify } from '@revenge-mod/utils/proxy'
 import { aCallbacks, aOverrides } from './_internal'
 import { cacheAsset, cached } from './caches'
 import type { ReactNative } from '@revenge-mod/react/types'
 import type { Asset, PackagerAsset } from './types'
 
-export let AssetsRegistry: ReactNative.AssetsRegistry
-export let AssetsRegistryModuleId: number
+export let AssetsRegistry: ReactNative.AssetsRegistry = proxify(() => {
+    throw new Error('assets-registry is not initialized yet')
+})
+
+export let AssetsRegistryModuleId: number | undefined
 
 // Tracking/caching assets
 const unsubAR = waitForModules(
