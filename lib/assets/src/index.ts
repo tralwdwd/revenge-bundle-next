@@ -13,8 +13,8 @@ import type {
 } from './types'
 
 export {
-    AssetsRegistry as AssetRegistry,
-    AssetsRegistryModuleId as AssetRegistryModuleId,
+    AssetsRegistry,
+    AssetsRegistryModuleId,
 } from './preinit'
 
 // iOS cannot display SVGs
