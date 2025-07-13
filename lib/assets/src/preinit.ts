@@ -11,7 +11,7 @@ import {
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
 import { proxify } from '@revenge-mod/utils/proxy'
-import { aCallbacks, aOverrides } from './_internal'
+import { aOverrides } from './_internal'
 import { cacheAsset, cached } from './caches'
 import type { ReactNative } from '@revenge-mod/react/types'
 import type { Asset, PackagerAsset } from './types'
@@ -33,7 +33,7 @@ const byAssetSourceResolver = byDependencies([
 ])
 
 /**
- * If you need to use this ID before assets-registry is initialized, interact with AssetsRegistry first.
+ * If you need to use this ID before assets-registry is initialized, interact with AssetsRegistry proxy first.
  *
  * ```js
  * preinit() {
@@ -60,7 +60,9 @@ export let AssetsRegistry: ReactNative.AssetsRegistry = proxify(() => {
             if (module?.registerAsset) return (AssetsRegistry = module)
         }
     }
-})!
+
+    throw new Error('assets-registry not found')
+})
 
 // Tracking/caching assets
 const unsubAR = waitForModules(
@@ -68,13 +70,6 @@ const unsubAR = waitForModules(
     (exports, id) => {
         AssetsRegistryModuleId = id
         AssetsRegistry = exports as ReactNative.AssetsRegistry
-
-        for (const cb of aCallbacks)
-            try {
-                cb()
-            } catch {}
-
-        aCallbacks.clear()
 
         // There are two matching exports. One is the original, and one is a re-export.
         // The original asset-registry is simply required by the re-exported one with no changes.
@@ -102,6 +97,8 @@ const unsubAR = waitForModules(
             // We already patched the original asset registry, so we don't need to patch again.
             return
         }
+
+        console.log('Patching')
 
         const orig = exports.registerAsset
         exports.registerAsset = (asset: Asset) => {

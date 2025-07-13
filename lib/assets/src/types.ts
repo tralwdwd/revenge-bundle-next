@@ -13,8 +13,6 @@ export interface CustomAsset
 
 export type RegisterableAsset = Omit<CustomAsset, 'id'>
 
-export type OnAssetsRegistryInitializedCallback = () => void
-
 declare module '@revenge-mod/react/types' {
     export namespace ReactNative {
         export namespace AssetsRegistry {
