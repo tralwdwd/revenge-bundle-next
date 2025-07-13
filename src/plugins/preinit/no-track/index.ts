@@ -76,7 +76,9 @@ registerPlugin(
 
             if (__DEV__)
                 Object.defineProperty(globalThis, '__SENTRY__', {
-                    set: () => warnSetSentry(getCurrentStack()),
+                    set: () => {
+                        warnSetSentry(getCurrentStack())
+                    },
                 })
             else
                 Object.defineProperty(globalThis, '__SENTRY__', {
