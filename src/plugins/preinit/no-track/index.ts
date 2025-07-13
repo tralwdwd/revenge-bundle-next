@@ -155,7 +155,7 @@ registerPlugin(
 
 function warnSetSentry(stack: string) {
     nativeLoggingHook(
-        `\u001b[33mNo Track: Attempt to set __SENTRY__\n${stack}`,
+        `\u001b[33mNo Track: Attempt to set __SENTRY__\n${stack}\u001b[0m`,
         2,
     )
 }
