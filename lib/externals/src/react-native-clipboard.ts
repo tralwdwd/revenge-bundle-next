@@ -49,9 +49,14 @@ let ClipboardModule: typeof import('@react-native-clipboard/clipboard') =
         },
     )!
 
-export const { useClipboard } = destructure(ClipboardModule, {
-    hint: () => {},
-})
-export const { default: Clipboard } = destructure(ClipboardModule, {
-    hint: {},
-})
+export const { default: Clipboard, useClipboard } = destructure(
+    ClipboardModule,
+    {
+        default: {
+            hint: {},
+        },
+        useClipboard: {
+            hint: () => {},
+        },
+    },
+)
