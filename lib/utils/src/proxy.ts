@@ -132,10 +132,11 @@ export function proxify<T>(signal: () => T, options?: ProxifyOptions): T {
         options?.cache ?? false,
     ])
 
-    if (__BUILD_FLAG_DEBUG_PROXIFIED_VALUES__) {
-        const v = unproxifyFromHint(hint)
-        if (v == null) DEBUG_warnNullishProxifiedValue()
-    }
+    if (__BUILD_FLAG_DEBUG_PROXIFIED_VALUES__)
+        (globalThis.setImmediate ?? ((x: () => void) => x()))(() => {
+            if (unproxifyFromHint(hint) == null)
+                DEBUG_warnNullishProxifiedValue()
+        })
 
     return new Proxy(hint, _handler) as T
 }
