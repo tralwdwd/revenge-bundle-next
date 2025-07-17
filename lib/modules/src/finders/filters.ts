@@ -1,4 +1,4 @@
-import { mInitialized } from '../metro/_internal'
+import { mInitialized } from '../metro/patches'
 import { getModuleDependencies, isModuleInitialized } from '../metro/utils'
 import type { If, LogicalOr } from '@revenge-mod/utils/types'
 import type { Metro } from '../types'
