@@ -16,31 +16,34 @@ registerPlugin(
     },
     {
         start({ cleanup }) {
-            const unsubEB = waitForModules(byName('ErrorBoundary'), exports => {
-                unsubEB()
+            const unsubEB = waitForModules(
+                byName<typeof DiscordErrorBoundary>('ErrorBoundary'),
+                exports => {
+                    unsubEB()
 
-                instead(
-                    (exports as typeof DiscordErrorBoundary).prototype,
-                    'render',
-                    function (this: DiscordErrorBoundary) {
-                        if (this.state.error)
-                            return (
-                                <ErrorBoundaryScreen
-                                    error={this.state.error}
-                                    reload={this.handleReload.bind(this)}
-                                    rerender={() => {
-                                        this.setState({
-                                            error: null,
-                                            info: null,
-                                        })
-                                    }}
-                                />
-                            )
+                    instead(
+                        exports.prototype,
+                        'render',
+                        function (this: DiscordErrorBoundary) {
+                            if (this.state.error)
+                                return (
+                                    <ErrorBoundaryScreen
+                                        error={this.state.error}
+                                        reload={this.handleReload.bind(this)}
+                                        rerender={() => {
+                                            this.setState({
+                                                error: null,
+                                                info: null,
+                                            })
+                                        }}
+                                    />
+                                )
 
-                        return this.props.children
-                    },
-                )
-            })
+                            return this.props.children
+                        },
+                    )
+                },
+            )
 
             cleanup(unsubEB)
         },
