@@ -15,8 +15,10 @@ import type { AnyPlugin } from '../_internal'
 export const pRootNodes = new Set<AnyPlugin>()
 export const pLeafOrSingleNodes = new Set<AnyPlugin>()
 
+const visited = new WeakSet<AnyPlugin>()
+
 // Ordered list of plugins to be started
-export const pListOrdered = new Set<AnyPlugin>()
+export const pListOrdered: AnyPlugin[] = []
 // Pending plugins to be computed
 export const pPending = new Set<AnyPlugin>()
 
@@ -24,7 +26,10 @@ export function computePendingNodes() {
     for (const plugin of pPending) resolvePluginGraph(plugin)
     pPending.clear()
 
-    for (const plugin of pLeafOrSingleNodes) pListOrdered.add(plugin)
+    for (const plugin of pLeafOrSingleNodes) {
+        pListOrdered.unshift(plugin)
+        visited.add(plugin)
+    }
     pLeafOrSingleNodes.clear()
 
     const stack = [...pRootNodes]
@@ -32,15 +37,17 @@ export function computePendingNodes() {
 
     while (stack.length) {
         const plugin = stack.pop()!
-        if (pListOrdered.has(plugin)) continue
+        if (visited.has(plugin)) continue
 
         if (plugin.manifest.dependencies?.length) {
             for (const dep of plugin.manifest.dependencies) {
                 const depPlugin = pList.get(dep.id)
-                if (depPlugin && !pListOrdered.has(depPlugin))
-                    stack.push(depPlugin)
+                if (depPlugin) stack.push(depPlugin)
             }
-        } else pListOrdered.add(plugin)
+        } else {
+            pListOrdered.push(plugin)
+            visited.add(plugin)
+        }
     }
 }
 
