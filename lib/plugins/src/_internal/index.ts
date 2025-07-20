@@ -100,14 +100,12 @@ async function handlePluginError(e: unknown, plugin: AnyPlugin) {
     plugin.flags |= Flag.Errored
     const { iflags } = pMetadata.get(plugin)!
 
-    ;(plugin.api as InitPluginApi).logger.error(
-        'Plugin encountered an error',
-        e,
-    )
     nativeLoggingHook(
         `\u001b[31mPlugin "${plugin.manifest.id}" encountered an error: ${getErrorStack(e)}\u001b[0m`,
         2,
     )
+
+    plugin.api.logger?.error('Plugin encountered an error', e)
 
     pEmitter.emit('errored', plugin, e)
 
