@@ -14,15 +14,15 @@ import { useWindowDimensions, View } from 'react-native'
 import { ClickOutsideProvider } from 'react-native-click-outside'
 import RevengeIcon from '~assets/RevengeIcon'
 import { InstalledPluginCard } from '../components/PluginCard'
+import PluginStatesProvider from '../components/PluginStateProvider'
 import {
     EnablePluginTooltipProvider,
     EssentialPluginTooltipProvider,
     resetTooltips,
 } from '../components/TooltipProvider'
-import { useUpdateOnPluginStatesChange } from '../definitions/RevengePluginsSetting'
 import type { RouteProp } from '@react-navigation/core'
 import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
-import type { AnyPlugin } from '@revenge-mod/plugins/_'
+import type { AnyPlugin, InternalPluginMeta } from '@revenge-mod/plugins/_'
 import type { FilterAndSortActionSheetProps } from '../components/FilterAndSortActionSheet'
 import type { RouteNames, Setting } from '../constants'
 
@@ -34,13 +34,15 @@ export default function RevengePluginsSettingScreen() {
     return (
         <LayerScope>
             <ClickOutsideProvider>
-                <Page spacing={16}>
-                    <EssentialPluginTooltipProvider>
-                        <EnablePluginTooltipProvider>
-                            <Screen />
-                        </EnablePluginTooltipProvider>
-                    </EssentialPluginTooltipProvider>
-                </Page>
+                <PluginStatesProvider>
+                    <Page spacing={16}>
+                        <EssentialPluginTooltipProvider>
+                            <EnablePluginTooltipProvider>
+                                <Screen />
+                            </EnablePluginTooltipProvider>
+                        </EssentialPluginTooltipProvider>
+                    </Page>
+                </PluginStatesProvider>
             </ClickOutsideProvider>
         </LayerScope>
     )
@@ -63,7 +65,8 @@ const Filters: FilterAndSortActionSheetProps['filters'] = {
     },
     Essential: {
         icon: getAssetIdByName('StarIcon')!,
-        filter: (_, iflags) => Boolean(iflags & InternalPluginFlags.Essential),
+        filter: (_, meta) =>
+            Boolean(meta.iflags & InternalPluginFlags.Essential),
     },
 } satisfies FilterAndSortActionSheetProps['filters']
 const DefaultFilters: FilterAndSortActionSheetProps['filter'] = []
@@ -82,8 +85,6 @@ const Sorts = {
 } satisfies FilterAndSortActionSheetProps['sorts']
 
 function Screen() {
-    useUpdateOnPluginStatesChange()
-
     const navigation = ReactNavigationNative.useNavigation()
     const route =
         ReactNavigationNative.useRoute<
@@ -108,18 +109,18 @@ function Screen() {
     const allPlugins = useMemo(
         () =>
             [...pList.values()].map(
-                plugin => [plugin, pMetadata.get(plugin)!.iflags] as const,
+                plugin => [plugin, pMetadata.get(plugin)!] as const,
             ),
         [],
     )
 
     const plugins = allPlugins
-        .filter(([plugin, iflags]) => {
+        .filter(([plugin, meta]) => {
             if (filter.length === 0) return true
             if (matchAll)
-                return filter.every(f => Filters[f].filter(plugin, iflags))
+                return filter.every(f => Filters[f].filter(plugin, meta))
 
-            return filter.some(f => Filters[f].filter(plugin, iflags))
+            return filter.some(f => Filters[f].filter(plugin, meta))
         })
         .filter(([plugin]) => {
             const { name, description, author } = plugin.manifest
@@ -132,8 +133,7 @@ function Screen() {
         })
         .sort(([a], [b]) => {
             const result = Sorts[sort as keyof typeof Sorts][1](a, b)
-            if (reverse) return -result
-            return result
+            return reverse ? -result : result
         })
 
     return (
@@ -190,7 +190,7 @@ function Screen() {
 function PluginMasonryFlashList({
     plugins,
 }: {
-    plugins: (readonly [AnyPlugin, number])[]
+    plugins: (readonly [AnyPlugin, InternalPluginMeta])[]
 }) {
     const { width, height } = useWindowDimensions()
     const numColumns = Math.floor((width - 16) / 448)
@@ -205,12 +205,10 @@ function PluginMasonryFlashList({
             estimatedItemSize={116}
             numColumns={numColumns}
             ListEmptyComponent={NoPlugins}
-            renderItem={({ item: [plugin, iflags], columnIndex }) => (
+            renderItem={({ item: [plugin, meta], columnIndex }) => (
                 <InstalledPluginCard
-                    key={plugin.manifest.id}
-                    enabled={Boolean(plugin.flags & PluginFlags.Enabled)}
-                    iflags={iflags}
                     plugin={plugin}
+                    meta={meta}
                     rightGap={columnIndex + 1 < numColumns}
                 />
             )}

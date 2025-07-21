@@ -3,7 +3,7 @@ import { styles } from '@revenge-mod/components/_'
 import FormSwitch from '@revenge-mod/components/FormSwitch'
 import { Tokens } from '@revenge-mod/discord/common'
 import { Design } from '@revenge-mod/discord/design'
-import { RootNavigationRef } from '@revenge-mod/discord/modules/main_tabs_v2'
+import { ReactNavigationNative } from '@revenge-mod/externals/react-navigation'
 import {
     enablePlugin,
     InternalPluginFlags,
@@ -11,8 +11,10 @@ import {
     preInitPlugin,
     startPlugin,
 } from '@revenge-mod/plugins/_'
+import { memo } from 'react'
 import { Image, Pressable } from 'react-native'
 import { useClickOutside } from 'react-native-click-outside'
+import { usePluginEnabled } from './PluginStateProvider'
 import {
     enableTooltipTarget,
     essentialTooltipTarget,
@@ -20,7 +22,7 @@ import {
     setEnablePluginTooltipVisible,
     setEssentialPluginTooltipVisible,
 } from './TooltipProvider'
-import type { AnyPlugin } from '@revenge-mod/plugins/_'
+import type { AnyPlugin, InternalPluginMeta } from '@revenge-mod/plugins/_'
 import type { View } from 'react-native'
 
 const { Card, Text, Stack, IconButton, createStyles } = Design
@@ -28,22 +30,23 @@ const { Card, Text, Stack, IconButton, createStyles } = Design
 const PuzzlePieceIcon = getAssetIdByName('PuzzlePieceIcon', 'png')!
 const SettingsIcon = getAssetIdByName('SettingsIcon', 'png')!
 
-export function InstalledPluginCard({
+export const InstalledPluginCard = memo(function InstalledPluginCard({
     plugin,
-    iflags,
-    enabled,
+    meta,
     rightGap,
 }: {
     plugin: AnyPlugin
-    iflags: number
-    enabled: boolean
+    meta: InternalPluginMeta
     rightGap?: boolean
 }) {
+    const navigation = ReactNavigationNative.useNavigation()
+    const enabled = usePluginEnabled(plugin)
+
     const {
         manifest: { name, description, author, icon },
     } = plugin
 
-    const essential = Boolean(iflags & InternalPluginFlags.Essential)
+    const essential = Boolean(meta.iflags & InternalPluginFlags.Essential)
     const styles_ = usePluginCardStyles()
 
     const settingsRef = useClickOutside<View>(() => {
@@ -94,9 +97,7 @@ export function InstalledPluginCard({
                             variant="secondary"
                             icon={SettingsIcon}
                             onPress={() => {
-                                RootNavigationRef.getRootNavigationRef().navigate(
-                                    plugin.manifest.id,
-                                )
+                                navigation.navigate(plugin.manifest.id)
                             }}
                             disabled={!enabled}
                         />
@@ -146,7 +147,7 @@ export function InstalledPluginCard({
             </Stack>
         </Card>
     )
-}
+})
 
 const usePluginCardStyles = createStyles({
     icon: {

@@ -15,10 +15,7 @@ const RevengePluginsSetting: SettingsItem = {
     type: 'route',
     IconComponent: () => <TableRowAssetIcon name="PuzzlePieceIcon" />,
     title: () => 'Plugins',
-    useTrailing: () => {
-        useUpdateOnPluginStatesChange()
-        return `${enabledCount} enabled`
-    },
+    useTrailing: () => `${useEnabledPluginCount()} enabled`,
     screen: {
         route: RouteNames[Setting.RevengePlugins],
         getComponent: () =>
@@ -39,7 +36,7 @@ pEmitter.on('enabled', () => {
     enabledCount++
 })
 
-export function useUpdateOnPluginStatesChange() {
+function useEnabledPluginCount() {
     const reRender = useReRender()
 
     useEffect(() => {
@@ -51,6 +48,8 @@ export function useUpdateOnPluginStatesChange() {
             pEmitter.off('enabled', reRender)
         }
     }, [reRender])
+
+    return enabledCount
 }
 
 const { AlertActionButton, AlertModal, Text } = Design
