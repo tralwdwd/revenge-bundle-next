@@ -480,7 +480,7 @@ export async function stopPlugin(plugin: AnyPlugin) {
  * Runs all cleanup functions registered by a plugin.
  */
 async function cleanupPlugin(plugin: AnyPlugin, meta: InternalPluginMeta) {
-    const handleStopError = async (e: unknown) => {
+    async function handleStopError(e: unknown) {
         // Some cleanup was unsuccessful, so we need to reload the app
         plugin.flags |= Flag.ReloadRequired
         return handlePluginError(e, plugin)
