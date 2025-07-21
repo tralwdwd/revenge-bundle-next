@@ -33,15 +33,18 @@ export function computePendingNodes() {
     pRootNodes.clear()
 
     while (stack.length) {
-        const plugin = stack.pop()!
-        if (visited.has(plugin)) continue
+        const plugin = stack.shift()!
 
-        if (plugin.manifest.dependencies?.length)
-            for (const dep of getPluginDependencies(plugin)) stack.push(dep)
-        else {
+        if (visited.has(plugin)) {
             pListOrdered.push(plugin)
-            visited.add(plugin)
+            continue
         }
+
+        if (plugin.manifest.dependencies?.length) {
+            for (const dep of getPluginDependencies(plugin)) stack.push(dep)
+            stack.push(plugin)
+            visited.add(plugin)
+        } else pListOrdered.push(plugin)
     }
 }
 
