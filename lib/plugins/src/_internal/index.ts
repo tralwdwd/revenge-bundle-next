@@ -7,7 +7,14 @@ import {
     PluginFlags,
     PluginStatus as Status,
 } from '../constants'
-import { decoratePluginApi, pDecorators } from './decorators'
+import {
+    addPluginApiDecorator,
+    decoratePluginApi,
+    pDecoratorsInit,
+    pDecoratorsPreInit,
+    pDecoratorsStart,
+    pImplicitDeps,
+} from './decorators'
 import { pLeafOrSingleNodes, pPending } from './dependency-graph'
 import type {
     InitPluginApi,
@@ -88,8 +95,10 @@ export function registerPlugin<O extends PluginApiExtensionsOptions>(
     pMetadata.set(plugin, meta)
     pList.set(manifest.id, plugin)
 
-    if (iflags & InternalPluginFlags.ImplicitDependency)
+    if (iflags & InternalPluginFlags.ImplicitDependency) {
         pLeafOrSingleNodes.add(plugin)
+        pImplicitDeps.add(plugin)
+    }
     // Only add to pending if the plugin is enabled
     else if (flags & PluginFlags.Enabled) pPending.add(plugin)
 
@@ -159,11 +168,11 @@ function preparePluginPreInit(plugin: AnyPlugin) {
         plugin,
         unscoped: pUnscopedApi,
         decorate: decorator => {
-            pDecorators.preInit.push([decorator, meta.handleError])
+            addPluginApiDecorator(pDecoratorsPreInit, plugin, decorator)
         },
     } satisfies PreInitPluginApi
 
-    decoratePluginApi(pDecorators.preInit, plugin, meta)
+    decoratePluginApi(pDecoratorsPreInit, plugin, meta)
 
     meta.apiLevel = PluginApiLevel.PreInit
 }
@@ -172,10 +181,10 @@ function preparePluginInit(plugin: AnyPlugin) {
     const meta = pMetadata.get(plugin)!
     const api = plugin.api as InitPluginApi
     api.decorate = decorator => {
-        pDecorators.init.push([decorator, meta.handleError])
+        addPluginApiDecorator(pDecoratorsInit, plugin, decorator)
     }
 
-    decoratePluginApi(pDecorators.init, plugin, meta)
+    decoratePluginApi(pDecoratorsInit, plugin, meta)
 
     meta.apiLevel = PluginApiLevel.Init
 }
@@ -184,10 +193,10 @@ function preparePluginStart(plugin: AnyPlugin) {
     const meta = pMetadata.get(plugin)!
     const api = plugin.api as PluginApi
     api.decorate = decorator => {
-        pDecorators.start.push([decorator, meta.handleError])
+        addPluginApiDecorator(pDecoratorsStart, plugin, decorator)
     }
 
-    decoratePluginApi(pDecorators.start, plugin, meta)
+    decoratePluginApi(pDecoratorsStart, plugin, meta)
 
     meta.apiLevel = PluginApiLevel.Start
 }
