@@ -1,32 +1,22 @@
 import { getPluginDependencies, pMetadata } from '.'
-import type {
-    InitPluginApi,
-    Plugin,
-    PluginApi,
-    PreInitPluginApi,
-} from '../types'
+import type { Plugin, PluginApiDecorator } from '../types'
 import type { AnyPlugin, InternalPluginMeta } from '.'
 
-export type PluginApiDecoratorStore<
-    A extends PreInitPluginApi | InitPluginApi | PluginApi,
-> = WeakMap<AnyPlugin, Parameters<A['decorate']>[0][]>
+export type PluginApiDecoratorStore<T extends 'PreInit' | 'Init' | 'Start'> =
+    WeakMap<AnyPlugin, PluginApiDecorator<any, T>[]>
 
 // Set of plugins that will always decorate the API of every other plugin.
 export const pImplicitDeps = new Set<AnyPlugin>()
 
-export const pDecoratorsPreInit: PluginApiDecoratorStore<PreInitPluginApi> =
+export const pDecoratorsPreInit: PluginApiDecoratorStore<'PreInit'> =
     new WeakMap()
-
-export const pDecoratorsInit: PluginApiDecoratorStore<InitPluginApi> =
-    new WeakMap()
-
-export const pDecoratorsStart: PluginApiDecoratorStore<PluginApi> =
-    new WeakMap()
+export const pDecoratorsInit: PluginApiDecoratorStore<'Init'> = new WeakMap()
+export const pDecoratorsStart: PluginApiDecoratorStore<'Start'> = new WeakMap()
 
 export function addPluginApiDecorator(
     store: PluginApiDecoratorStore<any>,
     plugin: AnyPlugin,
-    decorator: Parameters<NonNullable<AnyPlugin['api']>['decorate']>[0],
+    decorator: PluginApiDecorator<any, any>,
 ) {
     let list = store.get(plugin)
     if (!list) {
@@ -38,9 +28,7 @@ export function addPluginApiDecorator(
 }
 
 export function decoratePluginApi(
-    store: PluginApiDecoratorStore<
-        PreInitPluginApi | InitPluginApi | PluginApi
-    >,
+    store: PluginApiDecoratorStore<any>,
     plugin: Plugin<any, any>,
     meta: InternalPluginMeta,
 ) {
