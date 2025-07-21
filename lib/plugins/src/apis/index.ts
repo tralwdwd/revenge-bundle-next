@@ -20,3 +20,13 @@ export const pUnscopedApi:
     react,
     storage,
 }
+
+export function spreadDescriptors<T extends object, U extends object>(
+    from: T,
+    to: U,
+): T & U {
+    return Object.defineProperties(
+        to,
+        Object.getOwnPropertyDescriptors(from),
+    ) as T & U
+}
