@@ -19,7 +19,6 @@ export interface UnscopedPreInitPluginApi<
     patcher: typeof import('@revenge-mod/patcher')
     plugins: PluginApiPlugins
     react: PluginApiReact
-    storage: typeof import('@revenge-mod/storage')
 }
 
 /**
