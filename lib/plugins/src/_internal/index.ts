@@ -44,6 +44,7 @@ export interface InternalPluginMeta {
     iflags: number
     apiLevel: number
     dependents: AnyPlugin[]
+    dependencies?: AnyPlugin[]
     options: PluginOptions<any>
 }
 
@@ -93,6 +94,38 @@ export function registerPlugin<O extends PluginApiExtensionsOptions>(
     else if (flags & PluginFlags.Enabled) pPending.add(plugin)
 
     pEmitter.emit('register', plugin, options)
+}
+
+export function getPluginDependencies(plugin: AnyPlugin): AnyPlugin[] {
+    const meta = pMetadata.get(plugin)!
+    if (meta.dependencies) return meta.dependencies
+
+    const { dependencies, id } = plugin.manifest
+
+    const deps: AnyPlugin[] = []
+
+    if (dependencies?.length)
+        for (const { id: depId } of dependencies) {
+            const dep = pList.get(depId)
+
+            if (dep) {
+                if (dep.flags & PluginFlags.Enabled) deps.push(dep)
+                else
+                    throw new Error(
+                        `Plugin "${id}" depends on disabled plugin "${depId}"`,
+                    )
+            } else {
+                // TODO: Once external plugins are implemented, we will have to check the external plugin registry here as well
+                // External plugin registry should ideally be Record<PluginManifest['id'], [PluginManifest, Flags: number, PluginCode: string]>
+                // Then we register the plugin here and do dep = pList.get(id) again
+
+                throw new Error(
+                    `Plugin "${id}" depends on unregistered plugin "${depId}"`,
+                )
+            }
+        }
+
+    return (meta.dependencies = deps)
 }
 
 async function handlePluginError(e: unknown, plugin: AnyPlugin) {
