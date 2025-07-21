@@ -22,6 +22,7 @@ import type {
     PluginApi,
     PluginApiExtensionsOptions,
     PluginCleanup,
+    PluginDependency,
     PluginManifest,
     PluginOptions,
     PreInitPluginApi,
@@ -130,6 +131,8 @@ export function registerPlugin<O extends PluginApiExtensionsOptions>(
     else if (flags & PluginFlags.Enabled) pPending.add(plugin)
 
     pEmitter.emit('register', plugin, options)
+
+    return { id: manifest.id } satisfies PluginDependency
 }
 
 /**
