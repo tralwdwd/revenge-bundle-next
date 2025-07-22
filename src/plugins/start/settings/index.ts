@@ -58,6 +58,7 @@ function patchSettingsNavigator(exports: any) {
         const reRender = useReRender()
         useEffect(() => {
             sRefresher.callNavigator = reRender
+
             return () => {
                 sRefresher.navigator = false
                 sRefresher.callNavigator = noop
@@ -66,7 +67,11 @@ function patchSettingsNavigator(exports: any) {
 
         // useMemo(() => getSettingScreens(), [])
         const unpatchMemo = instead(React, 'useMemo', (args, orig) => {
-            if (!args[1]?.length && sRefresher.navigator) args[1] = undefined
+            if (!args[1]?.length && sRefresher.navigator) {
+                args[1] = undefined
+                sRefresher.navigator = false
+            }
+
             return Reflect.apply(orig, React, args)
         })
 
@@ -75,6 +80,8 @@ function patchSettingsNavigator(exports: any) {
         return fiber
     })
 }
+
+let sectionsInst: object | undefined
 
 function patchSettingsOverviewScreen(exports: any) {
     instead(
@@ -86,33 +93,47 @@ function patchSettingsOverviewScreen(exports: any) {
             const reRender = useReRender()
             useEffect(() => {
                 sRefresher.callOverviewScreen = reRender
+
                 return () => {
                     sRefresher.overviewScreen = false
                     sRefresher.callOverviewScreen = noop
                 }
             }, [reRender])
 
-            // In: SearchableSettingsList
-            // useMemo(() => {
-            //   return doSettingsBlocklistFiltering(props.sections, canShowNitroSettings)
-            // }, [canShowNitroSettings])
+            /**
+             * In useOverviewSettings (called by SettingsOverviewScreen):
+             *
+             * const hasPremiumSubscriptionToDisplay = useHasPremiumSubscriptionToDisplay()
+             * const sections = useMemo(() =>
+             *   (...constructed sections array...),
+             * [hasPremiumSubscriptionToDisplay])
+             */
             const unpatchMemo = instead(React, 'useMemo', (args, orig) => {
                 if (sRefresher.overviewScreen) args[1] = undefined
 
-                const sections = Reflect.apply(orig, React, args)
+                let sections = Reflect.apply(orig, React, args)
 
-                // Add our custom sections here
-                for (const section of Object.values(sSections))
-                    if (section.index)
-                        sections.splice(section.index, 0, section)
-                    else sections.unshift(section)
+                // Add our custom sections here, and only do this per instance!
+                if (sectionsInst !== sections) {
+                    for (const section of Object.values(sSections))
+                        if (section.index)
+                            sections.splice(section.index, 0, section)
+                        else sections.unshift(section)
+
+                    sectionsInst = sections
+                }
+
+                if (sRefresher.overviewScreen) {
+                    sections = sectionsInst = [...sections]
+                    sRefresher.overviewScreen = false
+                }
 
                 return sections
             })
 
-            const tree = Reflect.apply(orig, undefined, args)
+            const fiber = Reflect.apply(orig, undefined, args)
             unpatchMemo()
-            return tree
+            return fiber
         },
     )
 }
