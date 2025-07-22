@@ -1,5 +1,3 @@
-import { getStore, Stores } from '@revenge-mod/discord/common/flux'
-import { refreshSettingsOverviewScreen } from '@revenge-mod/discord/modules/settings'
 import { byProps } from '@revenge-mod/modules/finders/filters'
 import { getModule } from '@revenge-mod/modules/finders/get'
 import { instead } from '@revenge-mod/patcher'
@@ -16,7 +14,25 @@ registerPlugin(
         icon: 'StaffBadgeIcon',
     },
     {
-        start({ cleanup, logger }) {
+        start({ cleanup, logger, unscoped }) {
+            const {
+                utils: {
+                    discord: { lookupGeneratedIconComponent },
+                },
+                discord: {
+                    common: {
+                        flux: { getStore, Stores },
+                    },
+                    actions: { ToastActionCreators },
+                },
+            } = unscoped
+
+            const CircleInformationIcon = lookupGeneratedIconComponent(
+                'CircleInformationIcon',
+                'CircleInformationIcon-secondary',
+                'CircleInformationIcon-primary',
+            )
+
             function reset() {
                 getStore<{
                     initialize(): void
@@ -34,8 +50,10 @@ registerPlugin(
                     store.initialize()
                     unpatch()
 
-                    setTimeout(() => {
-                        refreshSettingsOverviewScreen(true)
+                    ToastActionCreators.open({
+                        key: 'staff-settings-action',
+                        content: 'Navigate out of Settings to apply changes',
+                        IconComponent: CircleInformationIcon,
                     })
                 })
             }
