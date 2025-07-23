@@ -101,10 +101,8 @@ export const byGeneratedIconComponent = createFilterGenerator<
                 for (let i = 1; i < names.length; i++) {
                     const name = names[i]
                     const mid = getAssetByName(name)?.moduleId
-                    if (!mid) {
-                        if (__DEV__) warnUnregisteredAsset(name)
-                        return false
-                    }
+                    // Module ID can never be zero, so if it's falsy, it means the asset was not found.
+                    if (!mid) return false
 
                     mids.push(mid)
                 }
@@ -114,10 +112,8 @@ export const byGeneratedIconComponent = createFilterGenerator<
                 const [name] = names
 
                 const mid = getAssetByName(name)?.moduleId
-                if (!mid) {
-                    if (__DEV__) warnUnregisteredAsset(name)
-                    return false
-                }
+                // Module ID can never be zero, so if it's falsy, it means the asset was not found.
+                if (!mid) return false
 
                 IconComponentFilter[4] = mid
             }
@@ -139,6 +135,17 @@ export const byGeneratedIconComponent = createFilterGenerator<
 export function lookupGeneratedIconComponent<N extends string>(
     ...names: [N, ...string[]]
 ) {
+    for (const name of names) {
+        let badFind = false
+        if (__DEV__) {
+            if (!getAssetByName(name)) {
+                badFind = true
+                warnUnregisteredAsset(name)
+            }
+        } else if (!getAssetByName(name)) return
+        if (__DEV__ && badFind) return
+    }
+
     const [module] = lookupModule(byGeneratedIconComponent(...names), {
         uninitialized: true,
     })
