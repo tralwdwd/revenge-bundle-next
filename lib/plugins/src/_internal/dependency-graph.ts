@@ -24,14 +24,10 @@ export const pPending = new Set<AnyPlugin>()
 
 export function computePendingNodes() {
     for (const plugin of pPending) resolvePluginGraph(plugin)
-    pPending.clear()
 
     for (const plugin of pLeafOrSingleNodes) pListOrdered.unshift(plugin)
-    pLeafOrSingleNodes.clear()
 
     const stack = [...pRootNodes]
-    pRootNodes.clear()
-
     while (stack.length) {
         const plugin = stack.shift()!
 
@@ -41,11 +37,17 @@ export function computePendingNodes() {
         }
 
         if (plugin.manifest.dependencies?.length) {
-            for (const dep of getPluginDependencies(plugin)) stack.push(dep)
+            for (const dep of getPluginDependencies(plugin))
+                if (!pLeafOrSingleNodes.has(dep)) stack.push(dep)
+
             stack.push(plugin)
             visited.add(plugin)
         } else pListOrdered.push(plugin)
     }
+
+    pPending.clear()
+    pLeafOrSingleNodes.clear()
+    pRootNodes.clear()
 }
 
 export function resolvePluginGraph(plugin: AnyPlugin) {
