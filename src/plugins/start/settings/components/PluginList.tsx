@@ -1,3 +1,4 @@
+import { styles } from '@revenge-mod/components/_'
 import { Design } from '@revenge-mod/discord/design'
 import { FlashList, MasonryFlashList } from '@shopify/flash-list'
 import { useWindowDimensions } from 'react-native'
@@ -12,6 +13,9 @@ import type { AnyPlugin, InternalPluginMeta } from '@revenge-mod/plugins/_'
 const { Text } = Design
 
 export function PluginFlashList({ plugins }: { plugins: AnyPlugin[] }) {
+    const { width, height } = useWindowDimensions()
+    const actualWidth = width - styles.pagePadding.paddingHorizontal * 2
+
     return (
         <FlashList
             data={plugins}
@@ -19,6 +23,7 @@ export function PluginFlashList({ plugins }: { plugins: AnyPlugin[] }) {
             fadingEdgeLength={plugins.length === 1 ? 0 : 16}
             keyExtractor={plugin => plugin.manifest.id}
             estimatedItemSize={PLUGIN_CARD_ESTIMATED_SIZE}
+            estimatedListSize={{ width: actualWidth, height }}
             renderItem={({
                 item: {
                     manifest: { name, description, author, icon },
@@ -43,8 +48,9 @@ export function InstalledPluginMasonryFlashList({
 }: {
     plugins: (readonly [AnyPlugin, InternalPluginMeta])[]
 }) {
-    const { width } = useWindowDimensions()
-    const numColumns = Math.floor((width - 16) / 448)
+    const { width, height } = useWindowDimensions()
+    const actualWidth = width - styles.pagePadding.paddingHorizontal * 2
+    const numColumns = Math.floor(actualWidth / 448) || 1
 
     return (
         <MasonryFlashList
@@ -53,6 +59,7 @@ export function InstalledPluginMasonryFlashList({
             onScrollBeginDrag={resetTooltips}
             fadingEdgeLength={16}
             keyExtractor={([plugin]) => plugin.manifest.id}
+            estimatedListSize={{ width: actualWidth, height }}
             estimatedItemSize={PLUGIN_CARD_ESTIMATED_SIZE}
             numColumns={numColumns}
             ListEmptyComponent={NoPlugins}
