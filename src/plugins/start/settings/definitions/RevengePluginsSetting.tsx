@@ -2,7 +2,7 @@ import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import { BundleUpdaterManager } from '@revenge-mod/discord/native'
-import { pEmitter, pList } from '@revenge-mod/plugins/_'
+import { isPluginEnabled, pEmitter, pList } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { useReRender } from '@revenge-mod/utils/react'
 import { useEffect } from 'react'
@@ -25,8 +25,7 @@ const RevengePluginsSetting: SettingsItem = {
 
 let enabledCount = 0
 
-for (const plugin of pList.values())
-    if (plugin.flags & PluginFlags.Enabled) enabledCount++
+for (const plugin of pList.values()) if (isPluginEnabled(plugin)) enabledCount++
 
 pEmitter.on('disabled', () => {
     enabledCount--
@@ -58,34 +57,54 @@ pEmitter.on('started', showReloadRequiredAlertIfNeeded)
 pEmitter.on('stopped', showReloadRequiredAlertIfNeeded)
 
 function showReloadRequiredAlertIfNeeded(plugin: AnyPlugin) {
-    if (plugin.flags & PluginFlags.ReloadRequired)
+    if (plugin.flags & PluginFlags.ReloadRequired) {
+        const plugins = [...pList.values()].filter(
+            plugin => plugin.flags & PluginFlags.ReloadRequired,
+        )
+
         AlertActionCreators.openAlert(
             'plugin-reload-required',
-            <AlertModal
-                title="Reload required"
-                content={
-                    <Text variant="text-md/medium" color="header-secondary">
-                        Plugin{' '}
-                        <Text variant="text-md/bold" color="header-secondary">
-                            {plugin.manifest.name}
-                        </Text>{' '}
-                        requires a reload to apply changes.
-                    </Text>
-                }
-                actions={
-                    <>
-                        <AlertActionButton
-                            variant="destructive"
-                            text="Reload"
-                            onPress={() => {
-                                BundleUpdaterManager.reload()
-                            }}
-                        />
-                        <AlertActionButton variant="secondary" text="Not now" />
-                    </>
-                }
-            />,
+            <PluginReloadRequiredAlert plugins={plugins} />,
         )
+    }
+}
+
+function PluginReloadRequiredAlert({ plugins }: { plugins: AnyPlugin[] }) {
+    return (
+        <AlertModal
+            title="Reload required"
+            content={
+                <Text variant="text-md/medium" color="header-secondary">
+                    The following plugins require a reload to apply changes:
+                    {'\n'}
+                    {plugins.map(plugin => (
+                        <>
+                            <Text
+                                key={plugin.manifest.id}
+                                variant="text-md/bold"
+                                color="text-normal"
+                            >
+                                {plugin.manifest.name}
+                            </Text>
+                            {', '}
+                        </>
+                    ))}
+                </Text>
+            }
+            actions={
+                <>
+                    <AlertActionButton
+                        variant="destructive"
+                        text="Reload"
+                        onPress={() => {
+                            BundleUpdaterManager.reload()
+                        }}
+                    />
+                    <AlertActionButton variant="secondary" text="Not now" />
+                </>
+            }
+        />
+    )
 }
 
 export default RevengePluginsSetting

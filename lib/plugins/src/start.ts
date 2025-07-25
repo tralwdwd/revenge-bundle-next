@@ -1,6 +1,5 @@
-import { startPlugin } from './_internal'
+import { isPluginEnabled, startPlugin } from './_internal'
 import { computePendingNodes, pListOrdered } from './_internal/dependency-graph'
-import { PluginFlags } from './constants'
 
 computePendingNodes()
 
@@ -11,4 +10,4 @@ if (__DEV__)
     )
 
 for (const plugin of pListOrdered)
-    if (plugin.flags & PluginFlags.Enabled) startPlugin(plugin)
+    if (isPluginEnabled(plugin)) startPlugin(plugin)

@@ -1,5 +1,4 @@
-import { pEmitter, pList } from '@revenge-mod/plugins/_'
-import { PluginFlags } from '@revenge-mod/plugins/constants'
+import { isPluginEnabled, pEmitter, pList } from '@revenge-mod/plugins/_'
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { AnyPlugin } from '@revenge-mod/plugins/_'
 import type { ReactNode } from 'react'
@@ -20,9 +19,7 @@ export default function PluginStatesProvider({
     const [enabled, setEnabled] = useState<PluginEnabledStates>(() => {
         const states: PluginEnabledStates = {}
         for (const plugin of pList.values()) {
-            states[plugin.manifest.id] = Boolean(
-                plugin.flags & PluginFlags.Enabled,
-            )
+            states[plugin.manifest.id] = isPluginEnabled(plugin)
         }
         return states
     })
@@ -70,7 +67,7 @@ export function usePluginEnabled(plugin: AnyPlugin) {
 
     if (!context) {
         console.warn('usePluginEnabled not used within a PluginStateProvider')
-        return Boolean(plugin.flags & PluginFlags.Enabled)
+        return isPluginEnabled(plugin)
     }
 
     return context.enabled[plugin.manifest.id]
