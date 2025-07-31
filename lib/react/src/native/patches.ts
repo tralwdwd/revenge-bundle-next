@@ -1,9 +1,6 @@
 import { after, before } from '@revenge-mod/patcher'
 import { ReactNative } from '..'
-import type { RunApplicationCallback } from '../types'
-
-export const sBeforeRunApplication = new Set<RunApplicationCallback>()
-export const sAfterRunApplication = new Set<RunApplicationCallback>()
+import { sAfterRunApplication, sBeforeRunApplication } from './_internal'
 
 before(ReactNative.AppRegistry, 'runApplication', args => {
     for (const cb of sBeforeRunApplication)
