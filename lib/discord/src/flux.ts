@@ -8,7 +8,8 @@ export type FluxEventDispatchPatch = (
     payload: DiscordModules.Flux.DispatcherPayload,
 ) => DiscordModules.Flux.DispatcherPayload | undefined | void
 
-;(Dispatcher._interceptors ??= []).unshift(payload => {
+const originalDispatch = Dispatcher.dispatch
+Dispatcher.dispatch = payload => {
     let res: typeof payload | undefined | void = payload
 
     for (const patch of fPatchesAll)
@@ -27,8 +28,10 @@ export type FluxEventDispatchPatch = (
                 } catch {}
     }
 
-    return !res
-})
+    if (res) return Reflect.apply(originalDispatch, Dispatcher, [res])
+    // If res is undefined, the event is blocked
+    return Promise.resolve()
+}
 
 /**
  * Registers a patch for all Flux events.
