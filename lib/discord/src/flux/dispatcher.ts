@@ -1,37 +1,9 @@
-import { Dispatcher } from './common/flux'
-import type { DiscordModules } from './types'
-
-const fPatchesAll: Set<FluxEventDispatchPatch<any>> = new Set()
-const fPatches: Map<string, Set<FluxEventDispatchPatch<any>>> = new Map()
+import { fPatches, fPatchesAll } from '../patches/flux'
+import type { DiscordModules } from '../types'
 
 export type FluxEventDispatchPatch<T extends object = object> = (
     payload: DiscordModules.Flux.DispatcherPayload & T,
 ) => (DiscordModules.Flux.DispatcherPayload & T) | undefined | void
-
-const originalDispatch = Dispatcher.dispatch
-Dispatcher.dispatch = payload => {
-    let res: typeof payload | undefined | void = payload
-
-    for (const patch of fPatchesAll)
-        try {
-            res = patch(res!)
-            if (!res) break
-        } catch {}
-
-    if (res) {
-        const specifics = fPatches.get(payload.type)
-        if (specifics?.size)
-            for (const patch of specifics)
-                try {
-                    res = patch(res!)
-                    if (!res) break
-                } catch {}
-    }
-
-    if (res) return Reflect.apply(originalDispatch, Dispatcher, [res])
-    // If res is undefined, the event is blocked
-    return Promise.resolve()
-}
 
 /**
  * Registers a patch for all Flux events.
