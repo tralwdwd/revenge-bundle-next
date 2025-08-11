@@ -1,12 +1,12 @@
 import { Dispatcher } from './common/flux'
 import type { DiscordModules } from './types'
 
-const fPatchesAll: Set<FluxEventDispatchPatch> = new Set()
-const fPatches: Map<string, Set<FluxEventDispatchPatch>> = new Map()
+const fPatchesAll: Set<FluxEventDispatchPatch<any>> = new Set()
+const fPatches: Map<string, Set<FluxEventDispatchPatch<any>>> = new Map()
 
-export type FluxEventDispatchPatch = (
-    payload: DiscordModules.Flux.DispatcherPayload,
-) => DiscordModules.Flux.DispatcherPayload | undefined | void
+export type FluxEventDispatchPatch<T extends object = object> = (
+    payload: DiscordModules.Flux.DispatcherPayload & T,
+) => (DiscordModules.Flux.DispatcherPayload & T) | undefined | void
 
 const originalDispatch = Dispatcher.dispatch
 Dispatcher.dispatch = payload => {
@@ -80,9 +80,9 @@ export function onAnyFluxEventDispatched(patch: FluxEventDispatchPatch) {
  * })
  * ```
  */
-export function onFluxEventDispatched(
+export function onFluxEventDispatched<T extends object = object>(
     type: DiscordModules.Flux.DispatcherPayload['type'],
-    patch: FluxEventDispatchPatch,
+    patch: FluxEventDispatchPatch<T>,
 ) {
     let set = fPatches.get(type)
     if (!set) fPatches.set(type, (set = new Set<FluxEventDispatchPatch>()))
