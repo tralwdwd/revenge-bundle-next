@@ -329,19 +329,23 @@ export async function runPluginLate(plugin: AnyPlugin) {
     if (plugin.status & Status.Started)
         throw new Error(`Plugin "${plugin.manifest.id}" is already started`)
 
-    plugin.flags |= Flag.EnabledLate
-
     // Reset previous computations
     pListOrdered.length = 0
     pPending.add(plugin)
     computePendingNodes()
 
     await Promise.all(
-        pListOrdered.map(async function runLate(plugin) {
-            await preInitPlugin(plugin)
-            await initPlugin(plugin)
-            await startPlugin(plugin)
-        }),
+        // If the plugin is stopped, we should initialize it
+        pListOrdered
+            .filter(plugin => !plugin.status)
+            .map(async function runLate(plugin) {
+                plugin.flags |= Flag.EnabledLate
+
+                // Prepare the plugin API
+                await preInitPlugin(plugin)
+                await initPlugin(plugin)
+                await startPlugin(plugin)
+            }),
     )
 }
 
