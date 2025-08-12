@@ -53,8 +53,7 @@ function useEnabledPluginCount() {
 
 const { AlertActionButton, AlertModal, Text } = Design
 
-pEmitter.on('started', showReloadRequiredAlertIfNeeded)
-pEmitter.on('stopped', showReloadRequiredAlertIfNeeded)
+pEmitter.on('flagUpdate', showReloadRequiredAlertIfNeeded)
 
 function showReloadRequiredAlertIfNeeded(plugin: AnyPlugin) {
     if (plugin.flags & PluginFlags.ReloadRequired) {
@@ -87,7 +86,6 @@ function PluginReloadRequiredAlert({ plugins }: { plugins: AnyPlugin[] }) {
                             >
                                 {plugin.manifest.name}
                             </Text>
-                            {', '}
                         </>
                     ))}
                 </Text>
