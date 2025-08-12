@@ -9,8 +9,8 @@ import {
 import { waitForModules } from '@revenge-mod/modules/finders/wait'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
 import { asap, noop } from '@revenge-mod/utils/callback'
-import { cached, cacheFilterResultForId } from '../../../modules/src/caches'
-import { FilterResultFlags } from '../../../modules/src/finders/_internal'
+import { cached, cacheFilterResultForId } from '#modules/src/caches'
+import { FilterResultFlags } from '#modules/src/finders/_internal'
 import type {
     Filter,
     FilterGenerator,
