@@ -77,8 +77,9 @@ function PluginReloadRequiredAlert({ plugins }: { plugins: AnyPlugin[] }) {
                 <Text variant="text-md/medium" color="header-secondary">
                     The following plugins require a reload to apply changes:
                     {'\n'}
-                    {plugins.map(plugin => (
+                    {plugins.map((plugin, index) => (
                         <>
+                            {index ? ' ,' : null}
                             <Text
                                 key={plugin.manifest.id}
                                 variant="text-md/bold"
