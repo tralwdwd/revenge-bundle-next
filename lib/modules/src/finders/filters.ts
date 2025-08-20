@@ -41,7 +41,7 @@ export type FilterGenerator<G extends (...args: any[]) => Filter> = G & {
  *     // filter logic
  *     return true
  *   },
- *   ([arg1, arg2]) => `revenge.custom(${arg1}, ${arg2})`
+ *   ([arg1, arg2]) => `custom(${arg1}, ${arg2})`
  * )
  * ```
  *
