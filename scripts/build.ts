@@ -56,9 +56,7 @@ export default async function build(dev = Dev, log = true) {
                 // ignoreFunctionLength: true,
             },
         },
-        resolve: {
-            tsconfigFilename: 'tsconfig.json',
-        },
+        tsconfig: 'tsconfig.json',
         treeshake: true,
         keepNames: true,
         moduleTypes: {
@@ -158,7 +156,7 @@ export default async function build(dev = Dev, log = true) {
 
     await bundle.write({
         minify: {
-            compress: false,
+            compress: true,
             mangle: true,
         },
         exports: 'none',
