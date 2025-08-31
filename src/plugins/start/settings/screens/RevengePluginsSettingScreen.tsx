@@ -65,14 +65,17 @@ const Filters: FilterAndSortActionSheetProps['filters'] = {
     },
     Internal: {
         icon: RevengeIcon,
+        desc: 'Included with Revenge.',
         filter: (_, meta) => isPluginInternal(meta),
     },
     Essential: {
         icon: getAssetIdByName('StarIcon')!,
+        desc: 'Required for Revenge to function properly.',
         filter: (_, meta) => isPluginEssential(meta),
     },
     'Non-APIs': {
         icon: getAssetIdByName('PaperIcon')!,
+        desc: 'Exclude essential plugins that provide APIs for other plugins.',
         filter: (_, meta) =>
             !(meta.iflags & InternalPluginFlags.ImplicitDependency),
     },
