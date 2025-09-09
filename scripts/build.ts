@@ -42,8 +42,9 @@ export default async function build(dev = Dev, log = true) {
         input: 'src/index.ts',
         platform: 'neutral',
         optimization: {
-            // ! BROKEN, DO NOT USE!
-            // inlineConst: true,
+            inlineConst: {
+                mode: 'smart',
+            },
             // @ts-expect-error: Option not documented, but added in 1.0.0-beta.30
             pifeForModuleWrappers: true,
         },
@@ -91,8 +92,8 @@ export default async function build(dev = Dev, log = true) {
             asRequire(),
             shimAliases(ShimsDir),
             importGlobPlugin(),
-            importDefer(),
             hermesSwcPlugin(),
+            importDefer(),
             hermesCPlugin({
                 flags: [
                     dev ? '-Og' : '-O',

@@ -8,6 +8,8 @@ const DEFER_NAMESPACE_IMPORT_REGEX =
 /**
  * Really wacky support for `import defer` statements by transforming them to `require()`.
  *
+ * Only supports JavaScript files. TypeScript files with conflicting type names may cause issues.
+ *
  * `import defer` statements are transformed to provide on-demand/lazy loading.
  *
  * This is achieved by creating a scoped closure to cache the module.
@@ -41,7 +43,7 @@ export default function importDefer() {
                     hasReplacements = true
 
                     // Find all usages of the imported identifier
-                    const usageRegex = new RegExp(`\\b${localName}\\b`, 'g');
+                    const usageRegex = new RegExp(`\\b${localName}\\b`, 'g')
 
                     for (const usageMatch of code.matchAll(usageRegex)) {
                         // Original import declaration
@@ -123,5 +125,5 @@ function generateDeferReplacement(bindings: Bindings, modulePath: string) {
     const [{ local: localName }] = bindings
     const cacheVar = `_cache_${modulePath.replace(/[^a-zA-Z0-9]/g, '_')}`
 
-    return `var ${cacheVar};const ${localName}=()=>${cacheVar}??=require('${modulePath}')`
+    return `var ${cacheVar};const ${localName}=()=>${cacheVar}??=require('${modulePath}');`
 }
