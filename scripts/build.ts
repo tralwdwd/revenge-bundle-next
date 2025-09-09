@@ -5,6 +5,7 @@ import { parse } from 'path'
 import { rolldown } from 'rolldown'
 import { importGlobPlugin } from 'rolldown/experimental'
 import pkg from '../package.json'
+import asRequire from './plugins/as-require'
 import hermesSwcPlugin from './plugins/hermes-swc'
 import hermesCPlugin from './plugins/hermesc'
 import shimAliases from './plugins/shim-aliases'
@@ -86,6 +87,7 @@ export default async function build(dev = Dev, log = true) {
             __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: String(dev),
         },
         plugins: [
+            asRequire(),
             shimAliases(ShimsDir),
             importGlobPlugin(),
             hermesSwcPlugin(),
