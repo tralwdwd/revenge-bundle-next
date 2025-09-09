@@ -4,6 +4,7 @@ import { Design } from '@revenge-mod/discord/design'
 import { BundleUpdaterManager } from '@revenge-mod/discord/native'
 import { isPluginEnabled, pEmitter, pList } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
+import { debounce } from '@revenge-mod/utils/callback'
 import { useReRender } from '@revenge-mod/utils/react'
 import { useEffect } from 'react'
 import { RouteNames, Setting } from '../constants'
@@ -53,20 +54,21 @@ function useEnabledPluginCount() {
 
 const { AlertActionButton, AlertModal, Text } = Design
 
-pEmitter.on('flagUpdate', showReloadRequiredAlertIfNeeded)
+pEmitter.on(
+    'flagUpdate',
+    debounce(function showReloadRequiredAlertIfNeeded(plugin: AnyPlugin) {
+        if (plugin.flags & PluginFlags.ReloadRequired) {
+            const plugins = [...pList.values()].filter(
+                plugin => plugin.flags & PluginFlags.ReloadRequired,
+            )
 
-function showReloadRequiredAlertIfNeeded(plugin: AnyPlugin) {
-    if (plugin.flags & PluginFlags.ReloadRequired) {
-        const plugins = [...pList.values()].filter(
-            plugin => plugin.flags & PluginFlags.ReloadRequired,
-        )
-
-        AlertActionCreators.openAlert(
-            'plugin-reload-required',
-            <PluginReloadRequiredAlert plugins={plugins} />,
-        )
-    }
-}
+            AlertActionCreators.openAlert(
+                'plugin-reload-required',
+                <PluginReloadRequiredAlert plugins={plugins} />,
+            )
+        }
+    }, 500),
+)
 
 function PluginReloadRequiredAlert({ plugins }: { plugins: AnyPlugin[] }) {
     return (
