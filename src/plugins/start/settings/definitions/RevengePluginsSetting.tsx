@@ -7,6 +7,7 @@ import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { useReRender } from '@revenge-mod/utils/react'
 import { useEffect } from 'react'
 import { RouteNames, Setting } from '../constants'
+import defer * as RevengePluginsSettingScreen from '../screens/RevengePluginsSettingScreen'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 import type { AnyPlugin } from '@revenge-mod/plugins/_'
 
@@ -18,8 +19,7 @@ const RevengePluginsSetting: SettingsItem = {
     useTrailing: () => `${useEnabledPluginCount()} enabled`,
     screen: {
         route: RouteNames[Setting.RevengePlugins],
-        getComponent: () =>
-            require('../screens/RevengePluginsSettingScreen').default,
+        getComponent: () => RevengePluginsSettingScreen.default,
     },
 }
 

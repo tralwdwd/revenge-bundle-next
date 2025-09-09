@@ -8,6 +8,7 @@ import pkg from '../package.json'
 import asRequire from './plugins/as-require'
 import hermesSwcPlugin from './plugins/hermes-swc'
 import hermesCPlugin from './plugins/hermesc'
+import importDefer from './plugins/import-defer'
 import shimAliases from './plugins/shim-aliases'
 
 const ShimsDir = `${import.meta.dir}/../shims`
@@ -90,6 +91,7 @@ export default async function build(dev = Dev, log = true) {
             asRequire(),
             shimAliases(ShimsDir),
             importGlobPlugin(),
+            importDefer(),
             hermesSwcPlugin(),
             hermesCPlugin({
                 flags: [
