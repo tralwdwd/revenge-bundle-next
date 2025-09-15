@@ -63,6 +63,6 @@ export function onError(error: unknown) {
 
 declare module '@revenge-mod/modules/native' {
     export interface Methods {
-        'revenge.alertError': [[error: string, title?: string], void]
+        'revenge.alertError': [[error: string, version: string], void]
     }
 }
