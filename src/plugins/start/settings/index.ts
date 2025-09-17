@@ -8,13 +8,11 @@ import { withName } from '@revenge-mod/modules/finders/filters'
 import { instead } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
-import { useEffect } from 'react'
-import type { FC } from 'react'
-
-import './register-routes'
 import { React } from '@revenge-mod/react'
 import { noop } from '@revenge-mod/utils/callback'
 import { useReRender } from '@revenge-mod/utils/react'
+import { useEffect } from 'react'
+import type { FC } from 'react'
 
 const pluginSettings = registerPlugin(
     {
@@ -26,6 +24,9 @@ const pluginSettings = registerPlugin(
     },
     {
         start() {
+            // @as-require
+            import('./plugins')
+
             onSettingsModulesLoaded(() => {
                 // @as-require
                 import('./register')
