@@ -77,9 +77,9 @@ function patchSettingsNavigator(exports: any) {
             return Reflect.apply(orig, React, args)
         })
 
-        const fiber = Reflect.apply(orig, undefined, args)
+        const el = Reflect.apply(orig, undefined, args)
         unpatchMemo()
-        return fiber
+        return el
     })
 }
 
@@ -133,9 +133,9 @@ function patchSettingsOverviewScreen(exports: any) {
                 return sections
             })
 
-            const fiber = Reflect.apply(orig, undefined, args)
+            const el = Reflect.apply(orig, undefined, args)
             unpatchMemo()
-            return fiber
+            return el
         },
     )
 }
