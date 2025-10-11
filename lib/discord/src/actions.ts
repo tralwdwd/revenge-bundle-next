@@ -55,10 +55,17 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators =
                     'openAlert',
                 ).and(
                     withDependencies([
-                        [[], relative(1)],
+                        [relative(1), relative(2)],
                         [ReactNativeModuleId, 2],
                         2,
-                    ]),
+                    ]).or(
+                        // TODO: Remove once stable is >302202
+                        withDependencies([
+                            [[], relative(1)],
+                            [ReactNativeModuleId, 2],
+                            2,
+                        ]),
+                    ),
                 ),
                 {
                     uninitialized: true,
@@ -75,8 +82,8 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators =
 // modules/toast/native/ToastActionCreators.tsx
 export let ToastActionCreators: DiscordModules.Actions.ToastActionCreators =
     proxify(() => {
-        // Many other modules share the same dependencies, the second yielded should be the correct module.
         // [Dispatcher, ImportTracker]
+        // Many other modules share the same dependencies, the second yielded should be the correct module.
 
         const generator = lookupModules(
             withProps<DiscordModules.Actions.ToastActionCreators>('open')

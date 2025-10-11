@@ -48,16 +48,7 @@ export let ReactNavigationStack: typeof import('@react-navigation/stack') =
 
             const [module] = lookupModule(
                 withProps<typeof ReactNavigationStack>('StackView')
-                    .and(
-                        withDependencies(
-                            loose([firstDep, null, relative(2)]),
-                        ).or(
-                            // TODO: Remove once stable channel is > 297201 (for 297201 and below)
-                            withDependencies(
-                                loose([firstDep, null, relative(3)]),
-                            ),
-                        ),
-                    )
+                    .and(withDependencies(loose([firstDep, null, relative(2)])))
                     .keyAs(
                         'revenge.externals.ReactNavigation.ReactNavigationStack',
                     ),
