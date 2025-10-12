@@ -9,10 +9,13 @@ import { instead } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { React } from '@revenge-mod/react'
-import { noop } from '@revenge-mod/utils/callback'
+import { asap, noop } from '@revenge-mod/utils/callback'
 import { useReRender } from '@revenge-mod/utils/react'
 import { useEffect } from 'react'
+import { getCurrentStack } from '#utils/src/error'
 import type { FC } from 'react'
+
+let DEBUG_patchedNavigator = false
 
 const pluginSettings = registerPlugin(
     {
@@ -30,10 +33,16 @@ const pluginSettings = registerPlugin(
             onSettingsModulesLoaded(() => {
                 // @as-require
                 import('./register')
+
+                // Debug warnings
+                asap(() => {
+                    if (__DEV__ && !DEBUG_patchedNavigator)
+                        DEBUG_warnUnpatchedNavigator()
+                })
             })
 
             waitForModuleWithImportedPath(
-                'modules/main_tabs_v2/native/settings/SettingsNavigator.tsx',
+                'modules/user_settings/native/core/SettingsNavigator.tsx',
                 exports => {
                     patchSettingsNavigator(exports)
                 },
@@ -82,6 +91,8 @@ function patchSettingsNavigator(exports: any) {
         unpatchMemo()
         return el
     })
+
+    DEBUG_patchedNavigator = true
 }
 
 let sectionsInst: object | undefined
@@ -142,3 +153,13 @@ function patchSettingsOverviewScreen(exports: any) {
 }
 
 export default pluginSettings
+
+/**
+ * Warns the developer that SettingsNavigator was not patched.
+ */
+function DEBUG_warnUnpatchedNavigator() {
+    nativeLoggingHook(
+        `\u001b[31mSettingsNavigator was not patched\n${getCurrentStack()}\u001b[0m`,
+        2,
+    )
+}
