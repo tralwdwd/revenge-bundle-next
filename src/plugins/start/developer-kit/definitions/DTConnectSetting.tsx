@@ -1,16 +1,17 @@
 import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
+import { DevToolsClient } from '@revenge-mod/devtools-client'
 import { Setting } from '../constants'
-import { connect, RDTContext, useIsConnected } from '../react-devtools'
+import { connect, useIsConnected } from '../devtools'
 import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
-const RDTConnectSetting: SettingsItem = {
+const DTConnectSetting: SettingsItem = {
     parent: Setting.RevengeDeveloper,
     IconComponent: () => <TableRowAssetIcon name="LinkIcon" />,
-    title: () => 'Connect to React DevTools',
-    useDescription: () => `Version: ${globalThis.__REACT_DEVTOOLS__?.version}`,
-    usePredicate: () => !useIsConnected() && RDTContext.active,
+    title: () => 'Connect to DevTools',
+    useDescription: () => `Version: ${DevToolsClient.version}`,
+    usePredicate: () => !useIsConnected(),
     onPress: connect,
     type: 'pressable',
 }
 
-export default RDTConnectSetting
+export default DTConnectSetting
