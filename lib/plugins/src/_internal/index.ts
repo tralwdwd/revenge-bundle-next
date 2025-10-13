@@ -217,6 +217,10 @@ export function isPluginInternal({ iflags }: InternalPluginMeta): boolean {
     return Boolean(iflags & InternalPluginFlags.Internal)
 }
 
+export function isPluginErrored(plugin: AnyPlugin) {
+    return Boolean(plugin.flags & Flag.Errored)
+}
+
 function guardPluginEnabled(plugin: AnyPlugin) {
     if (!isPluginEnabled(plugin))
         throw new Error(`Plugin "${plugin.manifest.id}" is not enabled`)
@@ -404,11 +408,13 @@ export async function preInitPlugin(plugin: AnyPlugin) {
         } catch (e) {
             await handleError(e)
         } finally {
-            plugin.status |= Status.PreInited
             plugin.status &= ~Status.PreIniting
         }
     } finally {
-        pEmitter.emit('preInited', plugin)
+        if (!isPluginErrored(plugin)) {
+            plugin.status |= Status.PreInited
+            pEmitter.emit('preInited', plugin)
+        }
     }
 }
 
@@ -445,11 +451,13 @@ export async function initPlugin(plugin: AnyPlugin) {
         } catch (e) {
             await handleError(e)
         } finally {
-            plugin.status |= Status.Inited
             plugin.status &= ~Status.Initing
         }
     } finally {
-        pEmitter.emit('inited', plugin)
+        if (!isPluginErrored(plugin)) {
+            plugin.status |= Status.Inited
+            pEmitter.emit('inited', plugin)
+        }
     }
 }
 
@@ -485,11 +493,13 @@ export async function startPlugin(plugin: AnyPlugin) {
         } catch (e) {
             await handleError(e)
         } finally {
-            plugin.status |= Status.Started
             plugin.status &= ~Status.Starting
         }
     } finally {
-        pEmitter.emit('started', plugin)
+        if (!isPluginErrored(plugin)) {
+            plugin.status |= Status.Started
+            pEmitter.emit('started', plugin)
+        }
     }
 }
 
@@ -517,7 +527,7 @@ export async function stopPlugin(plugin: AnyPlugin) {
     // Wait for in-progress lifecycles to finish or timeout
     if (plugin.status & (Status.PreIniting | Status.Initing | Status.Starting))
         await Promise.race([
-            Promise.all(promises),
+            !isPluginErrored(plugin) && Promise.all(promises),
             sleepReject(
                 MaxWaitTime,
                 'Plugin lifecycles timed out, force stopping',
