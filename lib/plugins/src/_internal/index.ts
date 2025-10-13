@@ -14,10 +14,10 @@ import {
 import {
     addPluginApiDecorator,
     decoratePluginApi,
+    pApis,
     pDecoratorsInit,
     pDecoratorsPreInit,
     pDecoratorsStart,
-    pImplicitDeps,
 } from './decorators'
 import {
     computePendingNodes,
@@ -58,9 +58,10 @@ export const InternalPluginFlags = {
      */
     Essential: 1 << 1,
     /**
-     * Marks the plugin as a dependency of all other plugins.
+     * Marks the plugin as an API plugin, which decorates all other plugins.
+     * API plugins themselves won't be decorated by other API plugins unless explicitly declared in dependencies.
      */
-    ImplicitDependency: 1 << 2,
+    API: 1 << 2,
 }
 
 export interface InternalPluginMeta {
@@ -159,9 +160,9 @@ export function registerPlugin<O extends PluginApiExtensionsOptions>(
     pMetadata.set(plugin, meta)
     pList.set(manifest.id, plugin)
 
-    if (iflags & InternalPluginFlags.ImplicitDependency) {
+    if (iflags & InternalPluginFlags.API) {
         pLeafOrSingleNodes.add(plugin)
-        pImplicitDeps.add(plugin)
+        pApis.add(plugin)
     }
     // Only add to pending if the plugin is enabled
     else if (isPluginEnabled(plugin)) pPending.add(plugin)

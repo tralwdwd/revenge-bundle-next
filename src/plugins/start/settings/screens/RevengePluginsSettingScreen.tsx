@@ -76,8 +76,7 @@ const Filters: FilterAndSortActionSheetProps['filters'] = {
     'Non-APIs': {
         icon: getAssetIdByName('PaperIcon')!,
         desc: 'Exclude essential plugins that provide APIs for other plugins.',
-        filter: (_, meta) =>
-            !(meta.iflags & InternalPluginFlags.ImplicitDependency),
+        filter: (_, meta) => !(meta.iflags & InternalPluginFlags.API),
     },
 } satisfies FilterAndSortActionSheetProps['filters']
 const DefaultFilters: FilterAndSortActionSheetProps['filter'] = ['Non-APIs']
