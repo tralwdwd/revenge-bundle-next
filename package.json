@@ -8,6 +8,7 @@
     "@react-native-clipboard/clipboard": "^1.16.3",
     "@revenge-mod/assets": "workspace:*",
     "@revenge-mod/components": "workspace:*",
+    "@revenge-mod/devtools-server": "npm:@jsr/revenge-mod__devtools-server",
     "@revenge-mod/discord": "workspace:*",
     "@revenge-mod/externals": "workspace:*",
     "@revenge-mod/modules": "workspace:*",
@@ -48,6 +49,9 @@
     "plugins/*"
   ],
   "dependencies": {
+    "@revenge-mod/devtools-client": "npm:@jsr/revenge-mod__devtools-client",
+    "@revenge-mod/devtools-server": "npm:@jsr/revenge-mod__devtools-server",
+    "@revenge-mod/devtools-shared": "npm:@jsr/revenge-mod__devtools-shared",
     "@swc/core": "^1.13.5",
     "chalk": "^5.6.2",
     "magic-string": "^0.30.19",
