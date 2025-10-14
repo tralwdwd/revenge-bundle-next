@@ -7,7 +7,6 @@
         "@revenge-mod/assets": "workspace:*",
         "@revenge-mod/components": "workspace:*",
         "@revenge-mod/devtools-client": "npm:@jsr/revenge-mod__devtools-client",
-        "@revenge-mod/devtools-server": "npm:@jsr/revenge-mod__devtools-server",
         "@revenge-mod/devtools-shared": "npm:@jsr/revenge-mod__devtools-shared",
         "@revenge-mod/discord": "workspace:*",
         "@revenge-mod/externals": "workspace:*",
@@ -223,8 +222,6 @@
     "@revenge-mod/components": ["@revenge-mod/components@workspace:lib/components"],
 
     "@revenge-mod/devtools-client": ["@jsr/revenge-mod__devtools-client@1.0.0", "https://npm.jsr.io/~/11/@jsr/revenge-mod__devtools-client/1.0.0.tgz", { "dependencies": { "@jsr/revenge-mod__devtools-shared": "^1.0.0" } }, "sha512-Yqwk6TjCJf7H72JHbMl9qSOiAKPVPfdyYw4/7EEyM17sa+oH2UjzxbtASxptGZ+gmKhf/axs88IQy8hMGq/Kyg=="],
-
-    "@revenge-mod/devtools-server": ["@jsr/revenge-mod__devtools-server@1.0.1", "https://npm.jsr.io/~/11/@jsr/revenge-mod__devtools-server/1.0.1.tgz", { "dependencies": { "@jsr/revenge-mod__devtools-shared": "^1.0.0", "@parcel/watcher": "^2.5.1", "ws": "^8.18.0" } }, "sha512-mcKlmSR+zuYnBKUStIxadpXxtMGXfnICzeBl+/izB91SOrRlIO6Q/cqpoXCYr0Ebdrd0xX1lQEUJPOmTVVMePA=="],
 
     "@revenge-mod/devtools-shared": ["@jsr/revenge-mod__devtools-shared@1.0.0", "https://npm.jsr.io/~/11/@jsr/revenge-mod__devtools-shared/1.0.0.tgz", { "dependencies": { "chalk": "^5.6.2", "superjson": "^2.2.2" } }, "sha512-9sJlqRyaf5OC8nYQg+AsvKMQqzn8uU50LQMJ1MCXTH+pcS9ueq4uBx+LUPgF2Qt58Zl7NLXsgNzgHTfba9v6Iw=="],
 
@@ -574,7 +571,7 @@
 
     "wrappy": ["wrappy@1.0.2", "", {}, "sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ=="],
 
-    "ws": ["ws@8.18.3", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg=="],
+    "ws": ["ws@6.2.3", "", { "dependencies": { "async-limiter": "~1.0.0" } }, "sha512-jmTjYU0j60B+vHey6TfR3Z7RD61z/hmxBS3VMSGIrroOWXQEneK1zNuotOUrGyBHQj0yrpsLHPWtigEFd13ndA=="],
 
     "y18n": ["y18n@5.0.8", "", {}, "sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA=="],
 
@@ -601,8 +598,6 @@
     "pretty-format/react-is": ["react-is@18.3.1", "", {}, "sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg=="],
 
     "react-native/chalk": ["chalk@4.1.2", "", { "dependencies": { "ansi-styles": "^4.1.0", "supports-color": "^7.1.0" } }, "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA=="],
-
-    "react-native/ws": ["ws@6.2.3", "", { "dependencies": { "async-limiter": "~1.0.0" } }, "sha512-jmTjYU0j60B+vHey6TfR3Z7RD61z/hmxBS3VMSGIrroOWXQEneK1zNuotOUrGyBHQj0yrpsLHPWtigEFd13ndA=="],
 
     "stack-utils/escape-string-regexp": ["escape-string-regexp@2.0.0", "", {}, "sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w=="],
   }
