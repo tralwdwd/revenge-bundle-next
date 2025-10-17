@@ -5,9 +5,7 @@ import {
     onModuleFirstRequired,
     onModuleInitialized,
 } from '@revenge-mod/modules/metro/subscriptions'
-import { callBridgeMethod } from '@revenge-mod/modules/native'
-import { getErrorStack } from '@revenge-mod/utils/error'
-import { BuildEnvironment, FullVersion } from '~constants'
+import { onError } from '~index'
 
 const IndexModuleId = 0
 
@@ -49,20 +47,3 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
         onError(e)
     }
 })
-
-export function onError(error: unknown) {
-    const stack = getErrorStack(error) ?? String(error)
-
-    callBridgeMethod('revenge.alertError', [
-        stack,
-        `${FullVersion} (${BuildEnvironment})`,
-    ])
-
-    nativeLoggingHook(`\u001b[31m${stack}\u001b[0m`, 2)
-}
-
-declare module '@revenge-mod/modules/native' {
-    export interface Methods {
-        'revenge.alertError': [[error: string, version: string], void]
-    }
-}

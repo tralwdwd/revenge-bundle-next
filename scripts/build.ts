@@ -131,7 +131,6 @@ export default async function build(dev = Dev, log = true) {
 
     await bundle.write({
         minify: 'dce-only',
-        exports: 'none',
         esModule: false,
         minifyInternalExports: true,
         hoistTransitiveImports: false,
