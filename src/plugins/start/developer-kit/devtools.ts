@@ -38,15 +38,22 @@ const CircleXIcon = lookupGeneratedIconComponent(
 let intercepted = false
 
 function interceptLogging() {
-    if (intercepted || !DTContext.client?.settings.interceptConsole) return noop
+    if (intercepted) return noop
+
     intercepted = true
     const unpatches: UnpatchFunction[] = []
 
-    for (const key of ['log', 'warn', 'error', 'info', 'debug'] as const) {
+    for (const [key, level] of [
+        ['log', LogLevel.Default],
+        ['warn', LogLevel.Warn],
+        ['error', LogLevel.Error],
+        ['info', LogLevel.Default],
+        ['debug', LogLevel.Debug],
+    ] as const) {
         unpatches.push(
             instead(console, key, (args, orig) => {
                 if (DTContext.con && DTContext.client)
-                    DTContext.client.log(LogLevel.Default, args)
+                    DTContext.client.log(level, args)
                 return Reflect.apply(orig, console, args)
             }),
         )
@@ -76,7 +83,7 @@ export function connect() {
     const ws = client.ws!
 
     ws.addEventListener('open', () => {
-        if (client.settings.interceptConsole) {
+        if (client.settings.log.interceptConsole) {
             const unintercept = interceptLogging()
 
             ws.addEventListener('close', function self() {
