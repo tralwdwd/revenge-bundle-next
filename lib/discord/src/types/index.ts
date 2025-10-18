@@ -615,7 +615,10 @@ export namespace DiscordModules {
             }
 
             export interface SettingsListProps {
+                containerStyle?: StyleProp<ViewStyle>
+                initialSetting?: string
                 ListHeaderComponent?: ComponentType
+                ListFooterComponent?: ComponentType
                 sections: Array<{
                     label?: string | ReactNode
                     settings: string[]
