@@ -219,7 +219,7 @@
 
     "@revenge-mod/components": ["@revenge-mod/components@workspace:lib/components"],
 
-    "@revenge-mod/devtools-client": ["@revenge-mod/devtools-client@1.1.1", "", { "dependencies": { "@revenge-mod/devtools-shared": "1.0.0" } }, "sha512-NZQYR5iBmGWJB6kVD89wspiZBVtHRx/KSK45OnpPauATxYSS4xIDkHRAqiYRvxKGiKOH/PfPRWXjmyI/fid2eQ=="],
+    "@revenge-mod/devtools-client": ["@revenge-mod/devtools-client@1.1.2", "", { "dependencies": { "@revenge-mod/devtools-shared": "^1.0.1" } }, "sha512-/3BlQT4ojn2oOEAt/iZzm0TJDlppSnBNmPjUNKcEbupNVRyIN3VbYhQ0+q938FHWay1ONPHc6uczol6K/IMpaw=="],
 
     "@revenge-mod/devtools-shared": ["@revenge-mod/devtools-shared@1.0.1", "", { "dependencies": { "chalk": "^5.6.2", "superjson": "^2.2.2" } }, "sha512-v63HiycqPKtWBGZYlkVf6Xm64FaR/B5goynAh36jIJPJdPJyo9SHcRRjB3WH8W1HKD69h6eJQr0PhVQcyktXjg=="],
 
@@ -584,8 +584,6 @@
     "@emnapi/wasi-threads/tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
 
     "@jest/types/chalk": ["chalk@4.1.2", "", { "dependencies": { "ansi-styles": "^4.1.0", "supports-color": "^7.1.0" } }, "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA=="],
-
-    "@revenge-mod/devtools-client/@revenge-mod/devtools-shared": ["@revenge-mod/devtools-shared@1.0.0", "", { "dependencies": { "chalk": "^5.6.2", "superjson": "^2.2.2" } }, "sha512-lyWX+mSkdjStbsGRqTkCes6enUxcBfFwmfv5N5b8D9/iWABM5lBSsiMMhgOdrwuDq9lUPoAwnOFDRvz80JtFKg=="],
 
     "@tybys/wasm-util/tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
 
