@@ -40,6 +40,8 @@
   "dependencies": {
     "@revenge-mod/assets": "workspace:*",
     "@revenge-mod/components": "workspace:*",
+    "@revenge-mod/devtools-client": "^1.1.1",
+    "@revenge-mod/devtools-shared": "^1.0.0",
     "@revenge-mod/discord": "workspace:*",
     "@revenge-mod/externals": "workspace:*",
     "@revenge-mod/modules": "workspace:*",
@@ -48,8 +50,6 @@
     "@revenge-mod/react": "workspace:*",
     "@revenge-mod/storage": "workspace:*",
     "@revenge-mod/utils": "workspace:*",
-    "@revenge-mod/devtools-client": "npm:@jsr/revenge-mod__devtools-client",
-    "@revenge-mod/devtools-shared": "npm:@jsr/revenge-mod__devtools-shared",
     "@swc/core": "^1.13.5",
     "chalk": "^5.6.2",
     "magic-string": "^0.30.19",

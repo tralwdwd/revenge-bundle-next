@@ -6,8 +6,8 @@
       "dependencies": {
         "@revenge-mod/assets": "workspace:*",
         "@revenge-mod/components": "workspace:*",
-        "@revenge-mod/devtools-client": "npm:@jsr/revenge-mod__devtools-client",
-        "@revenge-mod/devtools-shared": "npm:@jsr/revenge-mod__devtools-shared",
+        "@revenge-mod/devtools-client": "^1.1.1",
+        "@revenge-mod/devtools-shared": "^1.0.0",
         "@revenge-mod/discord": "workspace:*",
         "@revenge-mod/externals": "workspace:*",
         "@revenge-mod/modules": "workspace:*",
@@ -23,7 +23,7 @@
         "rolldown": "1.0.0-beta.42",
       },
       "devDependencies": {
-        "@biomejs/biome": "^2.2.5",
+        "@biomejs/biome": "^2.2.6",
         "@parcel/watcher": "^2.5.1",
         "@react-native-clipboard/clipboard": "^1.16.3",
         "@types/bun": "^1.3.0",
@@ -157,8 +157,6 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
-    "@jsr/revenge-mod__devtools-shared": ["@jsr/revenge-mod__devtools-shared@1.0.0", "https://npm.jsr.io/~/11/@jsr/revenge-mod__devtools-shared/1.0.0.tgz", { "dependencies": { "chalk": "^5.6.2", "superjson": "^2.2.2" } }, "sha512-9sJlqRyaf5OC8nYQg+AsvKMQqzn8uU50LQMJ1MCXTH+pcS9ueq4uBx+LUPgF2Qt58Zl7NLXsgNzgHTfba9v6Iw=="],
-
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.0.7", "", { "dependencies": { "@emnapi/core": "^1.5.0", "@emnapi/runtime": "^1.5.0", "@tybys/wasm-util": "^0.10.1" } }, "sha512-SeDnOO0Tk7Okiq6DbXmmBODgOAb9dp9gjlphokTUxmt8U3liIP1ZsozBahH69j/RJv+Rfs6IwUKHTgQYJ/HBAw=="],
 
     "@oxc-project/types": ["@oxc-project/types@0.94.0", "", {}, "sha512-+UgQT/4o59cZfH6Cp7G0hwmqEQ0wE+AdIwhikdwnhWI9Dp8CgSY081+Q3O67/wq3VJu8mgUEB93J9EHHn70fOw=="],
@@ -221,9 +219,9 @@
 
     "@revenge-mod/components": ["@revenge-mod/components@workspace:lib/components"],
 
-    "@revenge-mod/devtools-client": ["@jsr/revenge-mod__devtools-client@1.1.0", "https://npm.jsr.io/~/11/@jsr/revenge-mod__devtools-client/1.1.0.tgz", { "dependencies": { "@jsr/revenge-mod__devtools-shared": "^1.0.0" } }, "sha512-8CJO0ed5I8HgH+BJiZgon7+eAGwbSjVJwzp0h/ob4REf0daHNNd8GtpX/S+aJrXalUOhvlR7s5EIzMQ1w01K8Q=="],
+    "@revenge-mod/devtools-client": ["@revenge-mod/devtools-client@1.1.1", "", { "dependencies": { "@revenge-mod/devtools-shared": "1.0.0" } }, "sha512-NZQYR5iBmGWJB6kVD89wspiZBVtHRx/KSK45OnpPauATxYSS4xIDkHRAqiYRvxKGiKOH/PfPRWXjmyI/fid2eQ=="],
 
-    "@revenge-mod/devtools-shared": ["@jsr/revenge-mod__devtools-shared@1.0.0", "https://npm.jsr.io/~/11/@jsr/revenge-mod__devtools-shared/1.0.0.tgz", { "dependencies": { "chalk": "^5.6.2", "superjson": "^2.2.2" } }, "sha512-9sJlqRyaf5OC8nYQg+AsvKMQqzn8uU50LQMJ1MCXTH+pcS9ueq4uBx+LUPgF2Qt58Zl7NLXsgNzgHTfba9v6Iw=="],
+    "@revenge-mod/devtools-shared": ["@revenge-mod/devtools-shared@1.0.0", "", { "dependencies": { "chalk": "^5.6.2", "superjson": "^2.2.2" } }, "sha512-lyWX+mSkdjStbsGRqTkCes6enUxcBfFwmfv5N5b8D9/iWABM5lBSsiMMhgOdrwuDq9lUPoAwnOFDRvz80JtFKg=="],
 
     "@revenge-mod/discord": ["@revenge-mod/discord@workspace:lib/discord"],
 
