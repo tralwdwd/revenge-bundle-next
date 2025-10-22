@@ -309,6 +309,8 @@ export namespace DiscordModules {
 
         export interface StackProps extends ViewProps {
             spacing?: number
+            align?: ViewStyle['alignItems']
+            justify?: ViewStyle['justifyContent']
             direction?: 'vertical' | 'horizontal'
         }
 
