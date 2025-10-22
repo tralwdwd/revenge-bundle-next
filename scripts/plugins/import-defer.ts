@@ -57,6 +57,9 @@ export default function importDefer() {
                         const startIndex = usageMatch.index
                         const endIndex = startIndex + usageMatch[0].length
 
+                        // Skip if inside a string literal
+                        if (isInsideStringLiteral(code, startIndex)) continue
+
                         // Check for context to decide on the replacement by inspecting surrounding characters.
                         // Look for the next non-whitespace character.
                         let nextChar = ''
@@ -117,6 +120,37 @@ function parseBindings(bindingsStr: string): Bindings {
     if (namespaceMatch) return [{ local: namespaceMatch[1], imported: '*' }]
 
     return []
+}
+
+function isInsideStringLiteral(code: string, position: number): boolean {
+    let inSingleQuote = false
+    let inDoubleQuote = false
+    let inTemplate = false
+    let escapeNext = false
+
+    for (let i = 0; i < position; i++) {
+        const char = code[i]
+
+        if (escapeNext) {
+            escapeNext = false
+            continue
+        }
+
+        if (char === '\\') {
+            escapeNext = true
+            continue
+        }
+
+        if (char === "'" && !inDoubleQuote && !inTemplate) {
+            inSingleQuote = !inSingleQuote
+        } else if (char === '"' && !inSingleQuote && !inTemplate) {
+            inDoubleQuote = !inDoubleQuote
+        } else if (char === '`' && !inSingleQuote && !inDoubleQuote) {
+            inTemplate = !inTemplate
+        }
+    }
+
+    return inSingleQuote || inDoubleQuote || inTemplate
 }
 
 function generateDeferReplacement(bindings: Bindings, modulePath: string) {
