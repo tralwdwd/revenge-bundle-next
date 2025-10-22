@@ -11,6 +11,40 @@ export function isObject(val: any): val is AnyObject {
 }
 
 /**
+ * Clone an object deeply.
+ *
+ * @param source The source object to clone.
+ */
+export function cloneDeep<T>(source: T, cache = new WeakMap()): T {
+    if (source === null || typeof source !== 'object') return source
+
+    // Circular reference (use existing cloned object)
+    if (cache.has(source)) return cache.get(source)
+
+    const isArray = Array.isArray(source)
+    const clone = (isArray ? [] : {}) as T
+    cache.set(source, clone)
+
+    if (isArray) {
+        const sourceArray = source as any[]
+        const cloneArray = clone as any[]
+        for (let i = 0; i < sourceArray.length; i++)
+            cloneArray[i] = cloneDeep(sourceArray[i], cache)
+    } else {
+        const sourceObj = source as AnyObject
+        const cloneObj = clone as AnyObject
+
+        const keys = Object.keys(sourceObj)
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i]
+            cloneObj[key] = cloneDeep(sourceObj[key], cache)
+        }
+    }
+
+    return clone
+}
+
+/**
  * Deep merge two objects.
  *
  * @param target The object to merge into.
