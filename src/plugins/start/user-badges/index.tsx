@@ -136,7 +136,7 @@ function patchProfileBadgeRows(
             }
 
             // Remove dummy badge if it exists
-            if (props.id === DUMMY_SYMBOL) container.props.children.pop()
+            if (props.id === DUMMY_SYMBOL) container.props.children.shift()
         }
 
         return el
