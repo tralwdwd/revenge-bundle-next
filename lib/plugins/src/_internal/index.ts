@@ -90,7 +90,7 @@ export const pEmitter = new TypedEventEmitter<{
 }>()
 
 export const pList = new Map<PluginManifest['id'], AnyPlugin>()
-export const pMetadata = new WeakMap<AnyPlugin, InternalPluginMeta>()
+const pMetadata = new WeakMap<AnyPlugin, InternalPluginMeta>()
 
 const { flags: PersistedFlags }: PersistedPluginStates = callBridgeMethodSync(
     'revenge.plugins.states.read',
@@ -176,7 +176,7 @@ export function registerPlugin<O extends PluginApiExtensionsOptions>(
  * Gets dependencies for a plugin.
  */
 export function getPluginDependencies(plugin: AnyPlugin): AnyPlugin[] {
-    const meta = pMetadata.get(plugin)!
+    const meta = getInternalPluginMeta(plugin)!
     if (meta.dependencies) return meta.dependencies
 
     const { dependencies, id } = plugin.manifest
@@ -242,14 +242,15 @@ async function handlePluginError(e: unknown, plugin: AnyPlugin) {
     plugin.api?.logger?.error('Plugin encountered an error', e)
     pEmitter.emit('errored', plugin, e)
 
-    if (!isPluginEssential(pMetadata.get(plugin)!)) await plugin.disable()
+    if (!isPluginEssential(getInternalPluginMeta(plugin)!))
+        await plugin.disable()
 }
 
 /**
  * Prepares the plugin API for the preInit lifecycle.
  */
 function tryPreparePluginPreInit(plugin: AnyPlugin) {
-    const meta = pMetadata.get(plugin)!
+    const meta = getInternalPluginMeta(plugin)!
     if (meta.apiLevel >= PluginApiLevel.PreInit) return
 
     // Clear errors from previous runs
@@ -275,7 +276,7 @@ function tryPreparePluginPreInit(plugin: AnyPlugin) {
  * Prepares the plugin API for the init lifecycle.
  */
 function tryPreparePluginInit(plugin: AnyPlugin) {
-    const meta = pMetadata.get(plugin)!
+    const meta = getInternalPluginMeta(plugin)!
     if (meta.apiLevel >= PluginApiLevel.Init) return
 
     const api = plugin.api as InitPluginApi
@@ -292,7 +293,7 @@ function tryPreparePluginInit(plugin: AnyPlugin) {
  * Prepares the plugin API for the start lifecycle.
  */
 function tryPreparePluginStart(plugin: AnyPlugin) {
-    const meta = pMetadata.get(plugin)!
+    const meta = getInternalPluginMeta(plugin)!
     if (meta.apiLevel >= PluginApiLevel.Start) return
 
     const api = plugin.api as PluginApi
@@ -311,7 +312,7 @@ function tryPreparePluginStart(plugin: AnyPlugin) {
 export async function disablePlugin(plugin: AnyPlugin) {
     guardPluginEnabled(plugin)
 
-    const meta = pMetadata.get(plugin)!
+    const meta = getInternalPluginMeta(plugin)!
 
     if (isPluginEssential(meta))
         throw new Error(
@@ -395,7 +396,7 @@ export async function preInitPlugin(plugin: AnyPlugin) {
     tryPreparePluginPreInit(plugin)
 
     const { lifecycles } = plugin
-    const { promises, handleError } = pMetadata.get(plugin)!
+    const { promises, handleError } = getInternalPluginMeta(plugin)!
 
     try {
         if (!lifecycles.preInit) return
@@ -429,7 +430,7 @@ export async function initPlugin(plugin: AnyPlugin) {
         manifest: { id },
     } = plugin
 
-    const meta = pMetadata.get(plugin)!
+    const meta = getInternalPluginMeta(plugin)!
 
     if (plugin.status & (Status.Initing | Status.Inited))
         throw new Error(`Plugin init lifecycle for "${id}" is already running`)
@@ -480,7 +481,7 @@ export async function startPlugin(plugin: AnyPlugin) {
     tryPreparePluginStart(plugin)
 
     const { lifecycles } = plugin
-    const { promises, handleError } = pMetadata.get(plugin)!
+    const { promises, handleError } = getInternalPluginMeta(plugin)!
 
     try {
         if (!lifecycles.start) return
@@ -514,7 +515,7 @@ export async function stopPlugin(plugin: AnyPlugin) {
         manifest: { id },
     } = plugin
 
-    const meta = pMetadata.get(plugin)!
+    const meta = getInternalPluginMeta(plugin)!
 
     if (isPluginEssential(meta))
         throw new Error(`Plugin "${id}" is essential and cannot be stopped`)
@@ -590,6 +591,10 @@ async function cleanupPlugin(plugin: AnyPlugin, meta: InternalPluginMeta) {
         }
 
     await Promise.all(proms)
+}
+
+export function getInternalPluginMeta(plugin: AnyPlugin): InternalPluginMeta {
+    return pMetadata.get(plugin)!
 }
 
 declare module '@revenge-mod/modules/native' {

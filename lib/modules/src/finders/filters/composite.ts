@@ -1,7 +1,7 @@
 import { FilterFlag } from './constants'
 import { createFilterGenerator } from './utils'
+import type { Metro } from '@revenge-mod/modules/types'
 import type { LogicalAnd } from '@revenge-mod/utils/types'
-import type { Metro } from '#modules/src/types'
 import type {
     Filter,
     FilterBase,

@@ -1,4 +1,4 @@
-import { getPluginDependencies, pMetadata } from '.'
+import { getInternalPluginMeta, getPluginDependencies } from '.'
 import type { Plugin, PluginApiDecorator } from '../types'
 import type { AnyPlugin, InternalPluginMeta } from '.'
 
@@ -51,7 +51,7 @@ export function decoratePluginApi(
         const decorators = store.get(dep)
 
         if (decorators) {
-            const { handleError } = pMetadata.get(dep)!
+            const { handleError } = getInternalPluginMeta(dep)!
 
             try {
                 for (const decorator of decorators)

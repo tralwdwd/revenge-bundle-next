@@ -6,12 +6,12 @@ import SearchInput from '@revenge-mod/components/SearchInput'
 import { ActionSheetActionCreators } from '@revenge-mod/discord/actions'
 import { Design } from '@revenge-mod/discord/design'
 import {
+    getInternalPluginMeta,
     InternalPluginFlags,
     isPluginEnabled,
     isPluginEssential,
     isPluginInternal,
     pList,
-    pMetadata,
 } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { debounce } from '@revenge-mod/utils/callback'
@@ -119,7 +119,7 @@ function Screen() {
     const allPlugins = useMemo(
         () =>
             [...pList.values()].map(
-                plugin => [plugin, pMetadata.get(plugin)!] as const,
+                plugin => [plugin, getInternalPluginMeta(plugin)!] as const,
             ),
         [],
     )
