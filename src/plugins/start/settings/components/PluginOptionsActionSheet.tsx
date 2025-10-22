@@ -1,5 +1,5 @@
 import { getAssetIdByName } from '@revenge-mod/assets'
-import { FormSwitch } from '@revenge-mod/components'
+import { FormSwitch, TableRowAssetIcon } from '@revenge-mod/components'
 import {
     ActionSheetActionCreators,
     ToastActionCreators,
@@ -51,7 +51,7 @@ export default function PluginOptionsActionSheet({
 
     return (
         <ActionSheet>
-            <Stack spacing={16}>
+            <Stack spacing={16} style={{ paddingTop: 8 }}>
                 <PluginInfo
                     name={name}
                     author={author}
@@ -100,10 +100,21 @@ export default function PluginOptionsActionSheet({
                     )}
                 </Stack>
                 <TableRowGroup title="Status">
-                    <TableRow label="Flags (TODO)" subLabel={`${flags}`} />
+                    <TableRow
+                        icon={<TableRowAssetIcon name="FlagIcon" />}
+                        label="Flags (TODO)"
+                        subLabel={`${flags}`}
+                    />
                     {errors.length && (
                         <TableRow
+                            variant="danger"
                             label="Errors"
+                            icon={
+                                <TableRowAssetIcon
+                                    variant="danger"
+                                    name="CircleXIcon"
+                                />
+                            }
                             subLabel={`${errors.length} errors. Tap to copy.`}
                             onPress={() => {
                                 Clipboard.setString(
@@ -116,6 +127,7 @@ export default function PluginOptionsActionSheet({
                 </TableRowGroup>
                 <TableRowGroup title="Advanced">
                     <TableRow
+                        icon={<TableRowAssetIcon name="IdIcon" />}
                         label="ID"
                         subLabel={id}
                         onPress={() => {
@@ -125,12 +137,14 @@ export default function PluginOptionsActionSheet({
                     />
                     {dependencies?.length && (
                         <TableRow
+                            icon={<TableRowAssetIcon name="ListBulletsIcon" />}
                             label="Dependencies (TODO)"
                             subLabel={`${name} depends on ${dependencies.length} other plugins`}
                         />
                     )}
                     {dependents?.length && (
                         <TableRow
+                            icon={<TableRowAssetIcon name="ListBulletsIcon" />}
                             label="Dependents (TODO)"
                             subLabel={`${dependents.length} other plugins depend on ${name}`}
                         />
