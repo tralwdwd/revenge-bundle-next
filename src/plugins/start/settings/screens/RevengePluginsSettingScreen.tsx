@@ -63,6 +63,10 @@ const Filters: FilterAndSortActionSheetProps['filters'] = {
         icon: getAssetIdByName('CircleXIcon')!,
         filter: plugin => !isPluginEnabled(plugin),
     },
+    'Has Errors': {
+        icon: getAssetIdByName('CircleXIcon')!,
+        filter: plugin => plugin.errors.length > 0,
+    },
     Internal: {
         icon: RevengeIcon,
         desc: 'Included with Revenge.',
@@ -110,11 +114,10 @@ function Screen() {
         [],
     )
 
-    const [filter, setFilter] = useState(route.params?.filter ?? DefaultFilters)
-    const [matchAll, setMatchAll] = useState(route.params?.matchAll ?? true)
-
-    const [reverse, setReverse] = useState(route.params?.reverse ?? false)
-    const [sort, setSort] = useState(route.params?.sort ?? DefaultSort)
+    const filter = route.params?.filter ?? DefaultFilters
+    const matchAll = route.params?.matchAll ?? true
+    const reverse = route.params?.reverse ?? false
+    const sort = route.params?.sort ?? DefaultSort
 
     const allPlugins = useMemo(
         () =>
@@ -124,38 +127,39 @@ function Screen() {
         [],
     )
 
-    const plugins = allPlugins
-        .filter(([plugin, meta]) => {
-            if (filter.length === 0) return true
-            if (matchAll)
-                return filter.every(f => Filters[f].filter(plugin, meta))
+    const plugins = useMemo(
+        () =>
+            allPlugins
+                .filter(([plugin, meta]) => {
+                    if (filter.length === 0) return true
+                    if (matchAll)
+                        return filter.every(f =>
+                            Filters[f].filter(plugin, meta),
+                        )
 
-            return filter.some(f => Filters[f].filter(plugin, meta))
-        })
-        .filter(([plugin]) => {
-            const { name, description, author } = plugin.manifest
-            const query = search.toLowerCase()
-            return (
-                name.toLowerCase().includes(query) ||
-                description.toLowerCase().includes(query) ||
-                author.toLowerCase().includes(query)
-            )
-        })
-        .sort(([a], [b]) => {
-            const result = Sorts[sort as keyof typeof Sorts][1](a, b)
-            return reverse ? -result : result
-        })
+                    return filter.some(f => Filters[f].filter(plugin, meta))
+                })
+                .filter(([plugin]) => {
+                    const { name, description, author } = plugin.manifest
+                    const query = search.toLowerCase()
+                    return (
+                        name.toLowerCase().includes(query) ||
+                        description.toLowerCase().includes(query) ||
+                        author.toLowerCase().includes(query)
+                    )
+                })
+                .sort(([a], [b]) => {
+                    const result = Sorts[sort as keyof typeof Sorts][1](a, b)
+                    return reverse ? -result : result
+                }),
+        [allPlugins, filter, matchAll, reverse, sort, search],
+    )
 
     return (
         <>
             <Stack direction="horizontal">
                 <View style={styles.grow}>
-                    <SearchInput
-                        onChange={(v: string) => {
-                            debouncedSetSearch(v)
-                        }}
-                        size="md"
-                    />
+                    <SearchInput onChange={debouncedSetSearch} size="md" />
                 </View>
                 <IconButton
                     icon={FiltersHorizontalIcon}
@@ -167,26 +171,17 @@ function Screen() {
                             {
                                 filters: Filters,
                                 filter,
-                                setFilter: filter => {
-                                    navigation.setParams({ filter })
-                                    setFilter(filter)
-                                },
+                                setFilter: filter =>
+                                    navigation.setParams({ filter }),
                                 matchAll,
-                                setMatchAll: matchAll => {
-                                    navigation.setParams({ matchAll })
-                                    setMatchAll(matchAll)
-                                },
+                                setMatchAll: matchAll =>
+                                    navigation.setParams({ matchAll }),
                                 reverse,
-                                setReverse: reverse => {
-                                    navigation.setParams({ reverse })
-                                    setReverse(reverse)
-                                },
+                                setReverse: reverse =>
+                                    navigation.setParams({ reverse }),
                                 sorts: Sorts,
                                 sort,
-                                setSort: sort => {
-                                    navigation.setParams({ sort })
-                                    setSort(sort)
-                                },
+                                setSort: sort => navigation.setParams({ sort }),
                             },
                         )
                     }
