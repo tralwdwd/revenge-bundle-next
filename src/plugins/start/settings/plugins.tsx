@@ -1,20 +1,18 @@
 import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
-import { Design } from '@revenge-mod/discord/design'
 import {
     refreshSettingsNavigator,
     registerSettingsItem,
 } from '@revenge-mod/discord/modules/settings'
-import { BundleUpdaterManager } from '@revenge-mod/discord/native'
 import { pEmitter, pList } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
-import { debounce } from '@revenge-mod/utils/callback'
 import { useLayoutEffect } from 'react'
 import defer * as NavigatorHeaderWithIcon from './components/NavigatorHeaderWithIcon'
+import PluginsFailedToStartAlert from './components/PluginsFailedToStartAlert'
+import PluginsRequireReloadAlert from './components/PluginsRequireReloadAlert'
 import { Setting } from './constants'
 import type { StackScreenProps } from '@react-navigation/stack'
 import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
-import type { AnyPlugin } from '@revenge-mod/plugins/_'
 import type { PluginApi } from '@revenge-mod/plugins/types'
 
 /// SETTINGS ROUTES
@@ -71,8 +69,6 @@ pEmitter.on('started', plugin => {
 
 /// RELOAD REQUIRED ALERT
 
-const { AlertActionButton, AlertModal, Text } = Design
-
 function showReloadRequiredAlertIfNeeded() {
     const plugins = [...pList.values()].filter(
         plugin => plugin.flags & PluginFlags.ReloadRequired,
@@ -81,54 +77,32 @@ function showReloadRequiredAlertIfNeeded() {
     if (!plugins.length) return
 
     AlertActionCreators.openAlert(
-        'plugin-reload-required',
-        <PluginReloadRequiredAlert plugins={plugins} />,
+        'plugins-require-reload',
+        <PluginsRequireReloadAlert plugins={plugins} />,
     )
 }
 
-pEmitter.on(
-    'flagUpdate',
-    debounce(plugin => {
-        if (plugin.flags & PluginFlags.ReloadRequired)
-            showReloadRequiredAlertIfNeeded()
-    }, 500),
-)
+function showErrorAlertIfNeeded() {
+    const plugins = [...pList.values()].filter(
+        plugin => plugin.flags & PluginFlags.Errored,
+    )
+
+    if (!plugins.length) return
+
+    AlertActionCreators.openAlert(
+        'plugins-failed-to-start',
+        <PluginsFailedToStartAlert plugins={plugins} />,
+    )
+}
+
+pEmitter.on('flagUpdate', plugin => {
+    if (plugin.flags & PluginFlags.ReloadRequired)
+        showReloadRequiredAlertIfNeeded()
+})
+
+pEmitter.on('stopped', plugin => {
+    if (plugin.flags & PluginFlags.Errored) showErrorAlertIfNeeded()
+})
+
+showErrorAlertIfNeeded()
 showReloadRequiredAlertIfNeeded()
-
-function PluginReloadRequiredAlert({ plugins }: { plugins: AnyPlugin[] }) {
-    return (
-        <AlertModal
-            title="Reload Required"
-            content={
-                <Text variant="text-md/medium" color="header-secondary">
-                    The following plugins require a reload to apply changes:
-                    {'\n'}
-                    {plugins.map((plugin, index) => (
-                        <>
-                            {index ? ', ' : null}
-                            <Text
-                                key={plugin.manifest.id}
-                                variant="text-md/bold"
-                                color="text-normal"
-                            >
-                                {plugin.manifest.name}
-                            </Text>
-                        </>
-                    ))}
-                </Text>
-            }
-            actions={
-                <>
-                    <AlertActionButton
-                        variant="destructive"
-                        text="Reload"
-                        onPress={() => {
-                            BundleUpdaterManager.reload()
-                        }}
-                    />
-                    <AlertActionButton variant="secondary" text="Not now" />
-                </>
-            }
-        />
-    )
-}
