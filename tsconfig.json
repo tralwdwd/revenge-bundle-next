@@ -17,7 +17,6 @@
     "typeRoots": [],
     "paths": {
       "~*": ["./src/*"],
-      "#*": ["./lib/*"],
       "~assets/*": ["./dist/assets/generated/*"]
     }
   },

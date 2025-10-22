@@ -10,7 +10,7 @@ import {
     ReactModuleId,
     ReactNativeModuleId,
 } from '@revenge-mod/react'
-import { FilterFlag } from '#modules/src/finders/filters/constants'
+import { FilterFlag } from '../../modules/src/finders/filters/constants'
 import type {
     Filter,
     FilterGenerator,

@@ -9,9 +9,13 @@ import {
 } from '@revenge-mod/modules/finders/filters'
 import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
 import { asap, noop } from '@revenge-mod/utils/callback'
-import { cache, cacheFilterResultForId, Uncached } from '#modules/src/caches'
-import { FilterResultFlags } from '#modules/src/finders/_internal'
-import { FilterFlag } from '#modules/src/finders/filters/constants'
+import {
+    cache,
+    cacheFilterResultForId,
+    Uncached,
+} from '../../../modules/src/caches'
+import { FilterResultFlags } from '../../../modules/src/finders/_internal'
+import { FilterFlag } from '../../../modules/src/finders/filters/constants'
 import type {
     Filter,
     FilterGenerator,

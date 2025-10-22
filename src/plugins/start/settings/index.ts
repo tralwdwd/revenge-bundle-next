@@ -10,9 +10,9 @@ import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { React } from '@revenge-mod/react'
 import { asap, noop } from '@revenge-mod/utils/callback'
+import { getCurrentStack } from '@revenge-mod/utils/error'
 import { useReRender } from '@revenge-mod/utils/react'
 import { useEffect } from 'react'
-import { getCurrentStack } from '#utils/src/error'
 import type { FC } from 'react'
 
 let DEBUG_patchedNavigator = false
