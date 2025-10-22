@@ -1,6 +1,6 @@
 import { FileModule } from '@revenge-mod/discord/native'
 import { getErrorStack } from '@revenge-mod/utils/error'
-import { mergeDeep } from '@revenge-mod/utils/object'
+import { cloneDeep, mergeDeep } from '@revenge-mod/utils/object'
 import type { AnyObject, DeepPartial, If } from '@revenge-mod/utils/types'
 
 export type StorageSubscription<T extends AnyObject = AnyObject> = (
@@ -37,10 +37,14 @@ export function Storage<T extends AnyObject>(
     const subscriptions = new Set<StorageSubscription<T>>()
 
     this.loaded = false
-    this.cache = options?.default
 
     this.exists = () => FileModule.fileExists(fullPath)
-    this.delete = () => FileModule.removeFile(directory, path)
+    this.delete = async function () {
+        await FileModule.removeFile(directory, path)
+        const success = !(await this.exists())
+        if (success) await this.get()
+        return success
+    }
 
     this.subscribe = callback => {
         subscriptions.add(callback)
@@ -61,7 +65,7 @@ export function Storage<T extends AnyObject>(
 
     this.get = async function () {
         if (!(await this.exists())) {
-            this.cache = options?.default ?? {}
+            this.cache = cloneDeep(options?.default ?? {})
             await write(this)
             this.loaded = true
             return this.cache
@@ -149,7 +153,7 @@ export interface Storage<T extends AnyObject> {
      */
     loaded: boolean
     /**
-     * The cached storage object. Set once `get()` is called, or `options.default` is set, and updated on `set()`.
+     * The cached storage object. Set once `get()` is called, and updated on `set()`.
      * You should not modify this directly.
      */
     cache?: T | AnyObject
