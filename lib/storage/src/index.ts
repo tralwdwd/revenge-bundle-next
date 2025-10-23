@@ -42,7 +42,7 @@ export function Storage<T extends AnyObject>(
     this.delete = async function () {
         await FileModule.removeFile(directory, path)
         const success = !(await this.exists())
-        if (success) await this.get()
+        if (this.loaded && success) await this.get()
         return success
     }
 
