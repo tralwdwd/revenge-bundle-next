@@ -8,17 +8,26 @@ import { Design } from '@revenge-mod/discord/design'
 import { Clipboard } from '@revenge-mod/externals/react-native-clipboard'
 import {
     getInternalPluginMeta,
+    InternalPluginFlags,
     isPluginEssential,
 } from '@revenge-mod/plugins/_'
+import { PluginFlags, PluginStatus } from '@revenge-mod/plugins/constants'
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 import { getErrorStack } from '@revenge-mod/utils/error'
+import { Pressable } from 'react-native'
+import { ClickOutsideProvider } from 'react-native-click-outside'
 import { handleDisablePlugin, handleEnablePlugin } from '../utils/actions'
 import {
     openPluginSettings,
     showPluginClearDataConfirmation,
 } from '../utils/alerts'
 import { PluginInfo } from './PluginCard'
-import { usePluginEnabled } from './PluginStateProvider'
+import { usePluginEnabled, usePluginStatus } from './PluginStateProvider'
+import {
+    EnablePluginTooltipProvider,
+    useClickOutsideTooltip,
+    useEnablePluginTooltip,
+} from './TooltipProvider'
 import type { AnyPlugin } from '@revenge-mod/plugins/_'
 
 export interface PluginOptionsActionSheetProps {
@@ -35,6 +44,7 @@ export default function PluginOptionsActionSheet({
     plugin,
     sheetKey,
 }: PluginOptionsActionSheetProps) {
+    const status = usePluginStatus(plugin)
     const enabled = usePluginEnabled(plugin)
     const meta = getInternalPluginMeta(plugin)
     const { dependencies, dependents } = meta!
@@ -44,10 +54,6 @@ export default function PluginOptionsActionSheet({
         errors,
         flags,
     } = plugin
-
-    const closeActionSheet = () => {
-        ActionSheetActionCreators.hideActionSheet(sheetKey)
-    }
 
     return (
         <ActionSheet>
@@ -69,41 +75,25 @@ export default function PluginOptionsActionSheet({
                         )
                     }
                 />
-                <Stack
-                    direction="horizontal"
-                    justify="space-around"
-                    style={{ paddingHorizontal: 8, paddingVertical: 16 }}
-                >
-                    <IconButton
-                        variant="secondary"
-                        size="lg"
-                        icon={FileWarningIcon}
-                        label="Clear Data"
-                        onPress={() => {
-                            showPluginClearDataConfirmation(
-                                plugin,
-                                closeActionSheet,
-                            )
-                        }}
-                    />
-                    {plugin.SettingsComponent && (
-                        <Design.IconButton
-                            variant="secondary"
-                            size="lg"
-                            icon={SettingsIcon}
-                            label="Settings"
-                            onPress={() => {
-                                openPluginSettings(plugin)
-                                closeActionSheet()
+                <ClickOutsideProvider>
+                    <EnablePluginTooltipProvider>
+                        <PluginActions
+                            plugin={plugin}
+                            closeSheet={() => {
+                                ActionSheetActionCreators.hideActionSheet(
+                                    sheetKey,
+                                )
                             }}
                         />
-                    )}
-                </Stack>
+                    </EnablePluginTooltipProvider>
+                </ClickOutsideProvider>
                 <TableRowGroup title="Status">
                     <TableRow
-                        icon={<TableRowAssetIcon name="FlagIcon" />}
-                        label="Flags (TODO)"
-                        subLabel={`${flags}`}
+                        icon={
+                            <TableRowAssetIcon name="CircleInformationIcon" />
+                        }
+                        label="Status (TODO)"
+                        subLabel={bitFieldToString(PluginStatus, status)}
                     />
                     {errors.length && (
                         <TableRow
@@ -112,7 +102,7 @@ export default function PluginOptionsActionSheet({
                             icon={
                                 <TableRowAssetIcon
                                     variant="danger"
-                                    name="CircleXIcon"
+                                    name="CircleErrorIcon"
                                 />
                             }
                             subLabel={`${errors.length} errors. Tap to copy.`}
@@ -135,6 +125,21 @@ export default function PluginOptionsActionSheet({
                             showCopiedToClipboardToast()
                         }}
                     />
+                    <TableRow
+                        icon={<TableRowAssetIcon name="FlagIcon" />}
+                        label="Flags"
+                        subLabel={bitFieldToString(PluginFlags, flags)}
+                    />
+                    {meta.iflags && (
+                        <TableRow
+                            icon={<TableRowAssetIcon name="FlagIcon" />}
+                            label="Internal Flags"
+                            subLabel={bitFieldToString(
+                                InternalPluginFlags,
+                                meta.iflags,
+                            )}
+                        />
+                    )}
                     {dependencies?.length && (
                         <TableRow
                             icon={<TableRowAssetIcon name="ListBulletsIcon" />}
@@ -152,6 +157,71 @@ export default function PluginOptionsActionSheet({
                 </TableRowGroup>
             </Stack>
         </ActionSheet>
+    )
+}
+
+function bitFieldToString(map: Record<string, number>, bitField: number) {
+    return (
+        Object.entries(map)
+            .filter(([, value]) => bitField & value)
+            .map(([key]) => key)
+            .join(', ') || '-'
+    )
+}
+
+function PluginActions({
+    plugin,
+    closeSheet,
+}: {
+    plugin: AnyPlugin
+    closeSheet: () => void
+}) {
+    const enabled = usePluginEnabled(plugin)
+    const enableTooltip = useEnablePluginTooltip()
+    const settingsRef = useClickOutsideTooltip(useEnablePluginTooltip, () => {})
+
+    return (
+        <Stack
+            direction="horizontal"
+            justify="space-around"
+            style={{ paddingHorizontal: 8, paddingVertical: 16 }}
+        >
+            <IconButton
+                variant="secondary"
+                size="lg"
+                icon={FileWarningIcon}
+                label="Clear Data"
+                onPress={() => {
+                    showPluginClearDataConfirmation(plugin, closeSheet)
+                }}
+            />
+            {plugin.SettingsComponent && (
+                <Pressable
+                    onPress={() => {
+                        if (enabled) return
+
+                        requestAnimationFrame(() => {
+                            enableTooltip.targetRef.current =
+                                settingsRef.current
+                            enableTooltip.setVisible(true)
+                        })
+                    }}
+                >
+                    <Design.IconButton
+                        ref={settingsRef}
+                        variant="secondary"
+                        size="lg"
+                        icon={SettingsIcon}
+                        label="Settings"
+                        disabled={!enabled}
+                        onPress={() => {
+                            openPluginSettings(plugin)
+                            closeSheet()
+                        }}
+                    />
+                </Pressable>
+            )}
+        </Stack>
     )
 }
 

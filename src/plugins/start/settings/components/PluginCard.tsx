@@ -11,11 +11,9 @@ import { openPluginSettings } from '../utils/alerts'
 import { showPluginOptionsActionSheet } from '../utils/sheets'
 import { usePluginEnabled } from './PluginStateProvider'
 import {
-    enableTooltipTarget,
-    essentialTooltipTarget,
-    setEnablePluginTooltipVisible,
-    setEssentialPluginTooltipVisible,
     useClickOutsideTooltip,
+    useEnablePluginTooltip,
+    useEssentialPluginTooltip,
 } from './TooltipProvider'
 import type { AnyPlugin, InternalPluginMeta } from '@revenge-mod/plugins/_'
 
@@ -147,13 +145,15 @@ export const InstalledPluginCard = memo(function InstalledPluginCard({
 
     const essential = isPluginEssential(meta)
 
-    const settingsRef = useClickOutsideTooltip(enableTooltipTarget, () => {
-        setEnablePluginTooltipVisible?.(false)
-    })
+    const enableTooltip = useEnablePluginTooltip()
+    const essentialTooltip = useEssentialPluginTooltip()
 
-    const switchRef = useClickOutsideTooltip(essentialTooltipTarget, () => {
-        setEssentialPluginTooltipVisible?.(false)
-    })
+    const settingsRef = useClickOutsideTooltip(useEnablePluginTooltip, () => {})
+
+    const switchRef = useClickOutsideTooltip(
+        useEssentialPluginTooltip,
+        () => {},
+    )
 
     return (
         <PluginCard
@@ -175,16 +175,13 @@ export const InstalledPluginCard = memo(function InstalledPluginCard({
                     />
                     {plugin.SettingsComponent && (
                         <Pressable
-                            onPress={e => {
-                                if (enabled) return
-
-                                e.stopPropagation()
-
-                                requestAnimationFrame(() => {
-                                    enableTooltipTarget.current =
-                                        settingsRef.current
-                                    setEnablePluginTooltipVisible!(true)
-                                })
+                            onPress={() => {
+                                if (!enabled)
+                                    requestAnimationFrame(() => {
+                                        enableTooltip.targetRef.current =
+                                            settingsRef.current
+                                        enableTooltip.setVisible(true)
+                                    })
                             }}
                         >
                             <IconButton
@@ -200,21 +197,17 @@ export const InstalledPluginCard = memo(function InstalledPluginCard({
                         </Pressable>
                     )}
                     <Pressable
-                        onPress={e => {
-                            if (essential) {
-                                e.stopPropagation()
-
+                        onPress={() => {
+                            if (essential)
                                 requestAnimationFrame(() => {
-                                    essentialTooltipTarget.current =
+                                    essentialTooltip.targetRef.current =
                                         switchRef.current
-                                    setEssentialPluginTooltipVisible!(true)
+                                    essentialTooltip.setVisible(true)
                                 })
-                            }
                         }}
                         ref={switchRef}
                     >
                         <FormSwitch
-                            // Only FormSwitch listens for props changes, so we use a unique key just for this one (FlashList optimization).
                             key={plugin.manifest.id}
                             disabled={essential}
                             onValueChange={enabled => {
