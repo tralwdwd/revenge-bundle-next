@@ -130,14 +130,20 @@ export function getStorage<T extends AnyObject = AnyObject>(
 export interface StorageOptions<T extends AnyObject = AnyObject> {
     /**
      * The directory of the storage file.
+     *
+     * @default 'documents'
      */
     directory?: StorageDirectory
     /**
      * The default value to use for the storage. This will also be used for cache.
+     *
+     * @default {}
      */
     default?: T
     /**
      * Automatically load the storage after creating the instance.
+     *
+     * @default false
      */
     load?: boolean
 }
