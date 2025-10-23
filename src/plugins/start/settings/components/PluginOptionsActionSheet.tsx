@@ -51,7 +51,7 @@ export default function PluginOptionsActionSheet({
 
     return (
         <ActionSheet>
-            <Stack spacing={16} style={{ paddingTop: 8 }}>
+            <Stack spacing={24} style={{ paddingTop: 8 }}>
                 <PluginInfo
                     name={name}
                     author={author}
