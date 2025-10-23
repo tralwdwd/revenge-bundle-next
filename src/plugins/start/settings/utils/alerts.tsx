@@ -1,12 +1,11 @@
 import { AlertActionCreators } from '@revenge-mod/discord/actions'
 import { RootNavigationRef } from '@revenge-mod/discord/modules/main_tabs_v2'
+import { deleteStorageForPlugin } from '~plugins/preinit/api.storage'
 import PluginClearDataConfirmationAlert from '../components/PluginClearDataConfirmationAlert'
 import PluginHasDependenciesAlert from '../components/PluginHasDependenciesAlert'
 import PluginHasDependentsAlert from '../components/PluginHasDependentsAlert'
 import PluginStatesProvider from '../components/PluginStateProvider'
 import type { AnyPlugin } from '@revenge-mod/plugins/_'
-import type { InitPluginApi } from '@revenge-mod/plugins/types'
-import type { AnyObject } from '@revenge-mod/utils/types'
 
 export function showPluginClearDataConfirmation(
     plugin: AnyPlugin,
@@ -15,8 +14,7 @@ export function showPluginClearDataConfirmation(
     const KEY = 'plugin-clear-data-confirmation'
 
     async function action() {
-        const { storage } = plugin.api as InitPluginApi<{ storage: AnyObject }>
-        if (await storage.exists()) await storage.delete()
+        await deleteStorageForPlugin(plugin)
         callback()
     }
 
