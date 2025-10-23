@@ -64,7 +64,7 @@ const Filters: FilterAndSortActionSheetProps['filters'] = {
         filter: plugin => !isPluginEnabled(plugin),
     },
     'Has Errors': {
-        icon: getAssetIdByName('CircleXIcon')!,
+        icon: getAssetIdByName('CircleErrorIcon')!,
         filter: plugin => plugin.errors.length > 0,
     },
     Internal: {

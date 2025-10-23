@@ -29,10 +29,10 @@ const events = new TypedEventEmitter<{
     errored: [unknown]
 }>()
 
-const CircleXIcon = lookupGeneratedIconComponent(
-    'CircleXIcon',
-    'CircleXIcon-secondary',
-    'CircleXIcon-primary',
+const CircleErrorIcon = lookupGeneratedIconComponent(
+    'CircleErrorIcon',
+    'CircleErrorIcon-secondary',
+    'CircleErrorIcon-primary',
 )
 
 let intercepted = false
@@ -110,7 +110,7 @@ export function connect() {
 
         ToastActionCreators.open({
             key: 'DEVTOOLS_ERROR',
-            IconComponent: CircleXIcon,
+            IconComponent: CircleErrorIcon,
             content: err,
         })
     })
