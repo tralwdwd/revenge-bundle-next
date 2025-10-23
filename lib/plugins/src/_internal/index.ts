@@ -255,7 +255,7 @@ function tryPreparePluginPreInit(plugin: AnyPlugin) {
 
     // Clear errors from previous runs
     plugin.errors = []
-    plugin.status &= ~Flag.Errored
+    plugin.flags &= ~Flag.Errored
 
     plugin.api = {
         cleanup: (...items) => {
