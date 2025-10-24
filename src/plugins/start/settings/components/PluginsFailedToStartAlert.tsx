@@ -39,6 +39,19 @@ export default function PluginsFailedToStartAlert({
                         variant="primary"
                         text="View plugins"
                         onPress={() => {
+                            /**
+                             * Discord's navigator hierarchy:
+                             *
+                             * main (Stack)
+                             * - tabs (BottomTab)
+                             *   - guilds
+                             *   - notifications
+                             *   - you
+                             * - settings (Stack)
+                             *   - ...
+                             *   - (our screens)
+                             */
+
                             const params = {
                                 filter: ['Has Errors'],
                             }
@@ -48,11 +61,12 @@ export default function PluginsFailedToStartAlert({
                                 RouteNames.RevengePlugins
                             )
                                 navigation.setParams(params)
+                            // React Navigation will bubble our requests to the main navigator if we're already in settings
                             else
-                                navigation.navigate(
-                                    RouteNames.RevengePlugins,
+                                navigation.navigate('settings', {
+                                    screen: RouteNames.RevengePlugins,
                                     params,
-                                )
+                                })
                         }}
                     />
                     <AlertActionButton variant="secondary" text="Got it" />
