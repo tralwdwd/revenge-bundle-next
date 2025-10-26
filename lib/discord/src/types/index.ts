@@ -459,7 +459,7 @@ export namespace DiscordModules {
 
         export interface TableRowProps {
             label: string
-            subLabel?: string
+            subLabel?: ReactNode
             icon?: ReactNode
             trailing?: ReactNode
             arrow?: boolean
@@ -478,6 +478,7 @@ export namespace DiscordModules {
             Arrow: FC
             Icon: TableRowIcon
             Group: TableRowGroup
+            TrailingText: TableRowTrailingText
         }
 
         export interface TableSwitchRowProps

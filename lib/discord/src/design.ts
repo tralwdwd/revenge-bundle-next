@@ -126,7 +126,6 @@ export interface Design {
     TableRadioRow: typeof DiscordModules.Components.TableRadioRow
     TableRow: DiscordModules.Components.TableRow
     TableRowGroup: DiscordModules.Components.TableRowGroup
-    TableRowTrailingText: DiscordModules.Components.TableRowTrailingText
     TableSwitchRow: DiscordModules.Components.TableSwitchRow
     Text: DiscordModules.Components.Text
     TextArea: DiscordModules.Components.TextArea
