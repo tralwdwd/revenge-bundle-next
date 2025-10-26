@@ -404,7 +404,9 @@ export async function preInitPlugin(plugin: AnyPlugin) {
         plugin.status |= Status.PreIniting
 
         try {
-            const prom = lifecycles.preInit(plugin.api as PreInitPluginApi)
+            const prom = lifecycles.preInit.apply(plugin, [
+                plugin.api as PreInitPluginApi,
+            ])
             promises.push(prom)
             await prom
         } catch (e) {
@@ -447,7 +449,9 @@ export async function initPlugin(plugin: AnyPlugin) {
         plugin.status |= Status.Initing
 
         try {
-            const prom = lifecycles.init(plugin.api as InitPluginApi)
+            const prom = lifecycles.init.apply(plugin, [
+                plugin.api as InitPluginApi,
+            ])
             promises.push(prom)
             await prom
         } catch (e) {
@@ -489,7 +493,9 @@ export async function startPlugin(plugin: AnyPlugin) {
         plugin.status |= Status.Starting
 
         try {
-            const prom = lifecycles.start(plugin.api as PluginApi)
+            const prom = lifecycles.start.apply(plugin, [
+                plugin.api as PluginApi,
+            ])
             promises.push(prom)
             await prom
         } catch (e) {
@@ -548,7 +554,7 @@ export async function stopPlugin(plugin: AnyPlugin) {
     try {
         if (lifecycles.stop)
             await Promise.race([
-                lifecycles.stop(plugin.api as PluginApi),
+                lifecycles.stop.apply(plugin, [plugin.api as PluginApi]),
                 sleepReject(
                     MaxWaitTime,
                     'Plugin stop lifecycle timed out, force stopping',
