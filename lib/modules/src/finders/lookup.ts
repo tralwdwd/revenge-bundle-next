@@ -157,6 +157,13 @@ export function lookupModules<
 >(filter: F, options: O): Generator<LookupModulesResult<F, O>, undefined>
 
 export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
+    if (
+        __DEV__ &&
+        filter.key.includes('revenge.deps') &&
+        !(options?.uninitialized ?? false)
+    )
+        DEBUG_warnFilterWithoutUninitialized(filter.key)
+
     let notFound = true
     let cached: Set<Metro.ModuleID> | undefined
 
@@ -304,6 +311,13 @@ export function lookupModule<
 >(filter: F, options: O): LookupModulesResult<F, O> | LookupNotFoundResult
 
 export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
+    if (
+        __DEV__ &&
+        filter.key.includes('revenge.deps') &&
+        !(options?.uninitialized ?? false)
+    )
+        DEBUG_warnFilterWithoutUninitialized(filter.key)
+
     if (options?.cached ?? true) {
         const notInit = !(options?.initialize ?? true)
 
@@ -463,4 +477,16 @@ function DEBUG_warnLookupNoMatch(key: string) {
         if (stack.includes(func.name)) return
 
     nativeLoggingHook(`\u001b[31mFailed lookup: ${key}\n${stack}\u001b[0m`, 2)
+}
+
+/**
+ * Warns the developer about a potentially bad filter for lookups that do not have uninitialized modules.
+ */
+function DEBUG_warnFilterWithoutUninitialized(key: string) {
+    const stack = getCurrentStack()
+
+    nativeLoggingHook(
+        `\u001b[33mPotentially bad filter without uninitialized modules lookup: ${key}\n${stack}\u001b[0m`,
+        2,
+    )
 }
