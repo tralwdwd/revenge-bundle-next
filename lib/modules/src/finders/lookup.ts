@@ -17,7 +17,8 @@ import {
     FilterResultFlagToHumanReadable,
     runFilter,
 } from './_internal'
-import type { If, Nullish } from '@revenge-mod/utils/types'
+import { FilterScopes } from './filters'
+import type { If, Not } from '@revenge-mod/utils/types'
 import type { MaybeDefaultExportMatched, Metro } from '../types'
 import type {
     FilterResultFlag,
@@ -25,55 +26,8 @@ import type {
 } from './_internal'
 import type { Filter, FilterResult } from './filters'
 
-type LookupModulesOptionsWithAll<A extends boolean> = If<
-    A,
-    {
-        /**
-         * Whether to include all modules in the lookup, including blacklisted ones.
-         *
-         * **This overrides {@link BaseLookupModulesOptions.initialized} and {@link BaseLookupModulesOptions.uninitialized}.**
-         */
-        all: A
-    },
-    {
-        /**
-         * You can only use `all` with exportsless filters!
-         */
-        all?: false
-    }
->
-
-type LookupModulesOptionsWithInitializedUninitialized<U extends boolean> = {
-    /**
-     * Whether to include initialized modules in the lookup.
-     *
-     * @default true
-     */
-    initialized?: boolean
-} & If<
-    U,
-    {
-        /**
-         * Whether to include uninitialized modules in the lookup.
-         *
-         * Set {@link BaseLookupModulesOptions.initialize} `true` to initialize uninitialized modules.
-         *
-         * @default false
-         */
-        uninitialized: U
-    },
-    {
-        /**
-         * You can only use `uninitialized` with exportsless filters!
-         */
-        uninitialized?: false
-    }
->
-
 export type LookupModulesOptions<
     ReturnNamespace extends boolean = boolean,
-    Uninitialized extends boolean = boolean,
-    All extends boolean = boolean,
     Initialize extends boolean = boolean,
 > = RunFilterReturnExportsOptions<ReturnNamespace> & {
     /**
@@ -81,40 +35,31 @@ export type LookupModulesOptions<
      */
     cached?: boolean
 } & If<
-        Initialize,
+        Not<Initialize>,
         {
             /**
              * Whether to initialize matching uninitialized modules.
              *
              * **This will initialize any modules that match the exportsless filter and may cause unintended side effects.**
              */
-            initialize?: Initialize
-        },
-        {
             initialize: false
-        }
-    > &
-    If<
-        All,
-        LookupModulesOptionsWithAll<All> & {
-            [K in keyof LookupModulesOptionsWithInitializedUninitialized<Uninitialized>]?: never
         },
-        LookupModulesOptionsWithInitializedUninitialized<Uninitialized> & {
-            [K in keyof LookupModulesOptionsWithAll<All>]?: never
-        }
+        { initialize?: true }
     >
 
 export type LookupModulesResult<
     F extends Filter,
     O extends LookupModulesOptions,
-> = [
-    exports: O extends LookupModulesOptions<boolean, boolean, boolean, false>
-        ? LookupFilterResult<F, O> | Nullish
-        : LookupFilterResult<F, O>,
-    id: Metro.ModuleID,
-]
+> = [exports: LookupFilterResult<F, O>, id: Metro.ModuleID]
 
 type LookupFilterResult<
+    F extends Filter,
+    O extends LookupModulesOptions,
+> = O extends LookupModulesOptions<any, false>
+    ? InitializedLookupFilterResult<F, O> | undefined
+    : InitializedLookupFilterResult<F, O>
+
+type InitializedLookupFilterResult<
     F extends Filter,
     O extends LookupModulesOptions,
 > = O extends RunFilterReturnExportsOptions<true>
@@ -127,8 +72,6 @@ type LookupNotFoundResult = typeof NotFoundResult
 
 /**
  * Lookup modules.
- *
- * You can lookup uninitialized modules by passing `options.uninitialized` when filtering via exportsless filters (eg. `withDependencies`).
  *
  * @param filter The filter to use.
  * @param options The options to use for the lookup.
@@ -147,23 +90,10 @@ export function lookupModules<F extends Filter>(
 
 export function lookupModules<
     F extends Filter,
-    const O extends F extends Filter<any, infer RE>
-        ? If<
-              RE,
-              LookupModulesOptions<boolean, false, false>,
-              LookupModulesOptions
-          >
-        : never,
+    const O extends LookupModulesOptions,
 >(filter: F, options: O): Generator<LookupModulesResult<F, O>, undefined>
 
 export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
-    if (
-        __DEV__ &&
-        filter.key.includes('revenge.deps') &&
-        !(options?.uninitialized ?? false)
-    )
-        DEBUG_warnFilterWithoutUninitialized(filter.key)
-
     let notFound = true
     let cached: Set<Metro.ModuleID> | undefined
 
@@ -199,8 +129,10 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
         }
     }
 
-    // Full lookup
-    if (options?.all) {
+    const scopes = filter.scopes
+    const includeAll = scopes & FilterScopes.All
+
+    if (includeAll) {
         for (const id of mList.keys()) {
             // biome-ignore lint/complexity/useOptionalChain: Hot path should be optimized
             if (cached && cached.has(id)) continue
@@ -228,12 +160,11 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
                 ]
             }
         }
+    } else {
+        const includeInit = scopes & FilterScopes.Initialized
+        const includeUninit = scopes & FilterScopes.Uninitialized
 
-        if (notFound) cacheFilterNotFound(filter.key) // Full lookup, and still not found!
-    }
-    // Partial lookup
-    else {
-        if (options?.initialized ?? true)
+        if (includeInit)
             for (const id of mInitialized) {
                 // biome-ignore lint/complexity/useOptionalChain: Hot path should be optimized
                 if (cached && cached.has(id)) continue
@@ -253,7 +184,7 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
                 }
             }
 
-        if (options?.uninitialized)
+        if (includeUninit)
             for (const id of mUninitialized) {
                 // biome-ignore lint/complexity/useOptionalChain: Hot path should be optimized
                 if (cached && cached.has(id)) continue
@@ -277,8 +208,10 @@ export function* lookupModules(filter: Filter, options?: LookupModulesOptions) {
             }
     }
 
-    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
-        if (notFound) DEBUG_warnLookupNoMatch(filter.key)
+    // Cache if nothing was found in a full lookup
+    if (notFound && includeAll) cacheFilterNotFound(filter.key)
+    if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__ && notFound)
+        DEBUG_warnLookupNoMatch(filter.key)
 }
 
 /**
@@ -301,23 +234,10 @@ export function lookupModule<F extends Filter>(
 
 export function lookupModule<
     F extends Filter,
-    const O extends F extends Filter<any, infer RE>
-        ? If<
-              RE,
-              LookupModulesOptions<boolean, false, false>,
-              LookupModulesOptions
-          >
-        : never,
+    const O extends LookupModulesOptions,
 >(filter: F, options: O): LookupModulesResult<F, O> | LookupNotFoundResult
 
 export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
-    if (
-        __DEV__ &&
-        filter.key.includes('revenge.deps') &&
-        !(options?.uninitialized ?? false)
-    )
-        DEBUG_warnFilterWithoutUninitialized(filter.key)
-
     if (options?.cached ?? true) {
         const notInit = !(options?.initialize ?? true)
 
@@ -345,8 +265,10 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
             }
     }
 
-    // Full lookup
-    if (options?.all) {
+    const scopes = filter.scopes
+    const includeAll = scopes & FilterScopes.All
+
+    if (includeAll) {
         for (const id of mList.keys()) {
             const flag = runFilter(
                 filter,
@@ -369,17 +291,11 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
                 ]
             }
         }
+    } else {
+        const includeInit = scopes & FilterScopes.Initialized
+        const includeUninit = scopes & FilterScopes.Uninitialized
 
-        if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__)
-            DEBUG_warnLookupNoMatch(filter.key)
-
-        cacheFilterNotFound(filter.key) // Full lookup, and still not found!
-
-        return NotFoundResult
-    }
-    // Partial lookup
-    else {
-        if (options?.initialized ?? true)
+        if (includeInit)
             for (const id of mInitialized) {
                 const exports = getInitializedModuleExports(id)
                 const flag = runFilter(filter, id, exports, options)
@@ -394,7 +310,7 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
                 }
             }
 
-        if (options?.uninitialized)
+        if (includeUninit)
             for (const id of mUninitialized) {
                 const flag = runFilter(filter, id, undefined, options)
                 if (flag) {
@@ -413,6 +329,8 @@ export function lookupModule(filter: Filter, options?: LookupModulesOptions) {
             }
     }
 
+    // Cache if nothing was found in a full lookup
+    if (includeAll) cacheFilterNotFound(filter.key)
     if (__BUILD_FLAG_DEBUG_MODULE_LOOKUPS__) DEBUG_warnLookupNoMatch(filter.key)
 
     return NotFoundResult
@@ -477,16 +395,4 @@ function DEBUG_warnLookupNoMatch(key: string) {
         if (stack.includes(func.name)) return
 
     nativeLoggingHook(`\u001b[31mFailed lookup: ${key}\n${stack}\u001b[0m`, 2)
-}
-
-/**
- * Warns the developer about a potentially bad filter for lookups that do not have uninitialized modules.
- */
-function DEBUG_warnFilterWithoutUninitialized(key: string) {
-    const stack = getCurrentStack()
-
-    nativeLoggingHook(
-        `\u001b[33mPotentially bad filter without uninitialized modules lookup: ${key}\n${stack}\u001b[0m`,
-        2,
-    )
 }

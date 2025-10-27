@@ -52,10 +52,6 @@ export let Design: Design = proxify(
                     ),
                 )
                 .keyAs('revenge.discord.design.Design'),
-
-            {
-                uninitialized: true,
-            },
         )
 
         if (module) return (Design = module)
@@ -93,9 +89,6 @@ export let FormSwitch: DiscordModules.Components.FormSwitch = proxify(() => {
                 2,
             ]),
         ),
-        {
-            uninitialized: true,
-        },
     )
 
     if (module) return (FormSwitch = module.FormSwitch)

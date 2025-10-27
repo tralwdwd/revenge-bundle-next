@@ -1,6 +1,6 @@
 import { getCurrentStack } from '@revenge-mod/utils/error'
 import { getModuleDependencies } from '../../metro/utils'
-import { FilterFlag } from './constants'
+import { FilterFlag, FilterScopes } from './constants'
 import { createFilterGenerator } from './utils'
 import type { Metro } from '../../types'
 import type { Filter, FilterGenerator } from './utils'
@@ -62,13 +62,21 @@ export const withDependencies = createFilterGenerator<
     ([deps], id) => depCompare(getModuleDependencies(id)!, deps, id, id),
     deps => `revenge.deps(${depGenFilterKey(deps)})`,
     FilterFlag.Dynamic,
+    FilterScopes.Uninitialized | FilterScopes.Initialized,
 ) as WithDependencies
 
 withDependencies.loose = loose
 withDependencies.relative = relative
 
 type WithDependencies = FilterGenerator<
-    <T>(deps: ComparableDependencyMap) => Filter<T, false>
+    <T>(deps: ComparableDependencyMap) => Filter<{
+        Result: T
+        RequiresExports: false
+        Scopes: [
+            typeof FilterScopes.Uninitialized,
+            typeof FilterScopes.Initialized,
+        ]
+    }>
 > & {
     loose: typeof loose
     relative: typeof relative

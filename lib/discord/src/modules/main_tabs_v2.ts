@@ -32,9 +32,6 @@ export let RootNavigationRef: RootNavigationRef = proxify(
                     ]),
                 )
                 .keyAs('revenge.discord.modules.mainTabsV2.RootNavigationRef'),
-            {
-                uninitialized: true,
-            },
         )
 
         if (module) return (RootNavigationRef = module)

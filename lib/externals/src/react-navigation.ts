@@ -26,9 +26,6 @@ export let ReactNavigationNative: typeof import('@react-navigation/native') =
                         ]),
                     ),
                 ),
-                {
-                    uninitialized: true,
-                },
             )
 
             if (module) return (ReactNavigationNative = module)
@@ -52,9 +49,6 @@ export let ReactNavigationStack: typeof import('@react-navigation/stack') =
                     .keyAs(
                         'revenge.externals.ReactNavigation.ReactNavigationStack',
                     ),
-                {
-                    uninitialized: true,
-                },
             )
 
             if (module) return (ReactNavigationStack = module)

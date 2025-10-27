@@ -32,9 +32,6 @@ export let SettingListRenderer: SettingListRenderer = proxify(
                     ]),
                 ),
             ),
-            {
-                uninitialized: true,
-            },
         )
 
         if (module) return (SettingListRenderer = module)

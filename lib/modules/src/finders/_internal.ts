@@ -16,7 +16,7 @@ export interface RunFilterOptions {
      */
     skipDefault?: boolean
     /**
-     * Whether to allow initializing modules to check their exports.
+     * Whether to allow initializing modules to confirm their exports.
      *
      * @default true
      */
@@ -72,7 +72,7 @@ export const FilterResultFlagToHumanReadable: Record<FilterResultFlag, string> =
 // If we add more options later on, do NOT forget about
 // adding them here, and passing them in the lookup* functions
 export function runFilter(
-    filter: Filter<any, false>,
+    filter: Filter<{ Result: any; RequiresExports: false; Scopes: any[] }>,
     id: Metro.ModuleID,
 ): FilterResultFlag | undefined
 

@@ -34,9 +34,6 @@ export let ActionSheetActionCreators: DiscordModules.Actions.ActionSheetActionCr
                         2,
                     ]),
                 ),
-                {
-                    uninitialized: true,
-                },
             )
 
             if (module) return (ActionSheetActionCreators = module)
@@ -67,9 +64,6 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators =
                         ]),
                     ),
                 ),
-                {
-                    uninitialized: true,
-                },
             )
 
             if (module) return (AlertActionCreators = module)
@@ -89,9 +83,6 @@ export let ToastActionCreators: DiscordModules.Actions.ToastActionCreators =
             withProps<DiscordModules.Actions.ToastActionCreators>('open')
                 .and(withoutProps('init'))
                 .and(withDependencies([DispatcherModuleId, 2])),
-            {
-                uninitialized: true,
-            },
         )
 
         for (const [module] of generator)

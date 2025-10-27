@@ -102,7 +102,6 @@ export let AssetsRegistryModuleId: Metro.ModuleID | undefined
 export let AssetsRegistry: ReactNative.AssetsRegistry = proxify(() => {
     for (const [, id] of lookupModules(withDependencies([[]]), {
         initialize: false,
-        uninitialized: true,
     })) {
         const deps = getModuleDependencies(id)!
         if (deps.length !== 1) continue

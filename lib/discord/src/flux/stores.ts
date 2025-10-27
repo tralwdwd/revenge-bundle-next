@@ -15,7 +15,10 @@ import {
     Uncached,
 } from '../../../modules/src/caches'
 import { FilterResultFlags } from '../../../modules/src/finders/_internal'
-import { FilterFlag } from '../../../modules/src/finders/filters/constants'
+import {
+    FilterFlag,
+    FilterScopes,
+} from '../../../modules/src/finders/filters/constants'
 import type {
     Filter,
     FilterGenerator,
@@ -36,9 +39,7 @@ const _stores: Record<string, DiscordModules.Flux.Store> = {}
 export const Stores = new Proxy(_stores, {
     ownKeys: target => Reflect.ownKeys(target),
     get: (target, prop: string) =>
-        target[prop] ??
-        // @ts-expect-error: This always uses cache
-        lookupModule(withStoreName(prop), { uninitialized: true })[0],
+        target[prop] ?? lookupModule(withStoreName(prop))[0],
 })
 
 /**
@@ -94,7 +95,14 @@ const FluxStoreLeadingDeps = [
 ]
 
 export type WithStore = FilterGenerator<
-    <T>() => Filter<DiscordModules.Flux.Store<T>, boolean>
+    <T>() => Filter<{
+        Result: DiscordModules.Flux.Store<T>
+        RequiresExports: boolean
+        Scopes: [
+            typeof FilterScopes.Uninitialized,
+            typeof FilterScopes.Initialized,
+        ]
+    }>
 >
 
 /**
@@ -115,10 +123,18 @@ export const withStore = createFilterGenerator(
     },
     () => 'revenge.discord.store',
     FilterFlag.Dynamic,
+    FilterScopes.Uninitialized | FilterScopes.Initialized,
 ) as WithStore
 
 export type WithStoreName = FilterGenerator<
-    <T>(name: string) => Filter<DiscordModules.Flux.Store<T>, true>
+    <T>(name: string) => Filter<{
+        Result: DiscordModules.Flux.Store<T>
+        RequiresExports: true
+        Scopes: [
+            typeof FilterScopes.Uninitialized,
+            typeof FilterScopes.Initialized,
+        ]
+    }>
 >
 
 /**
@@ -129,6 +145,7 @@ export const withStoreName = createFilterGenerator(
         exports.getName?.length === 0 && exports.getName() === name,
     ([name]) => `revenge.discord.storeName(${name})`,
     FilterFlag.RequiresExports,
+    FilterScopes.Uninitialized | FilterScopes.Initialized,
 ) as WithStoreName
 
 /// STORE CACHING
@@ -146,9 +163,7 @@ waitForModules(withStore(), (store, id) => {
 
 if (cache === Uncached)
     asap(() => {
-        const lookup = lookupModules(withStore(), {
-            uninitialized: true,
-        })
+        const lookup = lookupModules(withStore())
 
         while (lookup.next().done);
     })

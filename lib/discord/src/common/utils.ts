@@ -26,9 +26,6 @@ export let TypedEventEmitter: typeof DiscordModules.Utils.TypedEventEmitter =
                     2,
                 ]),
             ),
-            {
-                uninitialized: true,
-            },
         )
 
         if (module) return (TypedEventEmitter = module)
