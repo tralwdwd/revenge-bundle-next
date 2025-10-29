@@ -3,6 +3,7 @@ import {
     getInitializedModuleExports,
     getModuleDependencies,
 } from '../../metro/utils'
+import { runFilter } from '../_internal'
 import { FilterFlag, FilterScopes } from './constants'
 import { createFilterGenerator } from './utils'
 import type { Metro } from '../../types'
@@ -210,15 +211,8 @@ function depCompare(
         switch (typeof compare) {
             case 'function': {
                 const filter = compare
-                const depExports = getInitializedModuleExports(id)
-                if (
-                    filter.flags & FilterFlag.RequiresExports &&
-                    depExports == null
-                )
+                if (!runFilter(filter, id, getInitializedModuleExports(id)))
                     return false
-
-                const match = filter(id, depExports)
-                if (!match) return false
 
                 continue
             }
