@@ -9,9 +9,6 @@ import { proxify } from '@revenge-mod/utils/proxy'
 
 const { loose, relative } = withDependencies
 
-const [, _createClassModuleId] = lookupModule(withName('_createClass'))
-const [, _classCallCheckModuleId] = lookupModule(withName('_classCallCheck'))
-
 export let ReactNavigationNative: typeof import('@react-navigation/native') =
     proxify(
         () => {
@@ -21,7 +18,10 @@ export let ReactNavigationNative: typeof import('@react-navigation/native') =
                         loose([
                             [],
                             loose([
-                                [_createClassModuleId, _classCallCheckModuleId],
+                                [
+                                    withName('_createClass'),
+                                    withName('_classCallCheck'),
+                                ],
                             ]),
                         ]),
                     ),

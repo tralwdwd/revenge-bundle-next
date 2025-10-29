@@ -1,8 +1,4 @@
-import {
-    lookupModule,
-    lookupModules,
-    waitForModules,
-} from '@revenge-mod/modules/finders'
+import { lookupModules, waitForModules } from '@revenge-mod/modules/finders'
 import {
     withDependencies,
     withName,
@@ -22,13 +18,10 @@ import type { Asset, PackagerAsset } from './types'
 
 const { relative } = withDependencies
 
-const [, _classCallCheckId] = lookupModule(withName('_classCallCheck'))
-const [, _createClassId] = lookupModule(withName('_createClass'))
-
 // https://github.com/facebook/react-native/blob/main/packages/react-native/Libraries/Image/AssetSourceResolver.js
 const withAssetSourceResolver = withDependencies([
-    _classCallCheckId,
-    _createClassId,
+    withName('_classCallCheck'),
+    withName('_createClass'),
     relative(1),
     relative(2),
     null,
