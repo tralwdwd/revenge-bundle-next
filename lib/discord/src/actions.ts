@@ -55,14 +55,7 @@ export let AlertActionCreators: DiscordModules.Actions.AlertActionCreators =
                         [relative(1), relative(2)],
                         [ReactNativeModuleId, 2],
                         2,
-                    ]).or(
-                        // TODO: Remove once stable is >302202
-                        withDependencies([
-                            [[], relative(1)],
-                            [ReactNativeModuleId, 2],
-                            2,
-                        ]),
-                    ),
+                    ]),
                 ),
             )
 

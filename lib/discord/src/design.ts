@@ -26,29 +26,10 @@ export let Design: Design = proxify(
                         loose([
                             null,
                             null,
-                            relative.withDependencies(
-                                [ReactNativeModuleId, 2],
-                                1,
-                            ),
-                            relative.withDependencies([2], 2),
+                            withDependencies([ReactNativeModuleId, 2]),
+                            withDependencies([2]),
                             2,
                         ]),
-                    ).or(
-                        // TODO(PalmDevs): Remove once stable channel is > 297201 (for 297201 and below)
-                        withDependencies(
-                            loose([
-                                null,
-                                null,
-                                null,
-                                relative.withDependencies([2], 1),
-                                2,
-                                null, // 3009
-                                null, // 3010
-                                null, // 3011
-                                null, // 3012
-                                relative.withDependencies([2], 2),
-                            ]),
-                        ),
                     ),
                 )
                 .keyAs('revenge.discord.design.Design'),
