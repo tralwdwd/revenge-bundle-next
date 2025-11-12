@@ -43,49 +43,42 @@ export default async function build(dev = Dev, log = true) {
         platform: 'neutral',
         external: [/^node:/],
         optimization: {
-            inlineConst: true,
-            // @ts-expect-error: Option not documented, but added in 1.0.0-beta.30
+            inlineConst: {
+                mode: 'smart',
+                pass: 5,
+            },
             pifeForModuleWrappers: true,
         },
         preserveEntrySignatures: false,
         transform: {
-            assumptions: {
-                pureGetters: true,
-                setPublicClassFields: true,
-                noDocumentAll: true,
-                // TODO: "Not implemented"
-                // objectRestNoSymbols: true,
-                // ignoreFunctionLength: true,
+            define: {
+                __BUILD_DISCORD_SERVER_URL__: JSON.stringify(
+                    'https://discord.com/invite/ddcQf3s2Uq',
+                ),
+                __BUILD_SOURCE_REPOSITORY_URL__: JSON.stringify(
+                    `https://github.com/${REPO}`,
+                ),
+                __BUILD_LICENSE_URL__: JSON.stringify(
+                    `https://raw.githubusercontent.com/${REPO}/${COMMIT}/LICENSE`,
+                ),
+                __BUILD_VERSION__: JSON.stringify(pkg.version),
+                __BUILD_COMMIT__: JSON.stringify(COMMIT),
+                __BUILD_BRANCH__: JSON.stringify(
+                    (await $`git rev-parse --abbrev-ref HEAD`.text()).trim(),
+                ),
+                __DEV__: String(dev),
+
+                // See types/build.d.ts for what these flags do
+                __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__: String(dev),
+                __BUILD_FLAG_DEBUG_MODULE_WAITS__: String(dev),
+                __BUILD_FLAG_DEBUG_LAZY_VALUES__: 'false',
+                __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: String(dev),
             },
         },
         tsconfig: 'tsconfig.json',
         treeshake: true,
-        keepNames: true,
         moduleTypes: {
             '.webp': 'dataurl',
-        },
-        define: {
-            __BUILD_DISCORD_SERVER_URL__: JSON.stringify(
-                'https://discord.com/invite/ddcQf3s2Uq',
-            ),
-            __BUILD_SOURCE_REPOSITORY_URL__: JSON.stringify(
-                `https://github.com/${REPO}`,
-            ),
-            __BUILD_LICENSE_URL__: JSON.stringify(
-                `https://raw.githubusercontent.com/${REPO}/${COMMIT}/LICENSE`,
-            ),
-            __BUILD_VERSION__: JSON.stringify(pkg.version),
-            __BUILD_COMMIT__: JSON.stringify(COMMIT),
-            __BUILD_BRANCH__: JSON.stringify(
-                (await $`git rev-parse --abbrev-ref HEAD`.text()).trim(),
-            ),
-            __DEV__: String(dev),
-
-            // See types/build.d.ts for what these flags do
-            __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__: String(dev),
-            __BUILD_FLAG_DEBUG_MODULE_WAITS__: String(dev),
-            __BUILD_FLAG_DEBUG_LAZY_VALUES__: 'false',
-            __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: String(dev),
         },
         plugins: [
             asRequire(),
@@ -136,6 +129,7 @@ export default async function build(dev = Dev, log = true) {
         hoistTransitiveImports: false,
         file: 'dist/revenge.js',
         format: 'iife',
+        keepNames: true,
     })
 
     if (log)
