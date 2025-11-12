@@ -54,7 +54,7 @@ function EvalJSAlert() {
                             try {
                                 if (!api) {
                                     alert(
-                                        'Unable to provide plugin API. Running snippet in a second...'
+                                        'Unable to provide plugin API. Running snippet in a second...',
                                     )
 
                                     await sleep(1000)
@@ -63,7 +63,7 @@ function EvalJSAlert() {
                                 else globalThis[key] = api
 
                                 // biome-ignore lint/security/noGlobalEval: Intentional
-                                const res = eval(
+                                const res = (0, eval)(
                                     `var api=${key},{unscoped:revenge}=api;undefined;${code.current}//# sourceURL=Revenge:EvalJS`,
                                 )
 
@@ -118,7 +118,11 @@ function EvalJSAlert() {
                         <TableRow
                             label="Inspect depth"
                             subLabel="The depth of the object to inspect."
-                            trailing={<Text variant="text-sm/normal">{inspectDepth}</Text>}
+                            trailing={
+                                <Text variant="text-sm/normal">
+                                    {inspectDepth}
+                                </Text>
+                            }
                         />
                     </TableRowGroup>
                     <Slider
