@@ -42,19 +42,14 @@ export let Design: Design = proxify(
     },
 )!
 
+// design/components/Forms/native/FormSwitch.native.tsx
 export let FormSwitch: DiscordModules.Components.FormSwitch = proxify(() => {
-    // ID: 4655
-    // Deps: [46, 175, 27, 180, 2822, 1311, 687, 3358, 1372, 3241, 3242, 4656, 4657, 2]
-
-    // ID: 46
-    // Deps: [47, 48, 35, 49]
-
     const [module] = lookupModule(
         withSingleProp<{
             FormSwitch: DiscordModules.Components.FormSwitch
         }>('FormSwitch').and(
             withDependencies([
-                [relative(1), relative(2), null, relative(3)],
+                null,
                 ReactModuleId,
                 ReactNativeModuleId,
                 ReactJSXRuntimeModuleId,
@@ -65,8 +60,10 @@ export let FormSwitch: DiscordModules.Components.FormSwitch = proxify(() => {
                 null,
                 null,
                 null,
+                // Checkmark and X icons
                 relative(1),
                 relative(2),
+                // Import tracker
                 2,
             ]),
         ),
