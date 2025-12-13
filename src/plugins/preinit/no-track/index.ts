@@ -5,13 +5,35 @@ import { instead } from '@revenge-mod/patcher'
 import { InternalPluginFlags, registerPlugin } from '@revenge-mod/plugins/_'
 import { PluginFlags } from '@revenge-mod/plugins/constants'
 import { noop } from '@revenge-mod/utils/callback'
-import { getCurrentStack } from '@revenge-mod/utils/error'
 
 const cachedOnly = {
     cached: true,
 }
 
-// TODO(plugins/no-track): Block Sentry native-side
+const fakeSentryCarrier = new Proxy(
+    {
+        encodePolyfill: () => new Uint8Array(),
+        decodePolyfill: () => '',
+        version: '',
+        _versions: [] as PropertyKey[],
+    },
+    {
+        get: (target, prop) => {
+            if (target._versions.includes(prop)) return target
+            if (target[prop as keyof typeof target])
+                return target[prop as keyof typeof target]
+        },
+        set: (target, prop, value) => {
+            if (prop === 'version') {
+                target._versions.push(value)
+                return (target.version = value)
+            } else return value
+        },
+    },
+)
+
+const getFakeCarrier = () => fakeSentryCarrier
+
 registerPlugin(
     {
         id: 'revenge.no-track',
@@ -80,15 +102,15 @@ registerPlugin(
                 cachedOnly,
             )
 
-            if (__DEV__)
+            // If we hadn't modified the global
+            if (
+                Object.getOwnPropertyDescriptor(globalThis, '__SENTRY__')
+                    ?.configurable
+            )
                 Object.defineProperty(globalThis, '__SENTRY__', {
-                    set: () => {
-                        warnSetSentry(getCurrentStack())
-                    },
-                })
-            else
-                Object.defineProperty(globalThis, '__SENTRY__', {
-                    writable: false,
+                    configurable: false,
+                    get: getFakeCarrier,
+                    set: getFakeCarrier,
                 })
 
             cleanup(unsubSU, unsubSIU, unsubSentryInst)
