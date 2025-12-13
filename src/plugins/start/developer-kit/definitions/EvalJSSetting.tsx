@@ -1,7 +1,7 @@
-import type { SettingsItem } from "@revenge-mod/discord/modules/settings"
-import { RouteNames, Setting } from "../constants"
-import { TableRowAssetIcon } from "@revenge-mod/components"
-import EvalJSSettingScreen from "../screens/EvalJSSettingScreen"
+import { TableRowAssetIcon } from '@revenge-mod/components'
+import { RouteNames, Setting } from '../constants'
+import EvalJSSettingScreen from '../screens/EvalJSSettingScreen'
+import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
 
 const EvalJSSetting: SettingsItem = {
     parent: Setting.RevengeDeveloper,
@@ -15,4 +15,4 @@ const EvalJSSetting: SettingsItem = {
     },
 }
 
-export default EvalJSSetting;
+export default EvalJSSetting

@@ -227,7 +227,7 @@ const usePluginCardStyles = createStyles({
     icon: {
         width: 20,
         height: 20,
-        tintColor: Tokens.default.colors.TEXT_NORMAL,
+        tintColor: Tokens.default.colors.TEXT_DEFAULT,
     },
     card: {
         paddingVertical: 12,

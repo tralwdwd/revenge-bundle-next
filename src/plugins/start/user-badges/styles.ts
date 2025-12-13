@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native'
 
 export const useBadgeStyles = Design.createStyles({
     tinted: {
-        tintColor: Tokens.default.colors.HEADER_PRIMARY,
+        tintColor: Tokens.default.colors.MOBILE_TEXT_HEADING_PRIMARY,
     },
 })
 

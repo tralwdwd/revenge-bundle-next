@@ -1,11 +1,11 @@
-import { Page } from "@revenge-mod/components";
-import { Design } from "@revenge-mod/discord/design";
-import { api } from "..";
-import { nodeUtil } from '@revenge-mod/externals/browserify';
-import { getErrorStack } from '@revenge-mod/utils/error';
-import { sleep } from "@revenge-mod/utils/promise";
-import { useRef, useState } from "react";
-import { ScrollView } from "react-native";
+import { Page } from '@revenge-mod/components'
+import { Design } from '@revenge-mod/discord/design'
+import { nodeUtil } from '@revenge-mod/externals/browserify'
+import { getErrorStack } from '@revenge-mod/utils/error'
+import { sleep } from '@revenge-mod/utils/promise'
+import { useRef, useState } from 'react'
+import { ScrollView } from 'react-native'
+import { api } from '..'
 
 const {
     Button,
@@ -26,9 +26,7 @@ export default function EvalJSSettingScreen() {
     const [inspectDepth, setInspectDepth] = useState(3)
 
     return (
-        <ScrollView
-            contentContainerStyle={{ paddingBottom: 32 }}
-        >
+        <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
             <Page spacing={16}>
                 <TextArea
                     autoFocus
@@ -56,9 +54,7 @@ export default function EvalJSSettingScreen() {
                         label="Inspect depth"
                         subLabel="The depth of the object to inspect."
                         trailing={
-                            <Text variant="text-sm/normal">
-                                {inspectDepth}
-                            </Text>
+                            <Text variant="text-sm/normal">{inspectDepth}</Text>
                         }
                     />
                 </TableRowGroup>
@@ -72,10 +68,7 @@ export default function EvalJSSettingScreen() {
                     value={inspectDepth}
                 />
                 <Card>
-                    <ScrollView
-                        nestedScrollEnabled
-                        style={{ maxHeight: 300 }}
-                    >
+                    <ScrollView nestedScrollEnabled style={{ maxHeight: 300 }}>
                         <Text>{result}</Text>
                     </ScrollView>
                 </Card>

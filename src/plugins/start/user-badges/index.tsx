@@ -205,7 +205,10 @@ function openBadgeDialog(
                         source={icon}
                         style={[styles.display, bnw && badgeStyles.tinted]}
                     />
-                    <Text variant="heading-lg/bold" color="header-primary">
+                    <Text
+                        variant="heading-lg/bold"
+                        color="mobile-text-heading-primary"
+                    >
                         {label}
                     </Text>
                 </Stack>

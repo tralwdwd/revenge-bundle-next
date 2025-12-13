@@ -17,13 +17,12 @@ export type AfterJSXCallback<E extends ElementType> = (
     element: ReactElement<ElementTypeProps<E>, E>,
 ) => ReturnType<AnyJSXFactoryFunction> | null
 
-type ElementTypeProps<E extends ElementType> = E extends ElementType<
-    infer Props
->
-    ? Props
-    : E extends keyof JSX.IntrinsicElements
-      ? JSX.IntrinsicElements[E]
-      : never
+type ElementTypeProps<E extends ElementType> =
+    E extends ElementType<infer Props>
+        ? Props
+        : E extends keyof JSX.IntrinsicElements
+          ? JSX.IntrinsicElements[E]
+          : never
 
 /**
  * Registers a hook to be called after a JSX element with the specified type is created.
