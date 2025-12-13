@@ -11,6 +11,7 @@ const {
     Button,
     Card,
     Slider,
+    Stack,
     TableRow,
     TableRowGroup,
     TableSwitchRow,
@@ -24,6 +25,7 @@ export default function EvalJSSettingScreen() {
     const [awaitResult, setAwaitResult] = useState(true)
     const [showHidden, setShowHidden] = useState(true)
     const [inspectDepth, setInspectDepth] = useState(3)
+    const [wordWrap, setWordWrap] = useState(true)
 
     return (
         <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
@@ -37,7 +39,7 @@ export default function EvalJSSettingScreen() {
                     placeholder="revenge.discord.native.BundleUpdaterManager.reload()"
                     size="md"
                 />
-                <TableRowGroup>
+                <TableRowGroup title="Inspection Options">
                     <TableSwitchRow
                         label="Await result"
                         onValueChange={setAwaitResult}
@@ -61,18 +63,44 @@ export default function EvalJSSettingScreen() {
                 <Slider
                     endIcon={<Text variant="text-sm/normal">10</Text>}
                     maximumValue={10}
-                    minimumValue={1}
+                    minimumValue={0}
                     onValueChange={setInspectDepth}
-                    startIcon={<Text variant="text-sm/normal">1</Text>}
+                    startIcon={<Text variant="text-sm/normal">0</Text>}
                     step={1}
                     value={inspectDepth}
                 />
-                <Card>
-                    <ScrollView nestedScrollEnabled style={{ maxHeight: 300 }}>
-                        <Text>{result}</Text>
-                    </ScrollView>
-                </Card>
-
+                <TableRowGroup title="Display Options">
+                    <TableSwitchRow
+                        label="Word wrap"
+                        subLabel="Long results will wrap to the next line."
+                        onValueChange={setWordWrap}
+                        value={wordWrap}
+                    />
+                </TableRowGroup>
+                <Stack>
+                    <Text variant="heading-sm/semibold" color="text-strong">
+                        Result
+                    </Text>
+                    <Card>
+                        {/* TODO: Maybe try to make it fill space with minHeight: 128? */}
+                        <ScrollView
+                            nestedScrollEnabled
+                            style={{ maxHeight: 300 }}
+                        >
+                            <ScrollView
+                                nestedScrollEnabled
+                                horizontal={!wordWrap}
+                            >
+                                <Text
+                                    selectable
+                                    style={{ fontFamily: 'monospace' }}
+                                >
+                                    {result || '<empty>'}
+                                </Text>
+                            </ScrollView>
+                        </ScrollView>
+                    </Card>
+                </Stack>
                 <Button
                     onPress={async function onPress() {
                         const key = `_${Math.random()
@@ -81,8 +109,8 @@ export default function EvalJSSettingScreen() {
 
                         try {
                             if (!api) {
-                                alert(
-                                    'Unable to provide plugin API. Running snippet in a second...',
+                                setResult(
+                                    '<Revenge API not available, snippet will be run without it...>',
                                 )
 
                                 await sleep(1000)
@@ -108,7 +136,7 @@ export default function EvalJSSettingScreen() {
                             // @ts-expect-error
                             delete globalThis[key]
                         } catch (e) {
-                            alert(getErrorStack(e))
+                            setResult(getErrorStack(e))
                         }
                     }}
                     text="Evaluate"
