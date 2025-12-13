@@ -1,8 +1,8 @@
-import { aliasPlugin } from 'rolldown/experimental'
+import { viteAliasPlugin } from 'rolldown/experimental'
 import type { RolldownPlugin } from 'rolldown'
 
 export default function shimAliases(dir: string): RolldownPlugin {
-    return aliasPlugin({
+    return viteAliasPlugin({
         entries: [
             {
                 find: 'react/jsx-runtime',

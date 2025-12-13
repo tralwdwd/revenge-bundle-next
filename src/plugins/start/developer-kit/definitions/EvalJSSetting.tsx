@@ -38,8 +38,8 @@ const {
 function EvalJSAlert() {
     const code = useRef('')
     const [awaitResult, setAwaitResult] = useState(true)
-    const [showHidden, setShowHidden] = useState(true)
     const [inspectDepth, setInspectDepth] = useState(3)
+    const [showHidden, setShowHidden] = useState(true)
 
     return (
         <AlertModal

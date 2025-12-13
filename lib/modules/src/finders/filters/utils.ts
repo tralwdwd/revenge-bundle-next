@@ -14,9 +14,8 @@ import type {
 
 export type FilterResult<F> = F extends Filter<infer I> ? I['Result'] : never
 
-export type FilterRequiresExports<F> = F extends Filter<infer I>
-    ? I['RequiresExports']
-    : never
+export type FilterRequiresExports<F> =
+    F extends Filter<infer I> ? I['RequiresExports'] : never
 
 export type FilterInfoOf<F> = F extends Filter<infer I> ? I : FilterInfo
 
