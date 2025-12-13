@@ -12,7 +12,7 @@ import { debounce } from '@revenge-mod/utils/callback'
 import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
 import { FlashList } from '@shopify/flash-list'
 import { useCallback, useMemo, useState } from 'react'
-import { Image, StyleSheet, useWindowDimensions } from 'react-native'
+import { Image, StyleSheet, useWindowDimensions, View } from 'react-native'
 import type { Asset, AssetId } from '@revenge-mod/assets/types'
 import type { Metro } from '@revenge-mod/modules/types'
 
@@ -144,7 +144,7 @@ const CopyIcon = lookupGeneratedIconComponent('CopyIcon')
 function openAssetDisplayAlert(
     asset: Asset,
     id: AssetId,
-    metadata: [string, string, pressable?: boolean, ...unknown[]][],
+    metadata: [string, string, unpressable?: boolean, ...unknown[]][],
 ) {
     const isDisplayable = Displayable.has(asset.type)
 
@@ -152,34 +152,40 @@ function openAssetDisplayAlert(
         'asset-display',
         <AlertModal
             actions={<AlertActionButton text="Close" variant="secondary" />}
-            extraContent={
-                <>
+            title={
+                <View style={{ flex: 1, width: '100%' }}>
                     {isDisplayable ? (
                         <Image source={id} style={styles.preview} />
                     ) : (
                         <PreviewUnavailable type={asset.type} />
                     )}
+                </View>
+            }
+            extraContent={
+                <>
                     <TableRowGroup>
-                        {metadata.map(([name, value, unpressable]) => (
-                            <TableRow
-                                key={id}
-                                label={name}
-                                onPress={
-                                    unpressable
-                                        ? undefined
-                                        : () => {
-                                              Clipboard.setString(value)
+                        {[['Name', asset.name], ...metadata].map(
+                            ([name, value, unpressable]) => (
+                                <TableRow
+                                    key={id}
+                                    label={name}
+                                    onPress={
+                                        unpressable
+                                            ? undefined
+                                            : () => {
+                                                  Clipboard.setString(value)
 
-                                              ToastActionCreators.open({
-                                                  key: 'ASSET_BROWSER_COPIED',
-                                                  IconComponent: CopyIcon,
-                                                  content: `Copied ${name} to clipboard`,
-                                              })
-                                          }
-                                }
-                                subLabel={value}
-                            />
-                        ))}
+                                                  ToastActionCreators.open({
+                                                      key: 'ASSET_BROWSER_COPIED',
+                                                      IconComponent: CopyIcon,
+                                                      content: `Copied ${name} to clipboard`,
+                                                  })
+                                              }
+                                    }
+                                    subLabel={value}
+                                />
+                            ),
+                        )}
                     </TableRowGroup>
                     <Text
                         color="text-feedback-critical"
@@ -191,7 +197,6 @@ function openAssetDisplayAlert(
                     </Text>
                 </>
             }
-            title={asset.name}
         />,
     )
 }
