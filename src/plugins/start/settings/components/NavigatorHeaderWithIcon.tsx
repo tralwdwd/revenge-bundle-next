@@ -32,6 +32,6 @@ const useNavigatorHeaderStyles = createStyles({
         width: 24,
         height: 24,
         marginEnd: 8,
-        tintColor: tokens.colors.HEADER_PRIMARY,
+        tintColor: tokens.colors.MOBILE_TEXT_HEADING_PRIMARY,
     },
 })

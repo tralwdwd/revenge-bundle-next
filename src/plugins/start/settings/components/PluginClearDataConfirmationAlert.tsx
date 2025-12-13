@@ -14,9 +14,9 @@ export default function PluginClearDataConfirmationAlert({
         <AlertModal
             title="Clear plugin data?"
             content={
-                <Text color="header-secondary">
+                <Text color="text-default">
                     All data, including files and settings for{' '}
-                    <Text variant="text-md/semibold" color="text-normal">
+                    <Text variant="text-md/semibold" color="text-default">
                         {plugin.manifest.name}
                     </Text>{' '}
                     will be deleted

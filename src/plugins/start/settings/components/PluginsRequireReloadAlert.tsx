@@ -13,7 +13,7 @@ export default function PluginsRequireReloadAlert({
         <AlertModal
             title="Reload Required"
             content={
-                <Text variant="text-md/medium" color="header-secondary">
+                <Text variant="text-md/medium" color="text-default">
                     The following plugins require a reload to apply changes:
                     {'\n'}
                     {plugins.map((plugin, index) => (
@@ -22,7 +22,7 @@ export default function PluginsRequireReloadAlert({
                             <Text
                                 key={plugin.manifest.id}
                                 variant="text-md/bold"
-                                color="text-normal"
+                                color="text-default"
                             >
                                 {plugin.manifest.name}
                             </Text>

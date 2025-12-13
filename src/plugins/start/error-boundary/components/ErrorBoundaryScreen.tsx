@@ -12,7 +12,7 @@ const { createStyles, Button, Card, Stack, Text } = Design
 
 const useErrorBoundaryStyles = createStyles({
     view: {
-        backgroundColor: Tokens.default.colors.BG_BASE_SECONDARY,
+        backgroundColor: Tokens.default.colors.BACKGROUND_BASE_LOWER,
         paddingHorizontal: 16,
         paddingVertical: 24,
         flex: 1,

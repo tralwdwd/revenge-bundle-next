@@ -22,9 +22,9 @@ export default function PluginHasDependenciesAlert({
         <AlertModal
             title="Plugin has dependencies"
             content={
-                <Text color="header-secondary">
+                <Text color="text-default">
                     Plugin{' '}
-                    <Text variant="text-md/semibold" color="text-normal">
+                    <Text variant="text-md/semibold" color="text-default">
                         {plugin.manifest.name}
                     </Text>{' '}
                     depends on other plugins to function.

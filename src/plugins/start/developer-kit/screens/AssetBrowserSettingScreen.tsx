@@ -181,7 +181,10 @@ function openAssetDisplayAlert(
                             />
                         ))}
                     </TableRowGroup>
-                    <Text color="text-danger" variant="text-xs/semibold">
+                    <Text
+                        color="text-feedback-critical"
+                        variant="text-xs/semibold"
+                    >
                         Note: Asset IDs and module IDs are not consistent
                         between app launches and app versions respectively and
                         should only be used when absolutely needed.
@@ -196,7 +199,7 @@ function openAssetDisplayAlert(
 function PreviewUnavailable({ type }: { type: string }) {
     return (
         <Text
-            color="text-danger"
+            color="text-feedback-critical"
             style={styles.centeredText}
             variant="text-sm/medium"
         >
